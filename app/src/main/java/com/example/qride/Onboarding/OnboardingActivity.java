@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.qride.R;
-import com.example.qride.login.LoginActivity;
+import com.example.qride.login.activity.LoginActivity;
 
 import java.util.ArrayList;
 import java.util.List;

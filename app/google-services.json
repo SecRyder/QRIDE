@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1073829702476",
+    "project_id": "qride259",
+    "storage_bucket": "qride259.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1073829702476:android:9ff0eb34ecd72a3adebde9",
+        "android_client_info": {
+          "package_name": "com.example.qride"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVG9diGsq7tt8NLcu7QQyAsMQwXFjNaqs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

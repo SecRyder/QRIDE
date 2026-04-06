@@ -4,5 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="xanhNgoc">#0FC8A0</color>
     <color name="camDiu">#FF8250</color>
-
+    <color name="gray_light">#696969</color>
+    <color name="xanhTieuDe">#00897B</color>
+    <color name="xanhButtonBack">#F0FFF0</color>
 </resources>
