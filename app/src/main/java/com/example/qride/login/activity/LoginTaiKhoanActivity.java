@@ -1,6 +1,7 @@
 package com.example.qride.login.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.widget.Button;
@@ -25,6 +26,9 @@ public class LoginTaiKhoanActivity extends AppCompatActivity {
     private Button btnDangNhap;
     private boolean isPasswordVisible = false;
 
+    // Luu thong tin tai khoan: Luu tai khoan
+    private SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +50,16 @@ public class LoginTaiKhoanActivity extends AppCompatActivity {
         btnDangNhap = findViewById(R.id.btnDangNhap);
         togglePasswordVisibility();
 
+        sharedPreferences = getSharedPreferences("login_check", MODE_PRIVATE);
+        checkLogin();
+        // Lay du lieu
+        String savedPhone = sharedPreferences.getString("phone", "");
+        String savePassword = sharedPreferences.getString("password", "");
+        boolean isRememberAccount = sharedPreferences.getBoolean("remember", false);
+        edtPhone.setText(savedPhone);
+        edtPassword.setText(savePassword);
+        cbLuuTaiKhoan.setChecked(isRememberAccount);
+
         btnDangNhap.setOnClickListener(v -> {
             String phone = edtPhone.getText().toString().trim();
             String password = edtPassword.getText().toString().trim();
@@ -64,6 +78,16 @@ public class LoginTaiKhoanActivity extends AppCompatActivity {
                 Toast.makeText(LoginTaiKhoanActivity.this,
                         getString(R.string.message_login_success),
                         Toast.LENGTH_SHORT).show();
+                // Luu thong tin neu tick cnLuuTaiKhoan
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                if (cbLuuTaiKhoan.isChecked()) {
+                    editor.putString("phone", phone);
+                    editor.putString("password", password);
+                    editor.putBoolean("remember", true);
+                } else {
+                    editor.clear();
+                }
+                editor.apply();
 
                 // TODO: Chuyển sang màn hình chính
                 startActivity(new Intent(LoginTaiKhoanActivity.this, MainActivity.class));
@@ -76,6 +100,10 @@ public class LoginTaiKhoanActivity extends AppCompatActivity {
             }
         });
 
+        tvQuenPass.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginTaiKhoanActivity.this, QuenPassActivity.class);
+            startActivity(intent);
+        });
 
         backLoginActivity();
         switchRegisterActivity();
@@ -115,6 +143,15 @@ public class LoginTaiKhoanActivity extends AppCompatActivity {
             // Dat con tro ve cuoi chuoi
             edtPassword.setSelection(edtPassword.getText().length());
         });
+    }
+
+    // Ham kiem tra login - Luu tai khoan
+    private void checkLogin() {
+        boolean isRemembered = sharedPreferences.getBoolean("remember", false);
+        if (isRemembered) {
+            startActivity(new Intent(LoginTaiKhoanActivity.this, MainActivity.class));
+            finish();
+        }
     }
 
 }

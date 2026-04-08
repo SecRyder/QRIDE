@@ -43,4 +43,6 @@
     <string name="otp_send_fail">Gửi OTP thất bại: %1$s</string>
     <string name="otp_demo_message">Mã OTP của bạn là: %1$s</string>
     <string name="otp_instruction">Nhập mã OTP đã gửi tới %1$s</string>
+    <string name="tieude_quenpass">Quên mật khẩu</string>
+    <string name="btn_guiOTP">Gửi mã OTP</string>
 </resources>

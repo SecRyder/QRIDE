@@ -34,6 +34,7 @@
         </activity>
         <activity android:name=".login.activity.LoginActivity"/>
         <activity android:name=".login.activity.LoginTaiKhoanActivity" />
+        <activity android:name=".login.activity.QuenPassActivity"/>
         <activity
             android:name=".login.activity.RegisterActivity"
             android:windowSoftInputMode="adjustResize" />

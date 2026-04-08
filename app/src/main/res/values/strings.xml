@@ -43,4 +43,6 @@
     <string name="otp_send_fail">Send OTP failed: %1$s</string>
     <string name="otp_demo_message">Your OTP code is: %1$s</string>
     <string name="otp_instruction">Enter the OTP sent to %1$s</string>
+    <string name="tieude_quenpass">Forgot Password</string>
+    <string name="btn_guiOTP">Send OTP code</string>
 </resources>

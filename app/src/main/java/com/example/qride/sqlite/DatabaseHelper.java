@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "qride.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -19,7 +19,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "phone TEXT UNIQUE," +
                 "password TEXT)");
-
+        // Them 9 tai khoan mau
+        for (int i = 2; i <= 10; i++) {
+            String phone = "98765432" + i;
+            String password = "Nguyet21@" + i;
+            db.execSQL("INSERT INTO users (phone, password) VALUES ('" + phone + "', '" + password + "')");
+        }
         // bảng vehicles, bookings, payments...
     }
 

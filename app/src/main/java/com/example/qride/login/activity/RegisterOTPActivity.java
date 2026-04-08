@@ -76,8 +76,7 @@ public class RegisterOTPActivity extends AppCompatActivity {
 
     private void setupUI() {
         String fullPhone = "+84" + phone;
-        tvHuongDan.setText(getString(R.string.otp_instruction));
-
+        tvHuongDan.setText(getString(R.string.otp_instruction, fullPhone));
         startResendCountdown();
         simulateOtpReceive();
     }
