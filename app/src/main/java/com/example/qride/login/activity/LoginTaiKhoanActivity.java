@@ -19,14 +19,12 @@ import com.example.qride.R;
 import com.example.qride.sqlite.UserDAO;
 
 public class LoginTaiKhoanActivity extends AppCompatActivity {
-    private ImageView imgBackLoginActivity, imgFlag, imgHideShowPass;
-    private TextView tvTieuDe, tvSoDienThoai, tvCountry, tvPassword, tvQuenPass, tvAccount, tvDangKy;
+    private ImageView imgBackLoginActivity, imgHideShowPass;
     private EditText edtPhone, edtPassword;
     private CheckBox cbLuuTaiKhoan;
     private Button btnDangNhap;
+    private TextView tvDangKy, tvQuenPass;
     private boolean isPasswordVisible = false;
-
-    // Luu thong tin tai khoan: Luu tai khoan
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -34,124 +32,81 @@ public class LoginTaiKhoanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login_taikhoan);
+
+        initViews();
+        sharedPreferences = getSharedPreferences("login_check", MODE_PRIVATE);
+        loadSavedAccount();
+
+        btnDangNhap.setOnClickListener(v -> handleLogin());
+        tvDangKy.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
+        tvQuenPass.setOnClickListener(v -> startActivity(new Intent(this, QuenPassActivity.class)));
+        imgBackLoginActivity.setOnClickListener(v -> finish());
+        imgHideShowPass.setOnClickListener(v -> togglePasswordVisibility());
+    }
+
+    private void initViews() {
         imgBackLoginActivity = findViewById(R.id.imgBackLoginActivity);
-        imgFlag = findViewById(R.id.imgFlag);
         imgHideShowPass = findViewById(R.id.imgHideShowPass);
-        tvTieuDe = findViewById(R.id.tvTieuDe);
-        tvSoDienThoai = findViewById(R.id.tvSoDienThoai);
-        tvCountry = findViewById(R.id.tvCountry);
-        tvPassword = findViewById(R.id.tvPassword);
-        tvQuenPass = findViewById(R.id.tvQuenPass);
-        tvAccount = findViewById(R.id.tvAccount);
-        tvDangKy = findViewById(R.id.tvDangKy);
         edtPhone = findViewById(R.id.edtPhone);
         edtPassword = findViewById(R.id.edtPassword);
         cbLuuTaiKhoan = findViewById(R.id.cbLuuTaiKhoan);
         btnDangNhap = findViewById(R.id.btnDangNhap);
-        togglePasswordVisibility();
-
-        sharedPreferences = getSharedPreferences("login_check", MODE_PRIVATE);
-        checkLogin();
-        // Lay du lieu
-        String savedPhone = sharedPreferences.getString("phone", "");
-        String savePassword = sharedPreferences.getString("password", "");
-        boolean isRememberAccount = sharedPreferences.getBoolean("remember", false);
-        edtPhone.setText(savedPhone);
-        edtPassword.setText(savePassword);
-        cbLuuTaiKhoan.setChecked(isRememberAccount);
-
-        btnDangNhap.setOnClickListener(v -> {
-            String phone = edtPhone.getText().toString().trim();
-            String password = edtPassword.getText().toString().trim();
-
-            if (phone.isEmpty()) {
-                edtPhone.setError(getString(R.string.seterror_edtphone));
-                return;
-            }
-            if (password.isEmpty()) {
-                edtPassword.setError(getString(R.string.seterror_edtpassword));
-                return;
-            }
-
-            UserDAO userDAO = new UserDAO(LoginTaiKhoanActivity.this);
-            if (userDAO.checkLogin(phone, password)) {
-                Toast.makeText(LoginTaiKhoanActivity.this,
-                        getString(R.string.message_login_success),
-                        Toast.LENGTH_SHORT).show();
-                // Luu thong tin neu tick cnLuuTaiKhoan
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                if (cbLuuTaiKhoan.isChecked()) {
-                    editor.putString("phone", phone);
-                    editor.putString("password", password);
-                    editor.putBoolean("remember", true);
-                } else {
-                    editor.clear();
-                }
-                editor.apply();
-
-                // TODO: Chuyển sang màn hình chính
-                startActivity(new Intent(LoginTaiKhoanActivity.this, MainActivity.class));
-                finish();
-
-            } else {
-                Toast.makeText(LoginTaiKhoanActivity.this,
-                        getString(R.string.message_login_fail),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        tvQuenPass.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginTaiKhoanActivity.this, QuenPassActivity.class);
-            startActivity(intent);
-        });
-
-        backLoginActivity();
-        switchRegisterActivity();
+        tvDangKy = findViewById(R.id.tvDangKy);
+        tvQuenPass = findViewById(R.id.tvQuenPass);
     }
 
-    // Ham quay lai LoginActivity
-    private void backLoginActivity() {
-        imgBackLoginActivity.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginTaiKhoanActivity.this, LoginActivity.class);
-            startActivity(intent);
-        });
-    }
-
-    // Ham chuyen den RegisterActivity khi nhan tvDangKy
-    private void switchRegisterActivity() {
-        tvDangKy.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginTaiKhoanActivity.this, RegisterActivity.class);
-            startActivity(intent);
-        });
-    }
-
-    // Ham cho phep hien thi password
-    private void togglePasswordVisibility() {
-        imgHideShowPass.setOnClickListener(v -> {
-            if (isPasswordVisible) {
-                // An mat khau
-                edtPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                imgHideShowPass.setImageResource(R.drawable.show);
-                isPasswordVisible = false;
-            } else {
-                // Hien mat khau
-                edtPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                imgHideShowPass.setImageResource(R.drawable.hide);
-                isPasswordVisible = false;
-            }
-
-            // Dat con tro ve cuoi chuoi
-            edtPassword.setSelection(edtPassword.getText().length());
-        });
-    }
-
-    // Ham kiem tra login - Luu tai khoan
-    private void checkLogin() {
-        boolean isRemembered = sharedPreferences.getBoolean("remember", false);
-        if (isRemembered) {
-            startActivity(new Intent(LoginTaiKhoanActivity.this, MainActivity.class));
-            finish();
+    private void loadSavedAccount() {
+        if (sharedPreferences.getBoolean("remember", false)) {
+            edtPhone.setText(sharedPreferences.getString("phone", ""));
+            edtPassword.setText(sharedPreferences.getString("password", ""));
+            cbLuuTaiKhoan.setChecked(true);
         }
     }
 
+    private void handleLogin() {
+        String phone = edtPhone.getText().toString().trim();
+        String password = edtPassword.getText().toString().trim();
+
+        if (phone.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        UserDAO userDAO = new UserDAO(this);
+        if (userDAO.checkLogin(phone, password)) {
+            // 1. Lưu trạng thái đăng nhập
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            if (cbLuuTaiKhoan.isChecked()) {
+                editor.putString("phone", phone);
+                editor.putString("password", password);
+                editor.putBoolean("remember", true);
+            } else {
+                editor.clear();
+            }
+            editor.apply();
+
+            Toast.makeText(this, getString(R.string.message_login_success), Toast.LENGTH_SHORT).show();
+
+            // 2. CHUYỂN SANG MAINACTIVITY
+            Intent intent = new Intent(LoginTaiKhoanActivity.this, MainActivity.class);
+            // Xóa hết các màn hình cũ để không quay lại được bằng nút Back
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        } else {
+            Toast.makeText(this, getString(R.string.message_login_fail), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            edtPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            imgHideShowPass.setImageResource(R.drawable.show);
+        } else {
+            edtPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            imgHideShowPass.setImageResource(R.drawable.hide);
+        }
+        isPasswordVisible = !isPasswordVisible;
+        edtPassword.setSelection(edtPassword.getText().length());
+    }
 }
