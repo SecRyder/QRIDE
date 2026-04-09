@@ -2,7 +2,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- ── Internet ───────────────────────────────────────────────── -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- ── Thông báo (Android 13+) ───────────────────────────────── -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- ── Bluetooth (Android 12+) ───────────────────────────────── -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <!-- Bluetooth legacy (Android < 12) -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+
+    <!-- ── Vị trí ─────────────────────────────────────────────────── -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,42 +32,50 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Qride">
+
+        <!-- Splash – LAUNCHER duy nhất -->
         <activity
             android:name=".Splash.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-
+        <!-- Onboarding -->
         <activity
             android:name=".Onboarding.OnboardingActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:exported="false" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".login.activity.LoginActivity"/>
-        <activity android:name=".login.activity.LoginTaiKhoanActivity" />
-        <activity android:name=".login.activity.QuenPassActivity"/>
+        <!-- Permission (Thông báo → Bluetooth → Vị trí) -->
+        <activity
+            android:name=".login.activity.PermissionActivity"
+            android:exported="false" />
+
+        <!-- Login -->
+        <activity
+            android:name=".login.activity.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".login.activity.LoginTaiKhoanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".login.activity.QuenPassActivity"
+            android:exported="false" />
         <activity
             android:name=".login.activity.RegisterActivity"
+            android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".login.activity.RegisterOTPActivity" />
+        <activity
+            android:name=".login.activity.RegisterOTPActivity"
+            android:exported="false" />
+
+        <!-- Main -->
         <activity
             android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:exported="false" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>

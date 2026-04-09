@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    activity_permission_bluetooth.xml
+    Màn hình xin quyền Bluetooth – dùng để dẫn đường âm thanh qua loa xe/tai nghe
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_gray">
+
+    <!-- Hình minh họa phía trên -->
+    <ImageView
+        android:id="@+id/imgIllustration"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:layout_alignParentTop="true"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/illustration_desc" />
+
+    <!-- Card dialog -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardPermission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:layout_centerInParent="true"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Tiêu đề -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="QRIDE muốn truy cập vào Bluetooth\ncủa bạn"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark"
+                android:lineSpacingMultiplier="1.3"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Mô tả -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="QRIDE cần quyền truy cập Bluetooth để đóng/mở khóa xe và phát hướng dẫn dẫn đường qua loa."
+                android:textSize="14sp"
+                android:textColor="@color/text_gray"
+                android:lineSpacingMultiplier="1.4"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Hàng nút -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <!-- Từ chối -->
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnDenyBluetooth"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Từ chối"
+                    android:textSize="13sp"
+                    android:textColor="@color/green_primary"
+                    android:background="@drawable/btn_outline_green"
+                    android:fontFamily="sans-serif-medium" />
+
+                <!-- Cho phép -->
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnAllowBluetooth"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Cho phép"
+                    android:textSize="13sp"
+                    android:textColor="@color/green_primary"
+                    android:background="@drawable/btn_outline_green"
+                    android:fontFamily="sans-serif-medium" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>

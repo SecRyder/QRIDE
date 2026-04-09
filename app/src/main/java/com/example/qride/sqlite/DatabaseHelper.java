@@ -21,7 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "password TEXT)");
         // Them 9 tai khoan mau
         for (int i = 2; i <= 10; i++) {
-            String phone = "98765432" + i;
+            String phone = "987654321" + i;
             String password = "Nguyet21@" + i;
             db.execSQL("INSERT INTO users (phone, password) VALUES ('" + phone + "', '" + password + "')");
         }

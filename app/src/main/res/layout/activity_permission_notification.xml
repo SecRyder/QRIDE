@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    activity_permission_notification.xml
+    Màn hình xin quyền nhận thông báo từ ứng dụng QRIDE
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_gray"
+    >
+
+    <!-- Hình minh họa phía trên (dùng lại illustration từ màn login) -->
+    <ImageView
+        android:id="@+id/imgIllustration"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:layout_alignParentTop="true"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/illustration_desc" />
+
+    <!-- Card dialog trung tâm -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardPermission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:layout_centerInParent="true"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Icon thông báo -->
+
+            <!-- Tiêu đề -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="QRIDE muốn gửi Thông báo\ncho bạn"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark"
+                android:lineSpacingMultiplier="1.3"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Mô tả -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Thông báo có thể bao gồm cảnh báo, âm thanh và biểu tượng. Bạn có thể định cấu hình chúng trong Cài đặt."
+                android:textSize="14sp"
+                android:textColor="@color/text_gray"
+                android:lineSpacingMultiplier="1.4"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Hàng nút -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <!-- Từ chối -->
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnDenyNotification"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/btn_outline_green"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Từ chối"
+                    android:textColor="@color/xanhNgoc"
+                    android:textSize="13sp" />
+
+                <!-- Cho phép -->
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnAllowNotification"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/btn_outline_green"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Cho phép"
+                    android:textColor="@color/green_primary"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>

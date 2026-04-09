@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">QRIDE</string>
     <string name="slogan">One app, every ride</string>
@@ -45,4 +46,28 @@
     <string name="otp_instruction">Enter the OTP sent to %1$s</string>
     <string name="tieude_quenpass">Forgot Password</string>
     <string name="btn_guiOTP">Send OTP code</string>
+
+    <!-- ── Illustration ──────────────────────────────────────────── -->
+    <string name="illustration_desc">QRIDE app illustration</string>
+    <string name="img_login_illustration">Login screen illustration</string>
+
+    <!-- ── Permission – Notification ────────────────────────────── -->
+    <string name="perm_notif_title">QRIDE would like to send you Notifications</string>
+    <string name="perm_notif_desc">Notifications may include alerts, sounds and icon badges. You can configure them in Settings.</string>
+    <string name="perm_notif_icon_desc">Notification icon</string>
+
+    <!-- ── Permission – Bluetooth ────────────────────────────────── -->
+    <string name="perm_bt_title">QRIDE would like to access your Bluetooth</string>
+    <string name="perm_bt_desc">QRIDE needs Bluetooth access to lock/unlock the bike and play navigation audio.</string>
+    <string name="perm_bt_icon_desc">Bluetooth icon</string>
+
+    <!-- ── Permission – Location ─────────────────────────────────── -->
+    <string name="perm_loc_title">Allow QRIDE to use your location</string>
+    <string name="perm_loc_desc">QRIDE needs location access to find your position and the nearest bike stations.</string>
+    <string name="perm_loc_once">Allow Once</string>
+    <string name="perm_loc_while_using">Allow While Using App</string>
+
+    <!-- ── Permission – shared buttons ──────────────────────────── -->
+    <string name="perm_allow">Allow</string>
+    <string name="perm_deny">Deny</string>
 </resources>
