@@ -82,6 +82,10 @@ public class LoginTaiKhoanActivity extends AppCompatActivity {
                 editor.putBoolean("remember", true);
             } else {
                 editor.clear();
+                // ĐÃ SỬA: Bắt buộc phải lưu số điện thoại để làm "chìa khóa" (Session)
+                // cho các màn hình khác (như Profile) biết ai đang đăng nhập
+                editor.putString("phone", phone);
+                editor.putBoolean("remember", false);
             }
             editor.apply();
 

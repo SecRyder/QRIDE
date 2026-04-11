@@ -33,10 +33,11 @@ public class RegisterOTPActivity extends AppCompatActivity {
     private Button btnConfirmOtp;
 
     private String verificationId;
-    private String phone;
-    private String password;
     private PhoneAuthProvider.ForceResendingToken resendToken;
     private final String DEMO_OTP = "210404"; // Ma gia cua Test Number
+
+    // ĐÃ BỔ SUNG: Các biến để hứng dữ liệu Profile
+    private String phone, password, name, cccd, address, gender, birthday;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,12 +68,17 @@ public class RegisterOTPActivity extends AppCompatActivity {
 
     private void getDataFromIntent() {
         verificationId = getIntent().getStringExtra("verificationId");
-        resendToken = (PhoneAuthProvider.ForceResendingToken)
-                getIntent().getSerializableExtra("resendToken");
+        resendToken = (PhoneAuthProvider.ForceResendingToken) getIntent().getSerializableExtra("resendToken");
+
+        // Hứng toàn bộ dữ liệu từ màn hình đăng ký truyền sang
         phone = getIntent().getStringExtra("phone");
         password = getIntent().getStringExtra("password");
+        name = getIntent().getStringExtra("name");
+        cccd = getIntent().getStringExtra("cccd");
+        address = getIntent().getStringExtra("address");
+        gender = getIntent().getStringExtra("gender");
+        birthday = getIntent().getStringExtra("birthday");
     }
-
 
     private void setupUI() {
         String fullPhone = "+84" + phone;
@@ -82,7 +88,6 @@ public class RegisterOTPActivity extends AppCompatActivity {
     }
 
     private void setupEvents() {
-
         imgBackRegisterActivity.setOnClickListener(v -> finish());
 
         // Xác nhận OTP
@@ -99,22 +104,21 @@ public class RegisterOTPActivity extends AppCompatActivity {
                 return;
             }
 
-            PhoneAuthCredential credential =
-                    PhoneAuthProvider.getCredential(verificationId, code);
+            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
 
             FirebaseAuth.getInstance().signInWithCredential(credential)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Toast.makeText(this, getString(R.string.success_authen), Toast.LENGTH_SHORT).show();
 
-                            // Lưu vào SQLite DB
+                            // ĐÃ SỬA: Lưu toàn bộ thông tin (thêm name, cccd...) vào Database
                             UserDAO userDAO = new UserDAO(RegisterOTPActivity.this);
-                            long result = userDAO.insertUser(phone, password);
+                            long result = userDAO.insertUser(phone, password, name, cccd, address, gender, birthday);
 
                             if (result != -1) {
                                 Toast.makeText(this, getString(R.string.db_save_success), Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(this, getString(R.string.db_save_fail), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, getString(R.string.db_save_fail) + " (SĐT hoặc CCCD đã tồn tại)", Toast.LENGTH_LONG).show();
                             }
 
                             startActivity(new Intent(this, LoginTaiKhoanActivity.class));
@@ -135,15 +139,13 @@ public class RegisterOTPActivity extends AppCompatActivity {
             }
 
             FirebaseAuth auth = FirebaseAuth.getInstance();
-
-            PhoneAuthOptions options =
-                    PhoneAuthOptions.newBuilder(auth)
-                            .setPhoneNumber("+84" + phone)
-                            .setTimeout(60L, TimeUnit.SECONDS)
-                            .setActivity(this)
-                            .setForceResendingToken(resendToken)
-                            .setCallbacks(callbacks)
-                            .build();
+            PhoneAuthOptions options = PhoneAuthOptions.newBuilder(auth)
+                    .setPhoneNumber("+84" + phone)
+                    .setTimeout(60L, TimeUnit.SECONDS)
+                    .setActivity(this)
+                    .setForceResendingToken(resendToken)
+                    .setCallbacks(callbacks)
+                    .build();
 
             PhoneAuthProvider.verifyPhoneNumber(options);
 
@@ -163,10 +165,8 @@ public class RegisterOTPActivity extends AppCompatActivity {
 
     private final PhoneAuthProvider.OnVerificationStateChangedCallbacks callbacks =
             new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-
                 @Override
                 public void onVerificationCompleted(PhoneAuthCredential credential) {
-                    // Auto OTP (hiếm khi chạy)
                     FirebaseAuth.getInstance().signInWithCredential(credential);
                 }
 
@@ -179,12 +179,9 @@ public class RegisterOTPActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onCodeSent(String newVerificationId,
-                                       PhoneAuthProvider.ForceResendingToken token) {
-
+                public void onCodeSent(String newVerificationId, PhoneAuthProvider.ForceResendingToken token) {
                     verificationId = newVerificationId;
                     resendToken = token;
-
                     Toast.makeText(RegisterOTPActivity.this,
                             getString(R.string.otp_resend_success),
                             Toast.LENGTH_SHORT).show();
@@ -213,8 +210,7 @@ public class RegisterOTPActivity extends AppCompatActivity {
 
     private void simulateOtpReceive() {
         new android.os.Handler().postDelayed(() -> {
-
-            // Hiển thị OTP bằng Toast (10 giây)
+            // Hiển thị OTP bằng Toast
             Toast toast = Toast.makeText(
                     RegisterOTPActivity.this,
                     getString(R.string.otp_demo_message, DEMO_OTP),
@@ -222,7 +218,7 @@ public class RegisterOTPActivity extends AppCompatActivity {
             );
             toast.show();
 
-            // Giữ Toast hiển thị ~10s (show lại nhiều lần)
+            // Giữ Toast hiển thị
             new android.os.Handler().postDelayed(toast::show, 3500);
             new android.os.Handler().postDelayed(toast::show, 7000);
 
@@ -232,14 +228,21 @@ public class RegisterOTPActivity extends AppCompatActivity {
         }, 2000);
     }
 
+    // ĐÃ SỬA: Hàm fill OTP an toàn và đặt nháy chuột đúng vị trí
     private void fillOtp(String otp) {
-        if (otp.length() == 6) {
+        if (otp != null && otp.length() == 6) {
             otp1.setText(String.valueOf(otp.charAt(0)));
             otp2.setText(String.valueOf(otp.charAt(1)));
             otp3.setText(String.valueOf(otp.charAt(2)));
             otp4.setText(String.valueOf(otp.charAt(3)));
             otp5.setText(String.valueOf(otp.charAt(4)));
             otp6.setText(String.valueOf(otp.charAt(5)));
+
+            // Tự đưa con nháy chuột tới ô số 6
+            otp6.requestFocus();
+            otp6.setSelection(1);
+        } else {
+            Log.e("OTP", "Mã OTP lỗi không thể tự điền: " + otp);
         }
     }
 }

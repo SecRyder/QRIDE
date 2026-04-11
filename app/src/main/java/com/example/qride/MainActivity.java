@@ -6,14 +6,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +23,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.qride.fragment.ProfileFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -226,6 +227,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         navUuDai.setOnClickListener(v -> Toast.makeText(this, "Ưu đãi", Toast.LENGTH_SHORT).show());
         navThanhToan.setOnClickListener(v -> Toast.makeText(this, "Thanh toán", Toast.LENGTH_SHORT).show());
         navTaiKhoan.setOnClickListener(v -> Toast.makeText(this, "Tài khoản", Toast.LENGTH_SHORT).show());
+        navTaiKhoan.setOnClickListener(v -> {
+            // 1. Gọi Fragment Tài khoản để thay thế phần "ruột" ở giữa
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new ProfileFragment())
+                    .commit();
+
+            // 2. Làm sáng logo và chữ của nút Tài khoản
+            updateBottomNavUI(navTaiKhoan);
+        });
     }
 
     private void setupSearch() {
@@ -242,5 +252,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             return true;
         });
+    }
+
+    private void updateBottomNavUI(View selectedNav) {
+        // Mã màu xám (khi không được chọn) và màu Xanh (khi được chọn)
+        int colorDefault = Color.parseColor("#888888"); // Xám
+        int colorSelected = Color.parseColor("#00B087"); // Xanh lá của app bạn
+
+        // 1. Reset tất cả các nút về màu xám mặc định
+        changeNavColor(navTramXe, colorDefault);
+        changeNavColor(navUuDai, colorDefault);
+        changeNavColor(navThanhToan, colorDefault);
+        changeNavColor(navTaiKhoan, colorDefault);
+
+        // 2. Đổi riêng nút đang được bấm thành màu xanh sáng
+        changeNavColor(selectedNav, colorSelected);
+    }
+
+    // Hàm này sẽ tự động mò vào trong View của bạn, tìm ImageView (icon) và TextView (chữ) để đổi màu
+    private void changeNavColor(View navView, int color) {
+        if (navView instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) navView;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                View child = group.getChildAt(i);
+                if (child instanceof ImageView) {
+                    ((ImageView) child).setColorFilter(color); // Đổi màu Icon
+                } else if (child instanceof TextView) {
+                    ((TextView) child).setTextColor(color);    // Đổi màu Chữ
+                }
+            }
+        }
     }
 }
