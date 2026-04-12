@@ -1,30 +1,37 @@
 package com.example.qride.Splash;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-
 import androidx.appcompat.app.AppCompatActivity;
-
+import com.example.qride.MainActivity;
 import com.example.qride.Onboarding.OnboardingActivity;
-import com.example.qride.R;
+import com.example.qride.login.activity.LoginActivity;
 
 public class SplashActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
 
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Chuyển sang màn hình Onboarding
-                Intent intent = new Intent(SplashActivity.this, OnboardingActivity.class);
-                startActivity(intent);
-                finish();
+        new Handler().postDelayed(() -> {
+            SharedPreferences prefOnboard = getSharedPreferences("Onboarding", MODE_PRIVATE);
+            boolean isFinished = prefOnboard.getBoolean("Finished", false);
+
+            SharedPreferences prefLogin = getSharedPreferences("login_check", MODE_PRIVATE);
+            boolean isRemembered = prefLogin.getBoolean("remember", false);
+
+            if (!isFinished) {
+                // Lần đầu cài app -> Đi tới Onboarding
+                startActivity(new Intent(this, OnboardingActivity.class));
+            } else if (!isRemembered) {
+                // Đã xem onboard nhưng chưa đăng nhập/không nhớ -> Đi tới Login
+                startActivity(new Intent(this, LoginActivity.class));
+            } else {
+                // Đã OK hết -> Vào thẳng trang chủ
+                startActivity(new Intent(this, MainActivity.class));
             }
-        }, 3500);
+            finish();
+        }, 2000); // Đợi 2 giây
     }
 }

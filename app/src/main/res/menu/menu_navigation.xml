@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/navTramXe"    android:title="Trạm xe"    android:icon="@drawable/ic_bike_station"/>
+    <item android:id="@+id/navUuDai"     android:title="Ưu đãi"     android:icon="@drawable/ic_gift"/>
+    <item android:id="@+id/navQuetQR"    android:title="Quét QR"    android:icon="@drawable/ic_qr_scan"/>
+    <item android:id="@+id/navThanhToan" android:title="Thanh toán" android:icon="@drawable/ic_payment"/>
+    <item android:id="@+id/navTaiKhoan"  android:title="Tài khoản"  android:icon="@drawable/ic_person"/>
+</menu>
