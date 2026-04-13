@@ -44,6 +44,7 @@
 
         <!-- Other screens -->
         <activity android:name=".UserInfoActivity" />
+        <activity android:name=".SecurityActivity" />
         <activity android:name=".Onboarding.OnboardingActivity"/>
         <activity android:name=".login.activity.PermissionActivity"/>
         <activity android:name=".login.activity.LoginActivity"/>

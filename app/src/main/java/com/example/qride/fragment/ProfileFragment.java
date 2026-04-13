@@ -17,6 +17,7 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.example.qride.R;
+import com.example.qride.SecurityActivity;
 import com.example.qride.UserInfoActivity;
 import com.example.qride.login.activity.LoginTaiKhoanActivity;
 import com.example.qride.sqlite.UserDAO;
@@ -56,7 +57,8 @@ public class ProfileFragment extends Fragment {
         });
 
         setupMenuItem(view, R.id.menuSecurity, "Bảo mật & Mật khẩu", v -> {
-            Toast.makeText(requireContext(), "Mở Bảo mật", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(requireActivity(), SecurityActivity.class);
+            startActivity(intent);
         });
 
         setupMenuItem(view, R.id.menuHistory, "Lịch sử chuyến đi", v -> {
