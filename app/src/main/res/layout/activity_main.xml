@@ -7,21 +7,17 @@
     android:layout_height="match_parent"
     android:background="#F5F5F5"
     android:clipChildren="false"
+    android:clipToPadding="false"
     tools:context=".MainActivity">
 
-    <!-- Map Fragment Container -->
-    <FrameLayout
-        android:id="@+id/mapContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
+    <!-- Fragment Container -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:elevation="10dp" />
+        android:layout_marginBottom="70dp"/>
 
-    <!-- Top Search Bar Area -->
+    <!-- Top Search Bar (chỉ hiện ở TramXeFragment) -->
     <LinearLayout
         android:id="@+id/layoutTopBar"
         android:layout_width="match_parent"
@@ -32,9 +28,8 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:gravity="top"
-        android:elevation="6dp">
+        android:elevation="12dp">
 
-        <!-- Search Box -->
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="48dp"
@@ -74,7 +69,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Notification Bell Circle -->
         <androidx.cardview.widget.CardView
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -82,6 +76,7 @@
             app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="#FFFFFF">
+
             <ImageButton
                 android:id="@+id/btnNotification"
                 android:layout_width="match_parent"
@@ -93,21 +88,67 @@
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 
-    <!-- Locate Me Button (Nút định vị tròn phía trên Bottom Nav) -->
+    <!-- Nút định vị -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnLocateMe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="115dp"
+        android:layout_marginBottom="90dp"
         android:src="@drawable/ic_gps_fixed"
         app:fabSize="mini"
         app:backgroundTint="#FFFFFF"
         app:tint="#333333"
-        app:elevation="6dp"/>
+        app:elevation="12dp"/>
 
-    <!-- Bottom Navigation Bar Container -->
+    <!-- Card thông tin trạm xe -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardStationInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="86dp"
+        android:visibility="gone"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="14dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tvStationName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tvStationAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#888888"
+                android:textSize="13sp"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnRentBike"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/xanhNgoc"
+                android:text="Thuê xe ngay"
+                android:textColor="#FFFFFF"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- ✅ Bottom Navigation với QR nổi lên -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
@@ -116,13 +157,13 @@
         android:background="#FFFFFF"
         android:elevation="16dp"
         android:orientation="horizontal"
-        android:gravity="top"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:clipChildren="false"
         android:clipToPadding="false">
 
-        <!-- Trạm xe (Active) -->
+        <!-- Trạm xe -->
         <LinearLayout
             android:id="@+id/navTramXe"
             android:layout_width="0dp"
@@ -132,12 +173,13 @@
             android:gravity="center"
             android:clickable="true"
             android:focusable="true">
+
             <ImageView
-                android:id="@+id/ivNavTramXe"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:src="@drawable/ic_bike_station"
                 app:tint="@color/xanhNgoc"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -157,12 +199,13 @@
             android:gravity="center"
             android:clickable="true"
             android:focusable="true">
+
             <ImageView
-                android:id="@+id/ivNavUuDai"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:src="@drawable/ic_gift"
                 app:tint="#AAAAAA"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -172,20 +215,23 @@
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
 
-        <!-- Quét QR (FAB protruding up) -->
+        <!-- ✅ QR nổi lên trên bottom nav -->
         <FrameLayout
             android:id="@+id/navQuetQR"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1.2"
-            android:clipChildren="false">
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:clickable="true"
+            android:focusable="true">
 
             <androidx.cardview.widget.CardView
-                android:layout_width="74dp"
-                android:layout_height="74dp"
+                android:layout_width="68dp"
+                android:layout_height="68dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="-37dp"
-                app:cardCornerRadius="37dp"
+                android:translationY="-24dp"
+                app:cardCornerRadius="34dp"
                 app:cardElevation="12dp"
                 app:cardBackgroundColor="@color/xanhNgoc">
 
@@ -194,17 +240,19 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:orientation="vertical">
+
                     <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:src="@drawable/ic_qr_scan"
                         app:tint="#FFFFFF"/>
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Quét QR"
                         android:textColor="#FFFFFF"
-                        android:textSize="11sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
                         android:layout_marginTop="2dp"/>
                 </LinearLayout>
@@ -221,12 +269,13 @@
             android:gravity="center"
             android:clickable="true"
             android:focusable="true">
+
             <ImageView
-                android:id="@+id/ivNavThanhToan"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:src="@drawable/ic_payment"
                 app:tint="#AAAAAA"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -246,12 +295,13 @@
             android:gravity="center"
             android:clickable="true"
             android:focusable="true">
+
             <ImageView
-                android:id="@+id/ivNavTaiKhoan"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:src="@drawable/ic_person"
                 app:tint="#AAAAAA"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -262,50 +312,5 @@
         </LinearLayout>
 
     </LinearLayout>
-
-    <!-- Floating Station Info Card (Adjusted margin) -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardStationInfo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="110dp"
-        android:visibility="gone"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp">
-        <!-- Content remains the same -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-            <TextView
-                android:id="@+id/tvStationName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tên trạm xe"
-                android:textColor="#333333"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-            <TextView
-                android:id="@+id/tvStationAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Địa chỉ trạm"
-                android:textColor="#888888"
-                android:textSize="13sp"/>
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnRentBike"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="12dp"
-                android:background="@color/xanhNgoc"
-                android:text="Thuê xe ngay"
-                android:textColor="#FFFFFF"/>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

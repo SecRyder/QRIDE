@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/xanhNgoc"
+        android:gravity="center"
+        android:paddingTop="20dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ưu đãi"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <!-- Tab Bar: Tích quà / Gói hội viên -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:background="@color/xanhNgoc"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="10dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tabTichQua"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab_active"
+            android:gravity="center"
+            android:text="Tích quà"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/tabGoiHoiVien"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab_inactive"
+            android:gravity="center"
+            android:text="Gói hội viên"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!-- Voucher List: Sử dụng RecyclerView để cuộn danh sách (Tốt cho hiệu năng) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listVouchers"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="12dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:clipToPadding="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+</LinearLayout>

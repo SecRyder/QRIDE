@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#FFFFFF"
+    android:padding="20dp">
+
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/ic_payment"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Số dư ví: 50.000đ"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/xanhNgoc"/>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:elevation="4dp">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phương thức thanh toán"
+                android:textStyle="bold"/>
+                
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ví điện tử Q-Ride (Mặc định)"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="32dp"
+        android:text="Nạp tiền vào ví"
+        android:backgroundTint="@color/xanhNgoc"/>
+
+</LinearLayout>
