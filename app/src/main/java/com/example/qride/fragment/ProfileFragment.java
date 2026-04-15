@@ -51,10 +51,20 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
 
-<<<<<<< HEAD
-        setupMenuItem(view, R.id.menuSecurity, getString(R.string.menu_security), null);
-        setupMenuItem(view, R.id.menuHistory, getString(R.string.menu_history), null);
-        setupMenuItem(view, R.id.menuLanguage, getString(R.string.menu_language), null);
+        setupMenuItem(view, R.id.menuSecurity, getString(R.string.menu_security), v -> {
+            Intent intent = new Intent(requireActivity(), SecurityActivity.class);
+            startActivity(intent);
+        });
+
+        setupMenuItem(view, R.id.menuHistory, getString(R.string.menu_history), v -> {
+            Toast.makeText(requireContext(), getString(R.string.menu_history), Toast.LENGTH_SHORT).show();
+        });
+
+        setupMenuItem(view, R.id.menuLanguage, getString(R.string.menu_language), v -> {
+            Intent intent = new Intent(requireActivity(), ChangeLanguageActivity.class);
+            startActivity(intent);
+        });
+
         setupMenuItem(view, R.id.menuDarkMode, getString(R.string.menu_dark_mode), null);
         setupMenuItem(view, R.id.menuNotify, getString(R.string.menu_notify), null);
         setupMenuItem(view, R.id.menuInvite, getString(R.string.menu_invite), null);
@@ -62,32 +72,6 @@ public class ProfileFragment extends Fragment {
         setupMenuItem(view, R.id.menuAbout, getString(R.string.menu_about), null);
         setupMenuItem(view, R.id.menuTerms, getString(R.string.menu_terms), null);
 
-=======
-        setupMenuItem(view, R.id.menuSecurity, "Bảo mật & Mật khẩu", v -> {
-            Intent intent = new Intent(requireActivity(), SecurityActivity.class);
-            startActivity(intent);
-        });
-
-        setupMenuItem(view, R.id.menuHistory, "Lịch sử chuyến đi", v -> {
-            Toast.makeText(requireContext(), "Mở Lịch sử", Toast.LENGTH_SHORT).show();
-        });
-
-        setupMenuItem(view, R.id.menuLanguage, "Ngôn ngữ", v -> {
-            Intent intent = new Intent(requireActivity(), ChangeLanguageActivity.class);
-            startActivity(intent);
-        });
-
-        setupMenuItem(view, R.id.menuDarkMode, "Giao diện tối (Dark Mode)", null);
-        setupMenuItem(view, R.id.menuNotify, "Cài đặt thông báo", null);
-        setupMenuItem(view, R.id.menuInvite, "Mời bạn bè", null);
-        setupMenuItem(view, R.id.menuSupport, "Trung tâm trợ giúp", null);
-        setupMenuItem(view, R.id.menuAbout, "Về Q-Ride", null);
-        setupMenuItem(view, R.id.menuTerms, "Điều khoản & Chính sách", null);
-
-        // ==========================================================
-        // 3. XỬ LÝ NÚT ĐĂNG XUẤT
-        // ==========================================================
->>>>>>> 14d0b7d47123eeb823e1239f116e7838bfdc55a4
         View btnLogout = view.findViewById(R.id.btnLogout);
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
