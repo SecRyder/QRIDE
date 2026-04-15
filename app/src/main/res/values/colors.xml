@@ -8,6 +8,7 @@
     <color name="gray_light">#696969</color>
     <color name="xanhTieuDe">#00897B</color>
     <color name="xanhButtonBack">#F0FFF0</color>
+    <color name="xanhNgocNhat">#E2F9F4</color>
 
     <!-- ── Màu thêm cho Permission screens ───────────────────────── -->
     <color name="green_primary">#0FC8A0</color>       <!-- = xanhNgoc, dùng trong btn/text -->
@@ -17,4 +18,7 @@
     <color name="text_gray">#6B6B6B</color>            <!-- mô tả, nút Từ chối -->
     <color name="card_white">#FFFFFFFF</color>         <!-- nền card dialog -->
     <color name="divider">#E0E0E0</color>              <!-- đường kẻ nếu cần -->
+
+    <!-- Mau cua Quet QR -->
+    <color name="cam">#FF9800</color>
 </resources>

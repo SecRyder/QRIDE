@@ -160,4 +160,9 @@
     <string name="perm_loc_while_using">Cho phép khi dùng ứng dụng</string>
     <string name="perm_allow">Cho phép</string>
     <string name="perm_deny">Từ chối</string>
+
+    <!-- Dat lai password -->
+    <string name="reset_pass">Đặt lại mật khẩu</string>
+    <string name="save_pass">Lưu mật khẩu</string>
 </resources>
+

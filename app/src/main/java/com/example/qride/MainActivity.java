@@ -1,5 +1,7 @@
 package com.example.qride;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -82,6 +84,14 @@ public class MainActivity extends AppCompatActivity {
             replaceFragment(new TramXeFragment(), "TRAM_XE");
             updateBottomNavUI(navTramXe);
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Luu thoi gian dong app
+        SharedPreferences prefLogin = getSharedPreferences("login_check", MODE_PRIVATE);
+        prefLogin.edit().putLong("lastCloseTime", System.currentTimeMillis()).apply();
     }
 
     private void initViews() {

@@ -62,7 +62,6 @@ public class UserDAO {
         return db.query("users", null, "phone=?", new String[]{phone}, null, null, null);
     }
 
-
     public boolean updatePassword(String phone, String oldPass, String newPass) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -101,6 +100,15 @@ public class UserDAO {
         return exists;
     }
 
+    // Kiem tra so dien thoai da ton tai
+    public boolean checkPhoneExists(String phone) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM users WHERE phone=?", new String[]{phone});
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        return exists;
+    }
+
     public boolean updatePhoneNumber(String oldPhone, String newPhone) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -115,5 +123,15 @@ public class UserDAO {
         android.util.Log.d("SQL_CHECK", "So dong bi thay doi: " + rowsAffected);
 
         return rowsAffected > 0;
+    }
+
+    // Ham update password
+    public boolean updatePassword(String phone, String newPassword) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("password", newPassword);
+
+        int rows = db.update("users", values, "phone=?", new String[]{phone});
+        return rows > 0; // true nếu cập nhật thành công
     }
 }

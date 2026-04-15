@@ -160,4 +160,8 @@
     <string name="perm_loc_while_using">Allow While Using App</string>
     <string name="perm_allow">Allow</string>
     <string name="perm_deny">Deny</string>
+
+    <!-- Dat lai password -->
+    <string name="reset_pass">Reset Password</string>
+    <string name="save_pass">Save Password</string>
 </resources>

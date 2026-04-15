@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Camera Preview -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <!-- Overlay tối -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000" />
+
+    <!-- Nội dung UI -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_marginTop="20dp"
+        android:layout_height="match_parent">
+
+        <!-- ===== TOP BAR ===== -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_arrow_back_1"
+                app:tint="@android:color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Quét mã QR"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/btnFlash"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/flashoff"
+                app:tint="@android:color/white" />
+        </RelativeLayout>
+
+        <!-- ===== KHUNG SCAN ===== -->
+        <FrameLayout
+            android:layout_width="260dp"
+            android:layout_height="260dp"
+            android:layout_centerInParent="true">
+
+            <!-- Nền trong suốt -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent" />
+
+            <!-- 4 góc -->
+            <!-- Top Left -->
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_gravity="top|start"
+                android:background="@color/cam" />
+
+            <View
+                android:layout_width="4dp"
+                android:layout_height="40dp"
+                android:layout_gravity="top|start"
+                android:background="@color/cam" />
+
+            <!-- Top Right -->
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_gravity="top|end"
+                android:background="@color/cam" />
+
+            <View
+                android:layout_width="4dp"
+                android:layout_height="40dp"
+                android:layout_gravity="top|end"
+                android:background="@color/cam" />
+
+            <!-- Bottom Left -->
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_gravity="bottom|start"
+                android:background="@color/cam" />
+
+            <View
+                android:layout_width="4dp"
+                android:layout_height="40dp"
+                android:layout_gravity="bottom|start"
+                android:background="@color/cam" />
+
+            <!-- Bottom Right -->
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_gravity="bottom|end"
+                android:background="@color/cam" />
+
+            <View
+                android:layout_width="4dp"
+                android:layout_height="40dp"
+                android:layout_gravity="bottom|end"
+                android:background="@color/cam" />
+
+        </FrameLayout>
+
+        <!-- ===== BOTTOM ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="40dp"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Divider "Hoặc" -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="#80FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="8dp"
+                    android:text="Hoặc"
+                    android:textColor="@android:color/white" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="#80FFFFFF" />
+            </LinearLayout>
+
+            <!-- Button -->
+            <Button
+                android:id="@+id/btnNhapMa"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_button_qr"
+                android:text="Nhập mã"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@null" />
+        </LinearLayout>
+
+    </RelativeLayout>
+</FrameLayout>
