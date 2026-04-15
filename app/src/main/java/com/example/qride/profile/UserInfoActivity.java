@@ -1,4 +1,4 @@
-package com.example.qride;
+package com.example.qride.profile;
 
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -6,12 +6,12 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.qride.R;
 import com.example.qride.sqlite.UserDAO;
 
 public class UserInfoActivity extends AppCompatActivity {

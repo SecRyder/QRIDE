@@ -12,8 +12,7 @@ public class UserDAO {
         dbHelper = new DatabaseHelper(context);
     }
 
-    // 1. Thêm user mới (Lúc đăng ký chỉ cần số điện thoại và mật khẩu)
-    // Thêm user mới (Nhận full thông tin lúc đăng ký)
+    // 1. Thêm user mới
     public long insertUser(String phone, String password, String name, String cccd, String address, String gender, String birthday) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -53,16 +52,68 @@ public class UserDAO {
         values.put("gender", gender);
         values.put("birthday", birthday);
 
-        // Cập nhật thông tin vào dòng có số điện thoại tương ứng
         int rowsAffected = db.update("users", values, "phone=?", new String[]{phone});
-
         return rowsAffected > 0;
     }
 
     // 4. Lấy thông tin chi tiết của người dùng
     public Cursor getUserInfo(String phone) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        // Lấy tất cả các cột của user có số điện thoại tương ứng
         return db.query("users", null, "phone=?", new String[]{phone}, null, null, null);
+    }
+
+
+    public boolean updatePassword(String phone, String oldPass, String newPass) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        // Bước 1: Kiểm tra mật khẩu cũ có khớp không
+        Cursor cursor = db.query("users",
+                new String[]{"id"},
+                "phone=? AND password=?",
+                new String[]{phone, oldPass},
+                null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            // Bước 2: Nếu đúng mật khẩu cũ, tiến hành cập nhật mật khẩu mới
+            ContentValues values = new ContentValues();
+            values.put("password", newPass);
+
+            int rows = db.update("users", values, "phone=?", new String[]{phone});
+            cursor.close();
+            return rows > 0;
+        }
+
+        if (cursor != null) cursor.close();
+        return false; // Sai mật khẩu cũ
+    }
+
+    // Kiểm tra xem số điện thoại đã tồn tại trong DB chưa
+    public boolean isPhoneExist(String phone) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query("users",
+                new String[]{"phone"},
+                "phone=?",
+                new String[]{phone},
+                null, null, null);
+
+        boolean exists = (cursor.getCount() > 0);
+        cursor.close();
+        return exists;
+    }
+
+    public boolean updatePhoneNumber(String oldPhone, String newPhone) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        // Log để kiểm tra thực tế giá trị truyền vào
+        android.util.Log.d("SQL_CHECK", "Dang tim de update: " + oldPhone + " thanh " + newPhone);
+
+        ContentValues values = new ContentValues();
+        values.put("phone", newPhone);
+
+        int rowsAffected = db.update("users", values, "phone=?", new String[]{oldPhone});
+
+        android.util.Log.d("SQL_CHECK", "So dong bi thay doi: " + rowsAffected);
+
+        return rowsAffected > 0;
     }
 }

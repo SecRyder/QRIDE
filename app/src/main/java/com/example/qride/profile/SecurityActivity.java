@@ -1,5 +1,6 @@
-package com.example.qride;
+package com.example.qride.profile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -7,6 +8,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.qride.R;
 
 public class SecurityActivity extends AppCompatActivity {
 
@@ -39,11 +42,9 @@ public class SecurityActivity extends AppCompatActivity {
         if (menuChangePass != null) {
             TextView tvTitle = menuChangePass.findViewById(R.id.tvMenuTitle);
             tvTitle.setText("Đổi mật khẩu");
-
             menuChangePass.setOnClickListener(v -> {
-                Toast.makeText(this, "Mở màn hình Đổi mật khẩu", Toast.LENGTH_SHORT).show();
-                // Intent intent = new Intent(this, ChangePasswordActivity.class);
-                // startActivity(intent);
+                 Intent intent = new Intent(this, ChangePasswordActivity.class);
+                 startActivity(intent);
             });
         }
 
@@ -52,7 +53,15 @@ public class SecurityActivity extends AppCompatActivity {
             tvTitle.setText("Thay đổi số điện thoại");
 
             menuChangePhone.setOnClickListener(v -> {
-                Toast.makeText(this, "Mở màn hình Đổi số điện thoại", Toast.LENGTH_SHORT).show();
+                // GƯỚC 1: Lấy số điện thoại đã lưu lúc đăng nhập (trong SharedPreferences)
+                // Đây là "chìa khóa" để bạn tìm đúng người dùng trong DB
+                android.content.SharedPreferences sharedPreferences = getSharedPreferences("login_check", MODE_PRIVATE);
+                String savedPhone = sharedPreferences.getString("phone", "");
+
+                // BƯỚC 2: Truyền số điện thoại này sang ChangePhoneActivity
+                Intent intent = new Intent(this, ChangePhoneActivity.class);
+                intent.putExtra("current_phone", savedPhone);
+                startActivity(intent);
             });
         }
     }

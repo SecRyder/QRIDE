@@ -17,8 +17,9 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.example.qride.R;
-import com.example.qride.SecurityActivity;
-import com.example.qride.UserInfoActivity;
+import com.example.qride.profile.ChangeLanguageActivity;
+import com.example.qride.profile.SecurityActivity;
+import com.example.qride.profile.UserInfoActivity;
 import com.example.qride.login.activity.LoginTaiKhoanActivity;
 import com.example.qride.sqlite.UserDAO;
 
@@ -66,7 +67,8 @@ public class ProfileFragment extends Fragment {
         });
 
         setupMenuItem(view, R.id.menuLanguage, "Ngôn ngữ", v -> {
-            Toast.makeText(requireContext(), "Chọn ngôn ngữ", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(requireActivity(), ChangeLanguageActivity.class);
+            startActivity(intent);
         });
 
         setupMenuItem(view, R.id.menuDarkMode, "Giao diện tối (Dark Mode)", null);

@@ -16,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.qride.R;
+import com.example.qride.profile.ChangePhoneActivity;
+import com.example.qride.profile.ResetPasswordActivity;
 import com.example.qride.sqlite.UserDAO;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,9 +36,9 @@ public class RegisterOTPActivity extends AppCompatActivity {
 
     private String verificationId;
     private PhoneAuthProvider.ForceResendingToken resendToken;
-    private final String DEMO_OTP = "210404"; // Ma gia cua Test Number
+    private final String DEMO_OTP = "210404";
 
-    // ĐÃ BỔ SUNG: Các biến để hứng dữ liệu Profile
+    private String mode;
     private String phone, password, name, cccd, address, gender, birthday;
 
     @Override
@@ -55,22 +57,19 @@ public class RegisterOTPActivity extends AppCompatActivity {
         imgBackRegisterActivity = findViewById(R.id.imgBackRegisterActivity);
         tvHuongDan = findViewById(R.id.tvHuongDan);
         tvResend = findViewById(R.id.tvResend);
-
         otp1 = findViewById(R.id.otp1);
         otp2 = findViewById(R.id.otp2);
         otp3 = findViewById(R.id.otp3);
         otp4 = findViewById(R.id.otp4);
         otp5 = findViewById(R.id.otp5);
         otp6 = findViewById(R.id.otp6);
-
         btnConfirmOtp = findViewById(R.id.btnConfirmOtp);
     }
 
     private void getDataFromIntent() {
         verificationId = getIntent().getStringExtra("verificationId");
         resendToken = (PhoneAuthProvider.ForceResendingToken) getIntent().getSerializableExtra("resendToken");
-
-        // Hứng toàn bộ dữ liệu từ màn hình đăng ký truyền sang
+        mode = getIntent().getStringExtra("mode");
         phone = getIntent().getStringExtra("phone");
         password = getIntent().getStringExtra("password");
         name = getIntent().getStringExtra("name");
@@ -90,7 +89,6 @@ public class RegisterOTPActivity extends AppCompatActivity {
     private void setupEvents() {
         imgBackRegisterActivity.setOnClickListener(v -> finish());
 
-        // Xác nhận OTP
         btnConfirmOtp.setOnClickListener(v -> {
             String code = getOtpCode();
 
@@ -99,108 +97,138 @@ public class RegisterOTPActivity extends AppCompatActivity {
                 return;
             }
 
-            if (verificationId == null) {
-                Toast.makeText(this, getString(R.string.faile_authen), Toast.LENGTH_SHORT).show();
-                return;
-            }
+            // Ưu tiên kiểm tra mã Demo để tránh lỗi Firebase Billing
+            if (code.equals(DEMO_OTP)) {
+                handleFinalAction();
+            } else {
+                if (verificationId == null) {
+                    Toast.makeText(this, getString(R.string.faile_authen), Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
-
-            FirebaseAuth.getInstance().signInWithCredential(credential)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(this, getString(R.string.success_authen), Toast.LENGTH_SHORT).show();
-
-                            // ĐÃ SỬA: Lưu toàn bộ thông tin (thêm name, cccd...) vào Database
-                            UserDAO userDAO = new UserDAO(RegisterOTPActivity.this);
-                            long result = userDAO.insertUser(phone, password, name, cccd, address, gender, birthday);
-
-                            if (result != -1) {
-                                Toast.makeText(this, getString(R.string.db_save_success), Toast.LENGTH_SHORT).show();
+                PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
+                FirebaseAuth.getInstance().signInWithCredential(credential)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                handleFinalAction();
                             } else {
-                                Toast.makeText(this, getString(R.string.db_save_fail) + " (SĐT hoặc CCCD đã tồn tại)", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, "Mã xác thực không chính xác hoặc lỗi!", Toast.LENGTH_SHORT).show();
                             }
-
-                            startActivity(new Intent(this, LoginTaiKhoanActivity.class));
-                            finish();
-                        } else {
-                            Toast.makeText(this, getString(R.string.otp_fail), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                        });
+            }
         });
 
-        // Gửi lại OTP
         tvResend.setOnClickListener(v -> {
             if (!tvResend.isEnabled()) return;
-
             if (resendToken == null || phone == null) {
                 Toast.makeText(this, getString(R.string.otp_resend_fail), Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            FirebaseAuth auth = FirebaseAuth.getInstance();
-            PhoneAuthOptions options = PhoneAuthOptions.newBuilder(auth)
+            PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
                     .setPhoneNumber("+84" + phone)
                     .setTimeout(60L, TimeUnit.SECONDS)
                     .setActivity(this)
                     .setForceResendingToken(resendToken)
                     .setCallbacks(callbacks)
                     .build();
-
             PhoneAuthProvider.verifyPhoneNumber(options);
-
             Toast.makeText(this, getString(R.string.otp_resend_sending), Toast.LENGTH_SHORT).show();
             startResendCountdown();
         });
     }
 
+    private void handleFinalAction() {
+        Toast.makeText(this, getString(R.string.success_authen), Toast.LENGTH_SHORT).show();
+
+        if ("FORGOT_PASS".equals(mode)) {
+            Intent intent = new Intent(this, ResetPasswordActivity.class);
+            intent.putExtra("phone", phone);
+            startActivity(intent);
+            finish();
+
+        } else if ("VERIFY_OLD_PHONE".equals(mode)) {
+            Intent intent = new Intent(RegisterOTPActivity.this, ChangePhoneActivity.class);
+            intent.putExtra("current_phone", phone);
+            startActivity(intent);
+            finish();
+
+        } else if ("CHANGE_PHONE".equals(mode)) {
+            String sdtMoi = phone;
+            String sdtCu = getIntent().getStringExtra("old_phone");
+
+            // --- BƯỚC 1: LÀM SẠCH TRIỆT ĐỂ (Cực kỳ quan trọng) ---
+            // Xóa sạch mã vùng +84, khoảng trắng và số 0 ở đầu để đồng bộ với DB (987654321)
+            if (sdtCu != null) {
+                sdtCu = sdtCu.replace("+84", "").trim();
+                if (sdtCu.startsWith("0")) sdtCu = sdtCu.substring(1);
+            }
+            if (sdtMoi != null) {
+                sdtMoi = sdtMoi.replace("+84", "").trim();
+                if (sdtMoi.startsWith("0")) sdtMoi = sdtMoi.substring(1);
+            }
+
+            Log.d("SQL_DEBUG", "Đang thử Update DB - Cũ: [" + sdtCu + "] -> Mới: [" + sdtMoi + "]");
+
+            UserDAO userDAO = new UserDAO(this);
+            boolean isUpdated = userDAO.updatePhoneNumber(sdtCu, sdtMoi);
+
+            // --- BƯỚC 2: KHÔNG CHẤP NHẬN FAKE SUCCESS NỮA ---
+            // Bắt buộc SQLite phải báo update thành công (isUpdated = true) thì mới lưu Session và hiện Dialog
+            if (isUpdated) {
+                getSharedPreferences("UserSession", MODE_PRIVATE)
+                        .edit()
+                        .putString("phone", sdtMoi)
+                        .apply();
+
+                setResult(RESULT_OK); // Tín hiệu hiện bảng xe đạp
+                finish();
+            } else {
+                // Nếu nhảy vào đây, chắc chắn DB không tìm thấy số cũ
+                Toast.makeText(this, "Lỗi DB: Không tìm thấy số [" + sdtCu + "] để cập nhật!", Toast.LENGTH_LONG).show();
+                Log.e("SQL_DEBUG", "UPDATE THẤT BẠI DO KHÔNG TÌM THẤY SỐ CŨ!");
+            }
+
+        } else {
+            // Luồng đăng ký tài khoản
+            UserDAO userDAO = new UserDAO(RegisterOTPActivity.this);
+            long result = userDAO.insertUser(phone, password, name, cccd, address, gender, birthday);
+            if (result != -1) {
+                Toast.makeText(this, getString(R.string.db_save_success), Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, LoginTaiKhoanActivity.class));
+                finish();
+            } else {
+                Toast.makeText(this, "Lỗi lưu Database!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     private String getOtpCode() {
-        return otp1.getText().toString().trim() +
-                otp2.getText().toString().trim() +
-                otp3.getText().toString().trim() +
-                otp4.getText().toString().trim() +
-                otp5.getText().toString().trim() +
-                otp6.getText().toString().trim();
+        return otp1.getText().toString().trim() + otp2.getText().toString().trim() +
+                otp3.getText().toString().trim() + otp4.getText().toString().trim() +
+                otp5.getText().toString().trim() + otp6.getText().toString().trim();
     }
 
     private final PhoneAuthProvider.OnVerificationStateChangedCallbacks callbacks =
             new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                 @Override
-                public void onVerificationCompleted(PhoneAuthCredential credential) {
-                    FirebaseAuth.getInstance().signInWithCredential(credential);
-                }
-
+                public void onVerificationCompleted(PhoneAuthCredential credential) {}
                 @Override
                 public void onVerificationFailed(FirebaseException e) {
-                    Log.e("OTP", "Verification failed", e);
-                    Toast.makeText(RegisterOTPActivity.this,
-                            getString(R.string.otp_send_fail, e.getMessage()),
-                            Toast.LENGTH_LONG).show();
+                    Log.e("OTP_Debug", "Firebase Error: " + e.getMessage());
                 }
-
                 @Override
                 public void onCodeSent(String newVerificationId, PhoneAuthProvider.ForceResendingToken token) {
                     verificationId = newVerificationId;
                     resendToken = token;
-                    Toast.makeText(RegisterOTPActivity.this,
-                            getString(R.string.otp_resend_success),
-                            Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onCodeAutoRetrievalTimeOut(@NonNull String s) {
-                    Log.d("OTP", "Auto retrieval timeout");
                 }
             };
 
     private void startResendCountdown() {
         tvResend.setEnabled(false);
-
         new CountDownTimer(30000, 1000) {
             public void onTick(long millisUntilFinished) {
                 tvResend.setText(getString(R.string.otp_resend_countdown, millisUntilFinished / 1000));
             }
-
             public void onFinish() {
                 tvResend.setText(getString(R.string.guima_otp_finish));
                 tvResend.setEnabled(true);
@@ -210,25 +238,11 @@ public class RegisterOTPActivity extends AppCompatActivity {
 
     private void simulateOtpReceive() {
         new android.os.Handler().postDelayed(() -> {
-            // Hiển thị OTP bằng Toast
-            Toast toast = Toast.makeText(
-                    RegisterOTPActivity.this,
-                    getString(R.string.otp_demo_message, DEMO_OTP),
-                    Toast.LENGTH_LONG
-            );
-            toast.show();
-
-            // Giữ Toast hiển thị
-            new android.os.Handler().postDelayed(toast::show, 3500);
-            new android.os.Handler().postDelayed(toast::show, 7000);
-
-            // Auto điền OTP vào các ô
+            Toast.makeText(this, getString(R.string.otp_demo_message, DEMO_OTP), Toast.LENGTH_LONG).show();
             fillOtp(DEMO_OTP);
-
         }, 2000);
     }
 
-    // ĐÃ SỬA: Hàm fill OTP an toàn và đặt nháy chuột đúng vị trí
     private void fillOtp(String otp) {
         if (otp != null && otp.length() == 6) {
             otp1.setText(String.valueOf(otp.charAt(0)));
@@ -237,12 +251,8 @@ public class RegisterOTPActivity extends AppCompatActivity {
             otp4.setText(String.valueOf(otp.charAt(3)));
             otp5.setText(String.valueOf(otp.charAt(4)));
             otp6.setText(String.valueOf(otp.charAt(5)));
-
-            // Tự đưa con nháy chuột tới ô số 6
             otp6.requestFocus();
             otp6.setSelection(1);
-        } else {
-            Log.e("OTP", "Mã OTP lỗi không thể tự điền: " + otp);
         }
     }
 }
