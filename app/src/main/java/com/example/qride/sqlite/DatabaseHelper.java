@@ -8,7 +8,11 @@ import com.example.qride.R;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "qride.db";
+<<<<<<< HEAD
     private static final int DATABASE_VERSION = 13; // Tăng version để thêm bảng notifications
+=======
+    private static final int DATABASE_VERSION = 11;
+>>>>>>> 14d0b7d47123eeb823e1239f116e7838bfdc55a4
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
