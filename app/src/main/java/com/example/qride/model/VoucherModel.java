@@ -7,6 +7,7 @@ public class VoucherModel {
 
     public enum ButtonType { GREEN, ORANGE }
 
+    private int id;                 // Thêm ID để định danh trong DB
     private int iconResId;          // drawable icon
     private String title;           // "Nạp tiền lần đầu"
     private String discountText;    // "Voucher giảm 5.000đ"
@@ -17,8 +18,9 @@ public class VoucherModel {
     private int progressCurrent;
     private int progressMax;
 
-    public VoucherModel(int iconResId, String title, String discountText,
+    public VoucherModel(int id, int iconResId, String title, String discountText,
                         String expiry, String actionLabel, ButtonType buttonType) {
+        this.id          = id;
         this.iconResId   = iconResId;
         this.title       = title;
         this.discountText = discountText;
@@ -29,10 +31,10 @@ public class VoucherModel {
     }
 
     /** Constructor with progress bar */
-    public VoucherModel(int iconResId, String title, String discountText,
+    public VoucherModel(int id, int iconResId, String title, String discountText,
                         String expiry, String actionLabel, ButtonType buttonType,
                         int progressCurrent, int progressMax) {
-        this(iconResId, title, discountText, expiry, actionLabel, buttonType);
+        this(id, iconResId, title, discountText, expiry, actionLabel, buttonType);
         this.hasProgress     = true;
         this.progressCurrent = progressCurrent;
         this.progressMax     = progressMax;
@@ -40,6 +42,7 @@ public class VoucherModel {
 
     // ─── Getters ───────────────────────────────────────────────────────────────
 
+    public int getId()              { return id; }
     public int getIconResId()       { return iconResId; }
     public String getTitle()        { return title; }
     public String getDiscountText() { return discountText; }

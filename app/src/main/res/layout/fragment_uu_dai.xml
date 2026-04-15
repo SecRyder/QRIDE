@@ -17,7 +17,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ưu đãi"
+            android:text="@string/nav_uu_dai"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold"/>
@@ -40,7 +40,7 @@
             android:layout_weight="1"
             android:background="@drawable/bg_tab_active"
             android:gravity="center"
-            android:text="Tích quà"
+            android:text="@string/tab_tich_qua"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -53,12 +53,12 @@
             android:layout_weight="1"
             android:background="@drawable/bg_tab_inactive"
             android:gravity="center"
-            android:text="Gói hội viên"
+            android:text="@string/tab_membership"
             android:textColor="#FFFFFF"
             android:textSize="14sp"/>
     </LinearLayout>
 
-    <!-- Voucher List: Sử dụng RecyclerView để cuộn danh sách (Tốt cho hiệu năng) -->
+    <!-- Voucher List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/listVouchers"
         android:layout_width="match_parent"

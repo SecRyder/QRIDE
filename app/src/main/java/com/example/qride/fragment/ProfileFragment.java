@@ -23,7 +23,6 @@ import com.example.qride.sqlite.UserDAO;
 
 public class ProfileFragment extends Fragment {
 
-    // Khai báo biến
     private TextView tvProfileName, tvProfilePhone;
     private UserDAO userDAO;
 
@@ -32,13 +31,11 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_profile, container, false);
 
-        // Ánh xạ Tên và Số điện thoại
         tvProfileName = view.findViewById(R.id.tvProfileName);
         tvProfilePhone = view.findViewById(R.id.tvProfilePhone);
 
         userDAO = new UserDAO(requireContext());
 
-        // 1. Xử lý nút bấm vào Avatar để mở màn hình chỉnh sửa
         CardView cardAvatar = view.findViewById(R.id.cardAvatar);
         if (cardAvatar != null) {
             cardAvatar.setOnClickListener(v -> {
@@ -47,36 +44,21 @@ public class ProfileFragment extends Fragment {
             });
         }
 
-        // ==========================================================
-        // 2. KHÔI PHỤC LẠI CÁC NÚT MENU (INCLUDE)
-        // ==========================================================
-        setupMenuItem(view, R.id.menuInfo, "Thông tin cá nhân", v -> {
+        setupMenuItem(view, R.id.menuInfo, getString(R.string.menu_info), v -> {
             Intent intent = new Intent(requireActivity(), UserInfoActivity.class);
             startActivity(intent);
         });
 
-        setupMenuItem(view, R.id.menuSecurity, "Bảo mật & Mật khẩu", v -> {
-            Toast.makeText(requireContext(), "Mở Bảo mật", Toast.LENGTH_SHORT).show();
-        });
+        setupMenuItem(view, R.id.menuSecurity, getString(R.string.menu_security), null);
+        setupMenuItem(view, R.id.menuHistory, getString(R.string.menu_history), null);
+        setupMenuItem(view, R.id.menuLanguage, getString(R.string.menu_language), null);
+        setupMenuItem(view, R.id.menuDarkMode, getString(R.string.menu_dark_mode), null);
+        setupMenuItem(view, R.id.menuNotify, getString(R.string.menu_notify), null);
+        setupMenuItem(view, R.id.menuInvite, getString(R.string.menu_invite), null);
+        setupMenuItem(view, R.id.menuSupport, getString(R.string.menu_support), null);
+        setupMenuItem(view, R.id.menuAbout, getString(R.string.menu_about), null);
+        setupMenuItem(view, R.id.menuTerms, getString(R.string.menu_terms), null);
 
-        setupMenuItem(view, R.id.menuHistory, "Lịch sử chuyến đi", v -> {
-            Toast.makeText(requireContext(), "Mở Lịch sử", Toast.LENGTH_SHORT).show();
-        });
-
-        setupMenuItem(view, R.id.menuLanguage, "Ngôn ngữ", v -> {
-            Toast.makeText(requireContext(), "Chọn ngôn ngữ", Toast.LENGTH_SHORT).show();
-        });
-
-        setupMenuItem(view, R.id.menuDarkMode, "Giao diện tối (Dark Mode)", null);
-        setupMenuItem(view, R.id.menuNotify, "Cài đặt thông báo", null);
-        setupMenuItem(view, R.id.menuInvite, "Mời bạn bè", null);
-        setupMenuItem(view, R.id.menuSupport, "Trung tâm trợ giúp", null);
-        setupMenuItem(view, R.id.menuAbout, "Về Q-Ride", null);
-        setupMenuItem(view, R.id.menuTerms, "Điều khoản & Chính sách", null);
-
-        // ==========================================================
-        // 3. XỬ LÝ NÚT ĐĂNG XUẤT
-        // ==========================================================
         View btnLogout = view.findViewById(R.id.btnLogout);
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
@@ -85,7 +67,7 @@ public class ProfileFragment extends Fragment {
                 editor.clear();
                 editor.apply();
 
-                Toast.makeText(requireContext(), "Đã đăng xuất thành công!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.logout_success), Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(requireActivity(), LoginTaiKhoanActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -96,23 +78,19 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
-    // Dùng onResume để tự động cập nhật lại giao diện mỗi khi quay lại trang này
     @Override
     public void onResume() {
         super.onResume();
         loadUserProfile();
     }
 
-    // Hàm lấy dữ liệu từ DB và gán lên UI
     private void loadUserProfile() {
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("login_check", Context.MODE_PRIVATE);
         String currentPhone = sharedPreferences.getString("phone", "");
 
         if (!currentPhone.isEmpty()) {
-            // Hiển thị số điện thoại
             tvProfilePhone.setText("+84" + currentPhone);
 
-            // Truy vấn Database để lấy Tên
             Cursor cursor = userDAO.getUserInfo(currentPhone);
             if (cursor != null && cursor.moveToFirst()) {
                 int nameIdx = cursor.getColumnIndex("name");
@@ -121,19 +99,17 @@ public class ProfileFragment extends Fragment {
                     if (name != null && !name.isEmpty()) {
                         tvProfileName.setText(name);
                     } else {
-                        tvProfileName.setText("Chưa cập nhật tên");
+                        tvProfileName.setText(getString(R.string.profile_no_name));
                     }
                 }
                 cursor.close();
             }
         } else {
-            // Trường hợp lỗi rỗng phone (Phòng hờ)
-            tvProfileName.setText("Khách");
-            tvProfilePhone.setText("Chưa đăng nhập");
+            tvProfileName.setText(getString(R.string.profile_guest));
+            tvProfilePhone.setText(getString(R.string.profile_not_logged_in));
         }
     }
 
-    // Hàm tiện ích đặt tên Menu
     private void setupMenuItem(View parentView, int viewId, String title, View.OnClickListener listener) {
         View includedView = parentView.findViewById(viewId);
         if (includedView != null) {
@@ -145,7 +121,7 @@ public class ProfileFragment extends Fragment {
                 includedView.setOnClickListener(listener);
             } else {
                 includedView.setOnClickListener(v ->
-                        Toast.makeText(requireContext(), "Đang phát triển: " + title, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.msg_developing) + ": " + title, Toast.LENGTH_SHORT).show()
                 );
             }
         }

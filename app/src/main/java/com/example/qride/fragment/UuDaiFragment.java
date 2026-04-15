@@ -13,27 +13,25 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.qride.MainActivity;
 import com.example.qride.R;
 import com.example.qride.adapter.VoucherAdapter;
 import com.example.qride.model.VoucherModel;
+import com.example.qride.sqlite.NotificationDAO;
+import com.example.qride.sqlite.VoucherDAO;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Màn hình Ưu đãi – hiển thị danh sách voucher theo 2 tab:
- *   • Tích quà
- *   • Gói hội viên
+ * Màn hình Ưu đãi – hiển thị danh sách voucher và xử lý logic tiến trình + thông báo.
  */
 public class UuDaiFragment extends Fragment {
 
     private TextView tabTichQua, tabGoiHoiVien;
     private RecyclerView recyclerView;
-
-    private List<VoucherModel> tichQuaList    = new ArrayList<>();
-    private List<VoucherModel> goiHoiVienList = new ArrayList<>();
-
-    private boolean isTichQuaTab = true;
+    private VoucherDAO voucherDAO;
+    private NotificationDAO notifDAO;
+    private boolean isCurrentTichQua = true;
 
     @Nullable
     @Override
@@ -47,121 +45,34 @@ public class UuDaiFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        voucherDAO = new VoucherDAO(requireContext());
+        notifDAO = new NotificationDAO(requireContext());
+
         tabTichQua    = view.findViewById(R.id.tabTichQua);
         tabGoiHoiVien = view.findViewById(R.id.tabGoiHoiVien);
         recyclerView  = view.findViewById(R.id.listVouchers);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        buildData();
-        showTab(true);   // mặc định tab Tích quà
+        showTab(true);
 
         tabTichQua.setOnClickListener(v    -> showTab(true));
         tabGoiHoiVien.setOnClickListener(v -> showTab(false));
     }
 
-    // ─── Dữ liệu mẫu ──────────────────────────────────────────────────────────
-
-    private void buildData() {
-        // Tab Tích quà
-        tichQuaList.add(new VoucherModel(
-                R.drawable.ic_wallet,
-                "Nạp tiền lần đầu",
-                "Voucher giảm 5.000đ",
-                "HSD: 31/12/2025",
-                "Dùng ngay",
-                VoucherModel.ButtonType.GREEN
-        ));
-
-        tichQuaList.add(new VoucherModel(
-                R.drawable.ic_bike_station,
-                "Hoàn thành chuyến đầu",
-                "Voucher giảm 50%",
-                "HSD: 31/12/2025",
-                "Dùng ngay",
-                VoucherModel.ButtonType.GREEN
-        ));
-
-        tichQuaList.add(new VoucherModel(
-                R.drawable.ic_membership_crown,
-                "Đăng ký gói hội viên",
-                "Voucher giảm 30%",
-                "HSD: 31/12/2025",
-                "Dùng ngay",
-                VoucherModel.ButtonType.GREEN
-        ));
-
-        tichQuaList.add(new VoucherModel(
-                R.drawable.ic_membership,
-                "Mời bạn bè sử dụng app",
-                "Voucher miễn phí chuyến đi 30 phút",
-                "",
-                "Mời ngay",
-                VoucherModel.ButtonType.ORANGE,
-                3, 5          // progress 3/5
-        ));
-
-        tichQuaList.add(new VoucherModel(
-                R.drawable.ic_calendar,
-                "Điểm danh 3 lần hôm nay",
-                "Voucher giảm 3.000đ",
-                "",
-                "Điểm danh",
-                VoucherModel.ButtonType.ORANGE,
-                1, 3          // progress 1/3
-        ));
-
-        tichQuaList.add(new VoucherModel(
-                R.drawable.ic_star,
-                "Đánh giá chuyến đi",
-                "Voucher giảm 10%",
-                "",
-                "Thực hiện",
-                VoucherModel.ButtonType.ORANGE,
-                1, 3
-        ));
-
-        // Tab Gói hội viên (ví dụ)
-        goiHoiVienList.add(new VoucherModel(
-                R.drawable.ic_membership,
-                "Gói Cơ bản – 1 tháng",
-                "Miễn phí 30 phút/chuyến",
-                "HSD: 31/12/2025",
-                "Đăng ký",
-                VoucherModel.ButtonType.GREEN
-        ));
-
-        goiHoiVienList.add(new VoucherModel(
-                R.drawable.ic_membership,
-                "Gói Tiêu chuẩn – 3 tháng",
-                "Giảm 20% tất cả chuyến đi",
-                "HSD: 31/12/2025",
-                "Đăng ký",
-                VoucherModel.ButtonType.GREEN
-        ));
-
-        goiHoiVienList.add(new VoucherModel(
-                R.drawable.ic_membership,
-                "Gói Cao cấp – 12 tháng",
-                "Giảm 40% + ưu tiên xe tốt",
-                "HSD: 31/12/2025",
-                "Đăng ký",
-                VoucherModel.ButtonType.ORANGE
-        ));
-    }
-
-    // ─── Tab switching ─────────────────────────────────────────────────────────
-
     private void showTab(boolean isTichQua) {
-        isTichQuaTab = isTichQua;
-
-        // Cập nhật visual tab
+        isCurrentTichQua = isTichQua;
         tabTichQua.setBackgroundResource(
                 isTichQua ? R.drawable.bg_tab_active : R.drawable.bg_tab_inactive);
         tabGoiHoiVien.setBackgroundResource(
                 isTichQua ? R.drawable.bg_tab_inactive : R.drawable.bg_tab_active);
 
-        List<VoucherModel> list = isTichQua ? tichQuaList : goiHoiVienList;
+        refreshList();
+    }
+
+    private void refreshList() {
+        String type = isCurrentTichQua ? "TICH_QUA" : "GOI_HOI_VIEN";
+        List<VoucherModel> list = voucherDAO.getVouchersByType(type);
 
         VoucherAdapter adapter = new VoucherAdapter(
                 requireContext(),
@@ -171,34 +82,59 @@ public class UuDaiFragment extends Fragment {
         recyclerView.setAdapter(adapter);
     }
 
-    // ─── Xử lý nút hành động ──────────────────────────────────────────────────
-
     private void onVoucherAction(VoucherModel item) {
-        switch (item.getActionLabel()) {
-            case "Dùng ngay":
-                Toast.makeText(requireContext(),
-                        "Đã sử dụng: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-                break;
-            case "Mời ngay":
-                // Mở màn hình mời bạn bè / share link
-                Toast.makeText(requireContext(),
-                        "Mời bạn bè tham gia!", Toast.LENGTH_SHORT).show();
-                break;
-            case "Điểm danh":
-                Toast.makeText(requireContext(),
-                        "Điểm danh thành công!", Toast.LENGTH_SHORT).show();
-                break;
-            case "Thực hiện":
-                // Điều hướng đến màn hình đánh giá
-                Toast.makeText(requireContext(),
-                        "Hãy đánh giá chuyến đi gần nhất", Toast.LENGTH_SHORT).show();
-                break;
-            case "Đăng ký":
-                Toast.makeText(requireContext(),
-                        "Đăng ký: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-                break;
-            default:
-                break;
+        String actionKey = item.getActionLabel();
+        String title = getStringResource(item.getTitle());
+
+        if (actionKey.equals("action_checkin") || actionKey.equals("action_invite_now") || actionKey.equals("action_perform")) {
+            if (voucherDAO.updateProgress(item.getId())) {
+                // Thêm thông báo vào SQLite
+                if (actionKey.equals("action_checkin")) {
+                    notifDAO.addNotification("notif_title_checkin_success", "notif_msg_checkin_success", "CHECKIN");
+                } else {
+                    notifDAO.addNotification("notif_title_welcome", title + " " + getString(R.string.msg_progress_updated, ""), "VOUCHER");
+                }
+                
+                Toast.makeText(requireContext(), getString(R.string.msg_progress_updated, title), Toast.LENGTH_SHORT).show();
+                updateBadgeAndRefresh();
+            }
+        } 
+        else if (actionKey.equals("action_use_now")) {
+            if (voucherDAO.activateVoucher(item.getId())) {
+                // Thêm thông báo
+                notifDAO.addNotification("notif_title_voucher_activated", getString(R.string.notif_msg_voucher_activated, title), "VOUCHER");
+                
+                Toast.makeText(requireContext(), getString(R.string.msg_activated, title), Toast.LENGTH_SHORT).show();
+                updateBadgeAndRefresh();
+            }
+        } 
+        else if (actionKey.equals("action_register")) {
+            if (voucherDAO.activateMembership(item.getId())) {
+                // Thêm thông báo
+                notifDAO.addNotification("notif_title_membership_success", getString(R.string.notif_msg_membership_success, title), "VOUCHER");
+                
+                Toast.makeText(requireContext(), getString(R.string.msg_registered, title), Toast.LENGTH_SHORT).show();
+                updateBadgeAndRefresh();
+            }
         }
+        else if (actionKey.equals("action_using")) {
+            Toast.makeText(requireContext(), getString(R.string.action_using), Toast.LENGTH_SHORT).show();
+        }
+        else if (actionKey.equals("action_in_progress")) {
+            Toast.makeText(requireContext(), getString(R.string.action_in_progress), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateBadgeAndRefresh() {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).updateNotifBadge();
+        }
+        refreshList();
+    }
+
+    private String getStringResource(String key) {
+        if (key == null || key.isEmpty()) return "";
+        int resId = getResources().getIdentifier(key, "string", requireContext().getPackageName());
+        return resId != 0 ? getString(resId) : key;
     }
 }

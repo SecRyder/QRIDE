@@ -46,10 +46,12 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VH> {
         VoucherModel item = items.get(position);
 
         h.ivIcon.setImageResource(item.getIconResId());
-        h.tvTitle.setText(item.getTitle());
-        h.tvDiscount.setText(item.getDiscountText());
-        h.tvExpiry.setText(item.getExpiry());
-        h.btnAction.setText(item.getActionLabel());
+        
+        // Chuyển đổi KEY thành String từ tài nguyên hệ thống
+        h.tvTitle.setText(getStringResource(item.getTitle()));
+        h.tvDiscount.setText(getStringResource(item.getDiscountText()));
+        h.tvExpiry.setText(item.getExpiry()); // Expiry thường là ngày tháng cố định
+        h.btnAction.setText(getStringResource(item.getActionLabel()));
 
         // Button color
         if (item.getButtonType() == VoucherModel.ButtonType.ORANGE) {
@@ -72,10 +74,20 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VH> {
         });
     }
 
+    /**
+     * Hàm tiện ích để lấy chuỗi từ string.xml dựa trên tên KEY
+     */
+    private String getStringResource(String key) {
+        if (key == null || key.isEmpty()) return "";
+        int resId = context.getResources().getIdentifier(key, "string", context.getPackageName());
+        if (resId != 0) {
+            return context.getString(resId);
+        }
+        return key; // Trả về chính nó nếu không tìm thấy KEY (đề phòng lỗi)
+    }
+
     @Override
     public int getItemCount() { return items.size(); }
-
-    // ─── ViewHolder ────────────────────────────────────────────────────────────
 
     static class VH extends RecyclerView.ViewHolder {
         ImageView ivIcon;

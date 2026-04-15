@@ -47,27 +47,117 @@
     <string name="tieude_quenpass">Quên mật khẩu</string>
     <string name="btn_guiOTP">Gửi mã OTP</string>
 
-    <!-- ── Illustration ──────────────────────────────────────────── -->
+    <!-- Navigation -->
+    <string name="nav_tram_xe">Trạm xe</string>
+    <string name="nav_uu_dai">Ưu đãi</string>
+    <string name="nav_quet_qr">Quét QR</string>
+    <string name="nav_thanh_toan">Thanh toán</string>
+    <string name="nav_tai_khoan">Tài khoản</string>
+    <string name="nav_notifications">Thông báo</string>
+    <string name="no_notifications">Chưa có thông báo nào</string>
+    <string name="edt_search_hint">Tìm kiếm trạm xe</string>
+    <string name="btn_rent_bike">Thuê ngay</string>
+
+    <!-- Profile -->
+    <string name="profile_name_loading">Đang tải...</string>
+    <string name="profile_phone_loading">Đang tải...</string>
+    <string name="profile_membership">👑 Gói ưu đãi</string>
+    <string name="profile_trips">chuyến</string>
+    <string name="profile_km">km</string>
+    <string name="profile_hours">giờ</string>
+    <string name="profile_logout">Đăng xuất</string>
+    <string name="logout_success">Đã đăng xuất thành công!</string>
+    <string name="profile_guest">Khách</string>
+    <string name="profile_not_logged_in">Chưa đăng nhập</string>
+    <string name="profile_no_name">Chưa cập nhật tên</string>
+
+    <!-- Profile Menu -->
+    <string name="menu_info">Thông tin cá nhân</string>
+    <string name="menu_security">Bảo mật &amp; Mật khẩu</string>
+    <string name="menu_history">Lịch sử chuyến đi</string>
+    <string name="menu_language">Ngôn ngữ</string>
+    <string name="menu_dark_mode">Giao diện tối</string>
+    <string name="menu_notify">Cài đặt thông báo</string>
+    <string name="menu_invite">Mời bạn bè</string>
+    <string name="menu_support">Trung tâm trợ giúp</string>
+    <string name="menu_about">Về Q-Ride</string>
+    <string name="menu_terms">Điều khoản &amp; Chính sách</string>
+
+    <!-- Voucher & Offers Tabs -->
+    <string name="tab_tich_qua">Tích quà</string>
+    <string name="tab_membership">Gói hội viên</string>
+
+    <!-- Action Labels (Keys stored in DB) -->
+    <string name="action_use_now">Dùng ngay</string>
+    <string name="action_invite_now">Mời ngay</string>
+    <string name="action_checkin">Điểm danh</string>
+    <string name="action_perform">Thực hiện</string>
+    <string name="action_register">Đăng ký</string>
+    <string name="action_using">Đang dùng</string>
+    <string name="action_in_progress">Đang thực hiện</string>
+
+    <!-- Voucher Titles & Descriptions (Keys stored in DB) -->
+    <string name="v_title_topup">Nạp tiền lần đầu</string>
+    <string name="v_desc_topup">Voucher giảm 5.000đ</string>
+    <string name="v_title_first_trip">Hoàn thành chuyến đầu</string>
+    <string name="v_desc_50">Voucher giảm 50%</string>
+    <string name="v_title_membership">Đăng ký gói hội viên</string>
+    <string name="v_desc_30">Voucher giảm 30%</string>
+    <string name="v_title_invite">Mời bạn bè sử dụng app</string>
+    <string name="v_desc_invite">Voucher miễn phí chuyến đi 30 phút</string>
+    <string name="v_title_checkin">Điểm danh 3 lần hôm nay</string>
+    <string name="v_desc_3k">Voucher giảm 3.000đ</string>
+    <string name="v_title_rate">Đánh giá chuyến đi</string>
+    <string name="v_desc_10">Voucher giảm 10%</string>
+    <string name="v_title_m_basic">Gói Cơ bản – 1 tháng</string>
+    <string name="v_desc_m_basic">Miễn phí 30 phút/chuyến</string>
+    <string name="v_title_m_std">Gói Tiêu chuẩn – 3 tháng</string>
+    <string name="v_desc_m_std">Giảm 20% tất cả chuyến đi</string>
+    <string name="v_title_m_premium">Gói Cao cấp – 12 tháng</string>
+    <string name="v_desc_m_premium">Giảm 40% + ưu tiên xe tốt</string>
+
+    <!-- Notification Content Keys -->
+    <string name="notif_title_welcome">Chào mừng</string>
+    <string name="notif_msg_welcome">Chào mừng bạn đến với Q-Ride!</string>
+    <string name="notif_title_voucher">Ưu đãi mới</string>
+    <string name="notif_msg_voucher">Bạn nhận được voucher giảm 50% cho chuyến đi đầu tiên.</string>
+    <string name="notif_title_checkin_success">Điểm danh thành công</string>
+    <string name="notif_msg_checkin_success">Bạn đã điểm danh thành công hôm nay.</string>
+    <string name="notif_title_trip_start">Bắt đầu chuyến đi</string>
+    <string name="notif_msg_trip_start">Bạn đã nhận xe thành công. Chúc bạn có một chuyến đi an toàn!</string>
+    <string name="notif_title_trip_end">Kết thúc chuyến đi</string>
+    <string name="notif_msg_trip_end">Trả xe thành công. Hẹn gặp lại bạn lần sau!</string>
+    <string name="notif_title_voucher_activated">Ưu đãi đã kích hoạt</string>
+    <string name="notif_msg_voucher_activated">Bạn đã kích hoạt thành công: %1$s</string>
+    <string name="notif_title_membership_success">Đăng ký thành công</string>
+    <string name="notif_msg_membership_success">Bạn hiện đã là hội viên của gói: %1$s</string>
+
+    <string name="msg_developing">Tính năng đang phát triển</string>
+    <string name="msg_progress_updated">Đã cập nhật tiến trình: %1$s</string>
+    <string name="msg_activated">Đã kích hoạt: %1$s</string>
+    <string name="msg_registered">Đã đăng ký gói: %1$s</string>
+
+    <!-- Quet QR & Thanh Toan -->
+    <string name="qr_instruction">Quét mã QR trên xe để bắt đầu hành trình</string>
+    <string name="qr_btn_open">Mở Camera Quét QR</string>
+    <string name="pay_wallet_balance">Số dư ví: 50.000đ</string>
+    <string name="pay_method">Phương thức thanh toán</string>
+    <string name="pay_default_method">Ví điện tử Q-Ride (Mặc định)</string>
+    <string name="pay_top_up">Nạp tiền vào ví</string>
+
+    <!-- Illustration & Permission -->
     <string name="illustration_desc">Hình minh họa ứng dụng QRIDE</string>
     <string name="img_login_illustration">Hình minh họa màn đăng nhập</string>
-
-    <!-- ── Permission – Thông báo ────────────────────────────────── -->
     <string name="perm_notif_title">QRIDE muốn gửi Thông báo cho bạn</string>
-    <string name="perm_notif_desc">Thông báo có thể bao gồm cảnh báo, âm thanh và biểu tượng. Bạn có thể định cấu hình chúng trong Cài đặt.</string>
+    <string name="perm_notif_desc">Thông báo có thể bao gồm cảnh báo, âm thanh và biểu tượng.</string>
     <string name="perm_notif_icon_desc">Biểu tượng thông báo</string>
-
-    <!-- ── Permission – Bluetooth ────────────────────────────────── -->
     <string name="perm_bt_title">QRIDE muốn truy cập vào Bluetooth của bạn</string>
-    <string name="perm_bt_desc">QRIDE cần quyền truy cập Bluetooth để đóng/mở khóa xe và phát hướng dẫn dẫn đường qua loa.</string>
+    <string name="perm_bt_desc">QRIDE cần quyền truy cập Bluetooth để đóng/mở khóa xe.</string>
     <string name="perm_bt_icon_desc">Biểu tượng Bluetooth</string>
-
-    <!-- ── Permission – Vị trí ───────────────────────────────────── -->
     <string name="perm_loc_title">Cho phép QRIDE sử dụng vị trí của bạn</string>
-    <string name="perm_loc_desc">QRIDE cần quyền truy cập vị trí để xác định vị trí của bạn và các trạm xe gần nhất.</string>
+    <string name="perm_loc_desc">QRIDE cần quyền truy cập vị trí để xác định trạm xe gần nhất.</string>
     <string name="perm_loc_once">Cho phép một lần</string>
     <string name="perm_loc_while_using">Cho phép khi dùng ứng dụng</string>
-
-    <!-- ── Permission – nút dùng chung ──────────────────────────── -->
     <string name="perm_allow">Cho phép</string>
     <string name="perm_deny">Từ chối</string>
 </resources>

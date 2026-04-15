@@ -17,11 +17,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.qride.fragment.NotificationFragment;
 import com.example.qride.fragment.ProfileFragment;
 import com.example.qride.fragment.QuetQRFragment;
 import com.example.qride.fragment.ThanhToanFragment;
 import com.example.qride.fragment.TramXeFragment;
 import com.example.qride.fragment.UuDaiFragment;
+import com.example.qride.sqlite.NotificationDAO;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -29,12 +31,14 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText etSearch;
     private ImageButton btnNotification;
+    private TextView tvNotificationBadge;
     private CardView cardStationInfo;
     private TextView tvStationName, tvStationAddress;
     private FloatingActionButton btnLocateMe;
     private LinearLayout layoutTopBar;
     
     private View navTramXe, navUuDai, navQuetQR, navThanhToan, navTaiKhoan;
+    private NotificationDAO notifDAO;
 
     public static class BikeStation {
         public String name;
@@ -55,11 +59,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        notifDAO = new NotificationDAO(this);
         initViews();
         setupBottomNav();
         setupSearch();
+        updateNotifBadge();
 
-        // Mặc định mở Trạm xe
+        // ✅ Lắng nghe sự kiện quay lại Fragment để hiện/ẩn Header tự động
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if (currentFragment instanceof TramXeFragment) {
+                showMapUI(true);
+                updateBottomNavUI(navTramXe);
+            } else if (currentFragment instanceof UuDaiFragment) {
+                showMapUI(false);
+                updateBottomNavUI(navUuDai);
+            }
+            // ... thêm các fragment khác nếu cần
+        });
+
         if (savedInstanceState == null) {
             replaceFragment(new TramXeFragment(), "TRAM_XE");
             updateBottomNavUI(navTramXe);
@@ -70,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         layoutTopBar    = findViewById(R.id.layoutTopBar);
         etSearch        = findViewById(R.id.etSearch);
         btnNotification = findViewById(R.id.btnNotification);
+        tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
         cardStationInfo = findViewById(R.id.cardStationInfo);
         tvStationName   = findViewById(R.id.tvStationName);
         tvStationAddress= findViewById(R.id.tvStationAddress);
@@ -81,8 +100,13 @@ public class MainActivity extends AppCompatActivity {
         navThanhToan= findViewById(R.id.navThanhToan);
         navTaiKhoan = findViewById(R.id.navTaiKhoan);
 
+        btnNotification.setOnClickListener(v -> {
+            replaceFragment(new NotificationFragment(), "NOTIFICATIONS");
+            showMapUI(false);
+        });
+
         findViewById(R.id.btnRentBike).setOnClickListener(v -> 
-                Toast.makeText(this, "Chức năng thuê xe đang được phát triển", Toast.LENGTH_SHORT).show());
+                Toast.makeText(this, getString(R.string.msg_developing), Toast.LENGTH_SHORT).show());
         
         btnLocateMe.setOnClickListener(v -> {
             Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("TRAM_XE");
@@ -90,6 +114,16 @@ public class MainActivity extends AppCompatActivity {
                 ((TramXeFragment) currentFragment).locateMe();
             }
         });
+    }
+
+    public void updateNotifBadge() {
+        int unread = notifDAO.getUnreadCount();
+        if (unread > 0) {
+            tvNotificationBadge.setText(String.valueOf(unread));
+            tvNotificationBadge.setVisibility(View.VISIBLE);
+        } else {
+            tvNotificationBadge.setVisibility(View.GONE);
+        }
     }
 
     private void setupBottomNav() {
@@ -126,8 +160,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void replaceFragment(Fragment fragment, String tag) {
         FragmentManager fragmentManager = getSupportFragmentManager();
+        
+        // Kiểm tra nếu Fragment đã có rồi thì không replace nữa (tránh load lại)
+        Fragment existingFragment = fragmentManager.findFragmentByTag(tag);
+        if (existingFragment != null && existingFragment.isVisible()) return;
+
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.fragment_container, fragment, tag);
+        
+        // Chỉ add vào backstack cho trang Thông báo để nhấn Back quay lại trang trước
+        if (tag.equals("NOTIFICATIONS")) {
+            transaction.addToBackStack(null);
+        }
+        
         transaction.commit();
     }
 
@@ -167,8 +212,6 @@ public class MainActivity extends AppCompatActivity {
         changeNavColor(navThanhToan, colorDefault);
         changeNavColor(navTaiKhoan, colorDefault);
 
-        // Nút Quét QR có background đặc biệt nên xử lý riêng nếu cần, 
-        // nhưng ở đây ta chỉ đổi màu icon/text của các nút khác
         if (selectedNav != navQuetQR) {
             changeNavColor(selectedNav, colorSelected);
         }

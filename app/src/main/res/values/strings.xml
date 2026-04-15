@@ -47,27 +47,117 @@
     <string name="tieude_quenpass">Forgot Password</string>
     <string name="btn_guiOTP">Send OTP code</string>
 
-    <!-- ── Illustration ──────────────────────────────────────────── -->
+    <!-- Navigation -->
+    <string name="nav_tram_xe">Bike Station</string>
+    <string name="nav_uu_dai">Offers</string>
+    <string name="nav_quet_qr">Scan QR</string>
+    <string name="nav_thanh_toan">Payment</string>
+    <string name="nav_tai_khoan">Account</string>
+    <string name="nav_notifications">Notifications</string>
+    <string name="no_notifications">No notifications yet</string>
+    <string name="edt_search_hint">Search bike stations</string>
+    <string name="btn_rent_bike">Rent Now</string>
+
+    <!-- Profile -->
+    <string name="profile_name_loading">Loading...</string>
+    <string name="profile_phone_loading">Loading...</string>
+    <string name="profile_membership">👑 Membership</string>
+    <string name="profile_trips">trips</string>
+    <string name="profile_km">km</string>
+    <string name="profile_hours">hours</string>
+    <string name="profile_logout">Logout</string>
+    <string name="logout_success">Logged out successfully!</string>
+    <string name="profile_guest">Guest</string>
+    <string name="profile_not_logged_in">Not logged in</string>
+    <string name="profile_no_name">Name not updated</string>
+
+    <!-- Profile Menu -->
+    <string name="menu_info">Personal Information</string>
+    <string name="menu_security">Security &amp; Password</string>
+    <string name="menu_history">Ride History</string>
+    <string name="menu_language">Language</string>
+    <string name="menu_dark_mode">Dark Mode</string>
+    <string name="menu_notify">Notification Settings</string>
+    <string name="menu_invite">Invite Friends</string>
+    <string name="menu_support">Support Center</string>
+    <string name="menu_about">About Q-Ride</string>
+    <string name="menu_terms">Terms &amp; Policies</string>
+
+    <!-- Voucher & Offers Tabs -->
+    <string name="tab_tich_qua">Collect Rewards</string>
+    <string name="tab_membership">Membership</string>
+
+    <!-- Action Labels (Keys stored in DB) -->
+    <string name="action_use_now">Use now</string>
+    <string name="action_invite_now">Invite now</string>
+    <string name="action_checkin">Check-in</string>
+    <string name="action_perform">Perform</string>
+    <string name="action_register">Register</string>
+    <string name="action_using">Using</string>
+    <string name="action_in_progress">In progress</string>
+
+    <!-- Voucher Titles & Descriptions (Keys stored in DB) -->
+    <string name="v_title_topup">First top-up</string>
+    <string name="v_desc_topup">5,000đ discount voucher</string>
+    <string name="v_title_first_trip">Finish first trip</string>
+    <string name="v_desc_50">50% discount voucher</string>
+    <string name="v_title_membership">Register membership</string>
+    <string name="v_desc_30">30% discount voucher</string>
+    <string name="v_title_invite">Invite friends</string>
+    <string name="v_desc_invite">Free 30-min trip voucher</string>
+    <string name="v_title_checkin">Check-in 3 times today</string>
+    <string name="v_desc_3k">3,000đ discount voucher</string>
+    <string name="v_title_rate">Rate your trip</string>
+    <string name="v_desc_10">10% discount voucher</string>
+    <string name="v_title_m_basic">Basic Package – 1 month</string>
+    <string name="v_desc_m_basic">Free 30 mins/trip</string>
+    <string name="v_title_m_std">Standard Package – 3 months</string>
+    <string name="v_desc_m_std">20% off all trips</string>
+    <string name="v_title_m_premium">Premium Package – 12 months</string>
+    <string name="v_desc_m_premium">40% off + priority</string>
+
+    <!-- Notification Content Keys -->
+    <string name="notif_title_welcome">Welcome</string>
+    <string name="notif_msg_welcome">Welcome to Q-Ride!</string>
+    <string name="notif_title_voucher">New Offer</string>
+    <string name="notif_msg_voucher">You received a 50% discount voucher for your first trip.</string>
+    <string name="notif_title_checkin_success">Check-in Success</string>
+    <string name="notif_msg_checkin_success">You have successfully checked in today.</string>
+    <string name="notif_title_trip_start">Ride Started</string>
+    <string name="notif_msg_trip_start">You have successfully picked up the bike. Have a safe trip!</string>
+    <string name="notif_title_trip_end">Ride Completed</string>
+    <string name="notif_msg_trip_end">Bike returned successfully. See you again!</string>
+    <string name="notif_title_voucher_activated">Voucher Activated</string>
+    <string name="notif_msg_voucher_activated">You have successfully activated: %1$s</string>
+    <string name="notif_title_membership_success">Membership Success</string>
+    <string name="notif_msg_membership_success">You are now a member of: %1$s</string>
+
+    <string name="msg_developing">This feature is under development</string>
+    <string name="msg_progress_updated">Progress updated: %1$s</string>
+    <string name="msg_activated">Activated: %1$s</string>
+    <string name="msg_registered">Registered: %1$s</string>
+
+    <!-- Quet QR & Thanh Toan -->
+    <string name="qr_instruction">Scan QR code on the bike to start</string>
+    <string name="qr_btn_open">Open Camera</string>
+    <string name="pay_wallet_balance">Wallet Balance: 50,000đ</string>
+    <string name="pay_method">Payment Method</string>
+    <string name="pay_default_method">Q-Ride Wallet (Default)</string>
+    <string name="pay_top_up">Top up</string>
+
+    <!-- Illustration & Permission -->
     <string name="illustration_desc">QRIDE app illustration</string>
     <string name="img_login_illustration">Login screen illustration</string>
-
-    <!-- ── Permission – Notification ────────────────────────────── -->
     <string name="perm_notif_title">QRIDE would like to send you Notifications</string>
-    <string name="perm_notif_desc">Notifications may include alerts, sounds and icon badges. You can configure them in Settings.</string>
+    <string name="perm_notif_desc">Notifications may include alerts, sounds and icon badges.</string>
     <string name="perm_notif_icon_desc">Notification icon</string>
-
-    <!-- ── Permission – Bluetooth ────────────────────────────────── -->
     <string name="perm_bt_title">QRIDE would like to access your Bluetooth</string>
-    <string name="perm_bt_desc">QRIDE needs Bluetooth access to lock/unlock the bike and play navigation audio.</string>
+    <string name="perm_bt_desc">QRIDE needs Bluetooth access to lock/unlock the bike.</string>
     <string name="perm_bt_icon_desc">Bluetooth icon</string>
-
-    <!-- ── Permission – Location ─────────────────────────────────── -->
     <string name="perm_loc_title">Allow QRIDE to use your location</string>
-    <string name="perm_loc_desc">QRIDE needs location access to find your position and the nearest bike stations.</string>
+    <string name="perm_loc_desc">QRIDE needs location access to find nearest bike stations.</string>
     <string name="perm_loc_once">Allow Once</string>
     <string name="perm_loc_while_using">Allow While Using App</string>
-
-    <!-- ── Permission – shared buttons ──────────────────────────── -->
     <string name="perm_allow">Allow</string>
     <string name="perm_deny">Deny</string>
 </resources>
