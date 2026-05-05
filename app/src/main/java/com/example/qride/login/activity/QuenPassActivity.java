@@ -1,5 +1,7 @@
 package com.example.qride.login.activity;
 
+import static com.example.qride.helper.APIHelper.CHECK_PHONE;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +16,10 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.qride.R;
 import com.example.qride.sqlite.UserDAO;
 import com.google.firebase.FirebaseException;
@@ -22,13 +28,15 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 
+import org.json.JSONObject;
+
 import java.util.concurrent.TimeUnit;
 
 public class QuenPassActivity extends AppCompatActivity {
     private ImageView imgBackLoginActivity, imgFlag;
     private TextView tvTieuDe, tvSoDienThoai, tvCountry;
     private EditText edtPhone;
-    private Button btnGuiOTP ;
+    private Button btnGuiOTP;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,49 +63,71 @@ public class QuenPassActivity extends AppCompatActivity {
 
     private void handleSendOtp() {
         String phone = edtPhone.getText().toString().trim();
-
-        // 1. Kiem tra rong
         if (phone.isEmpty()) {
             edtPhone.setError(getString(R.string.seterror_edtphone));
             return;
         }
-
-        // 2. Kiem tra dinh dang 9 so
         if (!isValidPhone(phone)) {
             edtPhone.setError(getString(R.string.seterror_edtphone_invalid));
             return;
         }
-
-        // 3. Kiem tra trong db
-        UserDAO userDAO = new UserDAO(this);
-        if (!userDAO.checkPhoneExists(phone)) {
-            edtPhone.setError(getString(R.string.seterror_edtphone_invalid));
-            return;
+        // ================= CALL SERVER CHECK PHONE =================
+        String url = CHECK_PHONE;
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JSONObject body = new JSONObject();
+        try {
+            body.put("phone", phone);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST,
+                url,
+                body,
+                response -> {
+                    try {
+                        boolean exists = response.getBoolean("exists");
 
-        // 4. Hop le -> goi Firebase gui OTP
+                        if (!exists) {
+                            edtPhone.setError("Số điện thoại chưa đăng ký");
+                            return;
+                        }
+                        // ================= SEND OTP =================
+                        sendOTP(phone);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> Toast.makeText(this, "Lỗi server", Toast.LENGTH_SHORT).show()
+        );
+        queue.add(request);
+    }
+
+    private void sendOTP(String phone) {
+        String phoneFirebase = "+84" + phone.substring(1);
+
         FirebaseAuth auth = FirebaseAuth.getInstance();
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(auth)
-                        .setPhoneNumber("+84" + phone)
+                        .setPhoneNumber(phoneFirebase)
                         .setTimeout(60L, TimeUnit.SECONDS)
                         .setActivity(this)
                         .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
                             @Override
-                            public void onVerificationCompleted(PhoneAuthCredential credential) {
-                                // Auto OTP
-                            }
+                            public void onVerificationCompleted(PhoneAuthCredential credential) { }
 
                             @Override
                             public void onVerificationFailed(FirebaseException e) {
                                 Toast.makeText(QuenPassActivity.this,
-                                        "Lỗi gửi OTP: " + e.getMessage(),
+                                        "Lỗi OTP: " + e.getMessage(),
                                         Toast.LENGTH_LONG).show();
                             }
 
                             @Override
                             public void onCodeSent(String verificationId,
                                                    PhoneAuthProvider.ForceResendingToken token) {
+
                                 Intent intent = new Intent(QuenPassActivity.this, QuenPassOTPActivity.class);
                                 intent.putExtra("verificationId", verificationId);
                                 intent.putExtra("resendToken", token);
@@ -111,7 +141,7 @@ public class QuenPassActivity extends AppCompatActivity {
     }
 
     private boolean isValidPhone(String phone) {
-        String regex = "^[0-9]{9}$"; // 9 số
+        String regex = "^0[0-9]{9}$"; // 10 số, bắt đầu bằng 0
         return phone.matches(regex);
     }
 }

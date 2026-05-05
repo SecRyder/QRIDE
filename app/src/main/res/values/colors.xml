@@ -18,7 +18,7 @@
     <color name="text_gray">#6B6B6B</color>            <!-- mô tả, nút Từ chối -->
     <color name="card_white">#FFFFFFFF</color>         <!-- nền card dialog -->
     <color name="divider">#E0E0E0</color>              <!-- đường kẻ nếu cần -->
-
+    <color name="red">#FF0000</color>
     <!-- Mau cua Quet QR -->
     <color name="cam">#FF9800</color>
 </resources>

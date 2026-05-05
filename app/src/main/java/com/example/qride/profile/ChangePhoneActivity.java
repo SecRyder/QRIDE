@@ -1,5 +1,7 @@
 package com.example.qride.profile;
 
+import static com.example.qride.helper.APIHelper.CHECK_PHONE;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,6 +25,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.qride.R;
 import com.example.qride.login.activity.RegisterOTPActivity;
 import com.example.qride.sqlite.UserDAO;
@@ -69,7 +75,8 @@ public class ChangePhoneActivity extends AppCompatActivity {
     private void setupTextWatcher() {
         etPhoneNumber.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -82,33 +89,79 @@ public class ChangePhoneActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
+//    private void handleSendOTP() {
+//        String phoneInput = etPhoneNumber.getText().toString().trim();
+//        String phoneToVerify = phoneInput;
+//
+//        if (phoneToVerify.startsWith("0")) {
+//            phoneToVerify = phoneToVerify.substring(1);
+//        }
+//
+//        newPhoneNumber = phoneInput; // lưu số mới
+//
+//
+//        if (phoneToVerify.equals(oldPhoneNumber) || phoneInput.equals(oldPhoneNumber)) {
+//            tilPhoneNumber.setError("Đây là số điện thoại hiện tại của bạn!");
+//            return;
+//        }
+//
+//        UserDAO userDAO = new UserDAO(this);
+//        if (userDAO.isPhoneExist(phoneInput) || userDAO.isPhoneExist(phoneToVerify)) {
+//            tilPhoneNumber.setError("Số điện thoại này đã được đăng ký bởi tài khoản khác!");
+//            return;
+//        }
+//
+//        showBottomSheetOTP(phoneToVerify);
+//    }
+
     private void handleSendOTP() {
         String phoneInput = etPhoneNumber.getText().toString().trim();
+        if (phoneInput.isEmpty()) {
+            tilPhoneNumber.setError("Vui lòng nhập số điện thoại");
+            return;
+        }
         String phoneToVerify = phoneInput;
-
         if (phoneToVerify.startsWith("0")) {
             phoneToVerify = phoneToVerify.substring(1);
         }
-
-        newPhoneNumber = phoneInput; // lưu số mới
-
-
+        newPhoneNumber = phoneInput;
+        // check trùng số cũ
         if (phoneToVerify.equals(oldPhoneNumber) || phoneInput.equals(oldPhoneNumber)) {
             tilPhoneNumber.setError("Đây là số điện thoại hiện tại của bạn!");
             return;
         }
+        checkPhoneFromServer(phoneInput, phoneToVerify);
+    }
 
-        UserDAO userDAO = new UserDAO(this);
-        if (userDAO.isPhoneExist(phoneInput) || userDAO.isPhoneExist(phoneToVerify)) {
-            tilPhoneNumber.setError("Số điện thoại này đã được đăng ký bởi tài khoản khác!");
-            return;
-        }
-
-        showBottomSheetOTP(phoneToVerify);
+    private void checkPhoneFromServer(String rawPhone, String normalizedPhone) {
+        String url = CHECK_PHONE + normalizedPhone;
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    try {
+                        boolean exists = response.getBoolean("exists");
+                        if (exists) {
+                            tilPhoneNumber.setError("Số điện thoại đã được sử dụng!");
+                        } else {
+                            showBottomSheetOTP(normalizedPhone);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> {
+                    tilPhoneNumber.setError("Lỗi server");
+                }
+        );
+        queue.add(request);
     }
 
     private void showBottomSheetOTP(String phoneNo) {
@@ -130,9 +183,11 @@ public class ChangePhoneActivity extends AppCompatActivity {
             btnConfirm.setBackgroundResource(R.drawable.btn_solid_green);
             btnConfirm.setTextColor(ContextCompat.getColor(this, R.color.white));
             if (v.getId() == R.id.optionZalo || v.getId() == R.id.rbZalo) {
-                rbZalo.setChecked(true); rbSMS.setChecked(false);
+                rbZalo.setChecked(true);
+                rbSMS.setChecked(false);
             } else {
-                rbSMS.setChecked(true); rbZalo.setChecked(false);
+                rbSMS.setChecked(true);
+                rbZalo.setChecked(false);
             }
         };
 
@@ -164,13 +219,17 @@ public class ChangePhoneActivity extends AppCompatActivity {
                 .setActivity(this)
                 .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
-                    public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {}
+                    public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
+                    }
+
                     @Override
                     public void onVerificationFailed(@NonNull FirebaseException e) {
                         Log.e("OTP_Debug", "Firebase báo lỗi nhưng vẫn cho dùng mã Demo");
                     }
+
                     @Override
-                    public void onCodeSent(@NonNull String vId, @NonNull PhoneAuthProvider.ForceResendingToken token) {}
+                    public void onCodeSent(@NonNull String vId, @NonNull PhoneAuthProvider.ForceResendingToken token) {
+                    }
                 }).build();
         PhoneAuthProvider.verifyPhoneNumber(options);
     }
@@ -181,7 +240,7 @@ public class ChangePhoneActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_OTP && resultCode == RESULT_OK) {
             // Khi bên OTP báo thành công, hiện Dialog thông báo
-            showSuccessDialog("Thành công!","Số điện thoại của bạn đã được \n cập nhật thành công. ");
+            showSuccessDialog("Thành công!", "Số điện thoại của bạn đã được \n cập nhật thành công. ");
 
         }
     }
@@ -194,8 +253,8 @@ public class ChangePhoneActivity extends AppCompatActivity {
         dialog.setCancelable(false);
 
         // ánh xạ
-        TextView tvTitle= dialog.findViewById(R.id.tvDialogTitle);
-        TextView tvMessage= dialog.findViewById(R.id.tvDialogMessage);
+        TextView tvTitle = dialog.findViewById(R.id.tvDialogTitle);
+        TextView tvMessage = dialog.findViewById(R.id.tvDialogMessage);
 
         tvTitle.setText(title);
         tvMessage.setText(message);

@@ -1,5 +1,7 @@
 package com.example.qride.login.activity;
 
+import static com.example.qride.helper.APIHelper.REGISTER;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -15,6 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.qride.R;
 import com.example.qride.profile.ChangePhoneActivity;
 import com.example.qride.profile.ResetPasswordActivity;
@@ -24,6 +30,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+
+import org.json.JSONObject;
 
 import java.util.concurrent.TimeUnit;
 
@@ -69,7 +77,9 @@ public class RegisterOTPActivity extends AppCompatActivity {
     private void getDataFromIntent() {
         verificationId = getIntent().getStringExtra("verificationId");
         resendToken = (PhoneAuthProvider.ForceResendingToken) getIntent().getSerializableExtra("resendToken");
+
         mode = getIntent().getStringExtra("mode");
+
         phone = getIntent().getStringExtra("phone");
         password = getIntent().getStringExtra("password");
         name = getIntent().getStringExtra("name");
@@ -77,10 +87,18 @@ public class RegisterOTPActivity extends AppCompatActivity {
         address = getIntent().getStringExtra("address");
         gender = getIntent().getStringExtra("gender");
         birthday = getIntent().getStringExtra("birthday");
+        if (mode == null) mode = "REGISTER";
+        if (phone == null) phone = "";
+        if (password == null) password = "";
+        if (name == null) name = "";
+        if (cccd == null) cccd = "";
+        if (address == null) address = "";
+        if (gender == null) gender = "Khác";
+        if (birthday == null) birthday = "";
     }
 
     private void setupUI() {
-        String fullPhone = "+84" + phone;
+        String fullPhone = phone.length() >= 10 ? "+84" + phone.substring(1) : phone;
         tvHuongDan.setText(getString(R.string.otp_instruction, fullPhone));
         startResendCountdown();
         simulateOtpReceive();
@@ -125,7 +143,7 @@ public class RegisterOTPActivity extends AppCompatActivity {
                 return;
             }
             PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
-                    .setPhoneNumber("+84" + phone)
+                    .setPhoneNumber("+84" + phone.substring(1))
                     .setTimeout(60L, TimeUnit.SECONDS)
                     .setActivity(this)
                     .setForceResendingToken(resendToken)
@@ -139,66 +157,67 @@ public class RegisterOTPActivity extends AppCompatActivity {
 
     private void handleFinalAction() {
         Toast.makeText(this, getString(R.string.success_authen), Toast.LENGTH_SHORT).show();
+        if ("REGISTER".equals(mode)) {
 
-        if ("FORGOT_PASS".equals(mode)) {
-            Intent intent = new Intent(this, ResetPasswordActivity.class);
-            intent.putExtra("phone", phone);
-            startActivity(intent);
-            finish();
+            String url = REGISTER;
 
-        } else if ("VERIFY_OLD_PHONE".equals(mode)) {
-            Intent intent = new Intent(RegisterOTPActivity.this, ChangePhoneActivity.class);
-            intent.putExtra("current_phone", phone);
-            startActivity(intent);
-            finish();
+            RequestQueue queue = Volley.newRequestQueue(this);
+            JSONObject body = new JSONObject();
 
-        } else if ("CHANGE_PHONE".equals(mode)) {
-            String sdtMoi = phone;
-            String sdtCu = getIntent().getStringExtra("old_phone");
-
-            // --- BƯỚC 1: LÀM SẠCH TRIỆT ĐỂ (Cực kỳ quan trọng) ---
-            // Xóa sạch mã vùng +84, khoảng trắng và số 0 ở đầu để đồng bộ với DB (987654321)
-            if (sdtCu != null) {
-                sdtCu = sdtCu.replace("+84", "").trim();
-                if (sdtCu.startsWith("0")) sdtCu = sdtCu.substring(1);
+            try {
+                body.put("phone", phone);
+                body.put("password", password);
+                body.put("name", name);
+                body.put("cccd", cccd);
+                body.put("address", address);
+                body.put("gender", gender);
+                body.put("birthday", convertDateFormat(birthday));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            if (sdtMoi != null) {
-                sdtMoi = sdtMoi.replace("+84", "").trim();
-                if (sdtMoi.startsWith("0")) sdtMoi = sdtMoi.substring(1);
-            }
+            JsonObjectRequest request = new JsonObjectRequest(
+                    Request.Method.POST,
+                    url,
+                    body,
+                    response -> {
 
-            Log.d("SQL_DEBUG", "Đang thử Update DB - Cũ: [" + sdtCu + "] -> Mới: [" + sdtMoi + "]");
+                        FirebaseAuth.getInstance().signOut();
 
-            UserDAO userDAO = new UserDAO(this);
-            boolean isUpdated = userDAO.updatePhoneNumber(sdtCu, sdtMoi);
+                        Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
 
-            // --- BƯỚC 2: KHÔNG CHẤP NHẬN FAKE SUCCESS NỮA ---
-            // Bắt buộc SQLite phải báo update thành công (isUpdated = true) thì mới lưu Session và hiện Dialog
-            if (isUpdated) {
-                getSharedPreferences("UserSession", MODE_PRIVATE)
-                        .edit()
-                        .putString("phone", sdtMoi)
-                        .apply();
+                        startActivity(new Intent(this, LoginTaiKhoanActivity.class));
+                        finish();
+                    },
+                    error -> {if (error.networkResponse != null) {
+                        int code = error.networkResponse.statusCode;
+                        String data = new String(error.networkResponse.data);
 
-                setResult(RESULT_OK); // Tín hiệu hiện bảng xe đạp
-                finish();
-            } else {
-                // Nếu nhảy vào đây, chắc chắn DB không tìm thấy số cũ
-                Toast.makeText(this, "Lỗi DB: Không tìm thấy số [" + sdtCu + "] để cập nhật!", Toast.LENGTH_LONG).show();
-                Log.e("SQL_DEBUG", "UPDATE THẤT BẠI DO KHÔNG TÌM THẤY SỐ CŨ!");
-            }
+                        if (data.contains("PHONE_EXISTS")) {
+                            Toast.makeText(this, "SĐT đã tồn tại", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Lỗi server: " + code, Toast.LENGTH_SHORT).show();
+                        }
 
-        } else {
-            // Luồng đăng ký tài khoản
-            UserDAO userDAO = new UserDAO(RegisterOTPActivity.this);
-            long result = userDAO.insertUser(phone, password, name, cccd, address, gender, birthday);
-            if (result != -1) {
-                Toast.makeText(this, getString(R.string.db_save_success), Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, LoginTaiKhoanActivity.class));
-                finish();
-            } else {
-                Toast.makeText(this, "Lỗi lưu Database!", Toast.LENGTH_SHORT).show();
-            }
+                    } else {
+                        Toast.makeText(this, "Không kết nối server", Toast.LENGTH_SHORT).show();
+                    }
+                    }
+            );
+
+            queue.add(request);
+        }
+    }
+
+    private String convertDateFormat(String inputDate) {
+        try {
+            java.text.SimpleDateFormat inputFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
+            java.text.SimpleDateFormat outputFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+
+            java.util.Date date = inputFormat.parse(inputDate);
+            return outputFormat.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return inputDate; // fallback
         }
     }
 
@@ -211,11 +230,14 @@ public class RegisterOTPActivity extends AppCompatActivity {
     private final PhoneAuthProvider.OnVerificationStateChangedCallbacks callbacks =
             new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                 @Override
-                public void onVerificationCompleted(PhoneAuthCredential credential) {}
+                public void onVerificationCompleted(PhoneAuthCredential credential) {
+                }
+
                 @Override
                 public void onVerificationFailed(FirebaseException e) {
                     Log.e("OTP_Debug", "Firebase Error: " + e.getMessage());
                 }
+
                 @Override
                 public void onCodeSent(String newVerificationId, PhoneAuthProvider.ForceResendingToken token) {
                     verificationId = newVerificationId;
@@ -229,6 +251,7 @@ public class RegisterOTPActivity extends AppCompatActivity {
             public void onTick(long millisUntilFinished) {
                 tvResend.setText(getString(R.string.otp_resend_countdown, millisUntilFinished / 1000));
             }
+
             public void onFinish() {
                 tvResend.setText(getString(R.string.guima_otp_finish));
                 tvResend.setEnabled(true);

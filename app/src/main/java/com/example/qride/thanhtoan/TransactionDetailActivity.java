@@ -1,0 +1,177 @@
+package com.example.qride.thanhtoan;
+
+import static com.example.qride.helper.APIHelper.TRANSACTION_DETAIL;
+import static com.example.qride.helper.APIHelper.getToken;
+
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.qride.R;
+import com.example.qride.thuexe.QRScanActivity;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TransactionDetailActivity extends AppCompatActivity {
+
+    ImageView btnBack, imgType;
+    TextView tvTitle, tvAmount, tvDesc, tvStatus, tvCode, tvRental, tvTime, tvFee;
+    Button btnAction;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_transaction_detail);
+        // Fullscreen
+        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
+        initView();
+        int id = getIntent().getIntExtra("transaction_id", -1);
+        loadTransaction(id);
+
+        btnBack.setOnClickListener(v -> finish());
+    }
+
+    private void initView() {
+        btnBack = findViewById(R.id.btnBack);
+        imgType = findViewById(R.id.imgType);
+
+        tvTitle = findViewById(R.id.tvTitle);
+        tvAmount = findViewById(R.id.tvAmount);
+        tvDesc = findViewById(R.id.tvDesc);
+        tvStatus = findViewById(R.id.tvStatus);
+        tvCode = findViewById(R.id.tvCode);
+        tvRental = findViewById(R.id.tvRental);
+        tvTime = findViewById(R.id.tvTime);
+        tvFee = findViewById(R.id.tvFee);
+
+        btnAction = findViewById(R.id.btnAction);
+    }
+
+    private void loadTransaction(int id) {
+        String url = TRANSACTION_DETAIL + id;
+        String token = getToken(this);
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    try {
+                        String type = response.getString("type");
+                        long amount = response.getLong("amount");
+                        String desc = response.optString("description", "");
+                        String status = response.optString("payment_status", "success");
+                        String code = response.optString("external_ref", "-");
+                        String time = response.getString("created_at");
+                        String rentalId = response.optString("rental_id", "");
+
+                        bindData(type, amount, desc, status, code, time, rentalId);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> Toast.makeText(this, "Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show()
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> h = new HashMap<>();
+                h.put("Authorization", "Bearer " + token);
+                return h;
+            }
+        };
+
+        queue.add(request);
+    }
+
+    private void bindData(String type, long amount, String desc,
+                          String status, String code,
+                          String time, String rentalId) {
+
+        // ===== TITLE + ICON =====
+        switch (type) {
+            case "topup":
+                tvTitle.setText("Nạp tiền");
+                imgType.setImageResource(R.drawable.naptien);
+                tvAmount.setText("+ " + formatMoney(amount));
+                btnAction.setText("Nạp thêm");
+                btnAction.setOnClickListener(v->{
+                    Intent intent = new Intent(this,NapTienActivity.class);
+                    startActivity(intent);
+                });
+                break;
+
+            case "withdraw":
+                tvTitle.setText("Rút tiền");
+                imgType.setImageResource(R.drawable.rutien);
+                tvAmount.setText("- " + formatMoney(amount));
+                btnAction.setText("Rút tiếp");
+                btnAction.setOnClickListener(v->{
+                    Intent intent = new Intent(this,RutTienActivity.class);
+                    startActivity(intent);
+                });
+                break;
+
+            case "payment":
+                tvTitle.setText("Thuê xe");
+                imgType.setImageResource(R.drawable.ic_bike_small);
+                tvAmount.setText("- " + formatMoney(amount));
+                btnAction.setText("Thuê xe mới");
+                tvRental.setVisibility(View.VISIBLE);
+                tvRental.setText("Mã chuyến: #" + rentalId);
+                btnAction.setOnClickListener(v->{
+                    Intent intent = new Intent(this, QRScanActivity.class);
+                    startActivity(intent);
+                });
+                break;
+        }
+
+        // ===== STATUS =====
+        if (status.equals("success")) {
+            tvStatus.setText("Trạng thái: Thành công");
+            tvStatus.setTextColor(Color.parseColor("#009688"));
+        } else {
+            tvStatus.setText("Trạng thái: Thất bại");
+            tvStatus.setTextColor(Color.RED);
+        }
+
+        tvDesc.setText(desc);
+        tvCode.setText("Mã giao dịch: " + code);
+        tvTime.setText("Thời gian: " + formatDate(time));
+        tvFee.setText("Phí dịch vụ: 0đ");
+    }
+
+    private String formatMoney(long money) {
+        return String.format("%,dđ", money);
+    }
+
+    private String formatDate(String iso) {
+        try {
+            SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            SimpleDateFormat output = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
+            Date date = input.parse(iso);
+            return output.format(date);
+        } catch (Exception e) {
+            return iso;
+        }
+    }
+}

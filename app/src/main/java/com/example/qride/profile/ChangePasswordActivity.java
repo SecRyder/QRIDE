@@ -1,5 +1,7 @@
 package com.example.qride.profile;
 
+import static com.example.qride.helper.APIHelper.CHECK_PHONE;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -15,6 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.qride.R;
 import com.example.qride.sqlite.UserDAO;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -64,18 +70,12 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         // 4. Bấm nút Gửi OTP ở màn hình chính
         btnSendOTP.setOnClickListener(v -> {
-            // LẤY SỐ ĐIỆN THOẠI TẠI ĐÂY (Lúc người dùng bấm nút)
             String phoneInput = etPhoneNumber.getText().toString().trim();
-
-            // --- CHECK DB NGAY TẠI ĐÂY ---
-            UserDAO userDAO = new UserDAO(this);
-            if (userDAO.isPhoneExist(phoneInput)) {
-                // Nếu tồn tại SĐT trong DB thì mới cho hiện BottomSheet
-                showBottomSheetOTP(phoneInput);
-            } else {
-                etPhoneNumber.setError("Số điện thoại này chưa được đăng ký!");
-//                Toast.makeText(this, "Số điện thoại này chưa được đăng ký!", Toast.LENGTH_LONG).show();
+            if (phoneInput.isEmpty()) {
+                etPhoneNumber.setError("Vui lòng nhập số điện thoại");
+                return;
             }
+            checkPhoneFromServer(phoneInput);
         });
     }
 
@@ -117,19 +117,43 @@ public class ChangePasswordActivity extends AppCompatActivity {
         // 6. Nút Xác nhận gửi trong BottomSheet
         btnConfirm.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
-
             Toast.makeText(this, "Đang xác thực ...", Toast.LENGTH_SHORT).show();
-
-            // 🔥 CHUYỂN THẲNG SANG OTP (KHÔNG DÙNG FIREBASE)
+            // CHUYỂN THẲNG SANG OTP (KHÔNG DÙNG FIREBASE)
             Intent intent = new Intent(ChangePasswordActivity.this, com.example.qride.login.activity.RegisterOTPActivity.class);
             intent.putExtra("mode", "FORGOT_PASS");
             intent.putExtra("phone", phoneNumber);
-            intent.putExtra("verificationId", "demo_mode"); //  QUAN TRỌNG
-
+            intent.putExtra("verificationId", "demo_mode");
             startActivity(intent);
         });
 
         bottomSheetDialog.show();
+    }
+
+    private void checkPhoneFromServer(String phone) {
+        String url = CHECK_PHONE + phone;
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonObjectRequest request = new JsonObjectRequest(
+                        Request.Method.GET,
+                        url,
+                        null,
+                        response -> {
+                            try {
+                                boolean exists = response.getBoolean("exists");
+                                if (exists) {
+                                    showBottomSheetOTP(phone);
+                                } else {
+                                    etPhoneNumber.setError("Số điện thoại chưa đăng ký!");
+                                }
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        },
+                        error -> {
+                            Toast.makeText(this, "Lỗi server", Toast.LENGTH_SHORT).show();
+                        }
+                );
+        queue.add(request);
     }
 
     private void setButtonActive() {

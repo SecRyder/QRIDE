@@ -68,8 +68,15 @@ public class QuenPassOTPActivity extends AppCompatActivity {
     }
 
     private void setupUI() {
-        String fullPhone = "+84" + phone;
+        if (phone == null) {
+            Toast.makeText(this, "Thiếu dữ liệu", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        String fullPhone = "+84" + phone.substring(1);
         tvHuongDan.setText(getString(R.string.otp_instruction, fullPhone));
+
         startResendCountdown();
         simulateOtpReceive();
     }
@@ -79,8 +86,15 @@ public class QuenPassOTPActivity extends AppCompatActivity {
 
         btnConfirmOtp.setOnClickListener(v -> {
             String code = getOtpCode();
+
             if (code.length() != 6) {
                 Toast.makeText(this, getString(R.string.otp), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // ===== DEMO OTP =====
+            if (code.equals(DEMO_OTP)) {
+                goToReset();
                 return;
             }
 
@@ -95,12 +109,7 @@ public class QuenPassOTPActivity extends AppCompatActivity {
             FirebaseAuth.getInstance().signInWithCredential(credential)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Toast.makeText(this, getString(R.string.success_authen), Toast.LENGTH_SHORT).show();
-                            // Chuyển sang màn hình đặt lại mật khẩu
-                            Intent intent = new Intent(this, QuenPassResetActivity.class);
-                            intent.putExtra("phone", phone);
-                            startActivity(intent);
-                            finish();
+                            goToReset();
                         } else {
                             Toast.makeText(this, getString(R.string.otp_fail), Toast.LENGTH_SHORT).show();
                         }
@@ -108,26 +117,32 @@ public class QuenPassOTPActivity extends AppCompatActivity {
         });
 
         tvResend.setOnClickListener(v -> {
+            if (!tvResend.isEnabled()) return;
             if (resendToken == null || phone == null) {
                 Toast.makeText(this, getString(R.string.otp_resend_fail), Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            FirebaseAuth auth = FirebaseAuth.getInstance();
             PhoneAuthOptions options =
-                    PhoneAuthOptions.newBuilder(auth)
-                            .setPhoneNumber("+84" + phone)
+                    PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
+                            .setPhoneNumber("+84" + phone.substring(1))
                             .setTimeout(60L, TimeUnit.SECONDS)
                             .setActivity(this)
                             .setForceResendingToken(resendToken)
                             .setCallbacks(callbacks)
                             .build();
-
             PhoneAuthProvider.verifyPhoneNumber(options);
             Toast.makeText(this, getString(R.string.otp_resend_sending), Toast.LENGTH_SHORT).show();
+            startResendCountdown();
         });
     }
+    private void goToReset() {
+        Toast.makeText(this, getString(R.string.success_authen), Toast.LENGTH_SHORT).show();
 
+        Intent intent = new Intent(this, QuenPassResetActivity.class);
+        intent.putExtra("phone", phone);
+        startActivity(intent);
+        finish();
+    }
     private String getOtpCode() {
         return otp1.getText().toString().trim() +
                 otp2.getText().toString().trim() +

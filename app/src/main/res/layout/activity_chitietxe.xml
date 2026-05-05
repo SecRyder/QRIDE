@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:fillViewport="true">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,8 +15,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="93dp"
-            android:background="@drawable/bg_gradient_nhapmaqr"
-            android:paddingTop="20dp">
+            android:background="@drawable/bg_gradient_nhapmaqr">
 
             <ImageView
                 android:id="@+id/btnBack"
@@ -93,10 +91,11 @@
                     android:padding="12dp">
 
                     <TextView
+                        android:id="@+id/tvPlate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="112-643"
+                        android:text="_____"
                         android:textColor="@color/xanhTieuDe"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -121,10 +120,11 @@
                     android:padding="12dp">
 
                     <TextView
+                        android:id="@+id/tvPin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="100%"
+                        android:text="_____%"
                         android:textColor="@color/xanhTieuDe"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -155,11 +155,38 @@
                     android:src="@drawable/ic_location" />
 
                 <TextView
+                    android:id="@+id/tvLocation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:text="01 - Metro Bến Thành" />
+                    android:textColor="@color/xanhTieuDe"
+                    android:text="Đang cập nhật..." />
             </LinearLayout>
+            <!-- trạng thái -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_item"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_status" />
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="Trạng thái: Đang cập nhật..."
+                    android:textColor="@color/xanhTieuDe"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
 
         </LinearLayout>
 
@@ -178,14 +205,14 @@
             android:layout_marginRight="20dp"
             android:background="@drawable/bg_fee"
             android:padding="16dp"
-            android:text="5.000đ mở khóa + 1.000đ / 3 phút" />
+            android:text="5.000đ mở khóa + 5.000đ / 15 phút" />
 
         <!-- ===== NOTE ===== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="50dp"
             android:layout_marginRight="20dp"
             android:background="@drawable/bg_note"
             android:gravity="center_vertical"

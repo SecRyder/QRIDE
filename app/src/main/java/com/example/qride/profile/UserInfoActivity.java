@@ -1,8 +1,13 @@
 package com.example.qride.profile;
 
+import static com.example.qride.helper.APIHelper.UPDATE;
+import static com.example.qride.helper.APIHelper.USER;
+import static com.example.qride.helper.APIHelper.getToken;
+
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -11,8 +16,17 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.qride.R;
 import com.example.qride.sqlite.UserDAO;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserInfoActivity extends AppCompatActivity {
 
@@ -79,63 +93,139 @@ public class UserInfoActivity extends AppCompatActivity {
             String name = etName.getText().toString().trim();
             String cccd = etCccd.getText().toString().trim();
             String address = etAddress.getText().toString().trim();
-            String birthday = etBirthday.getText().toString().trim();
-
+            String birthdayRaw = etBirthday.getText().toString().trim();
+            String birthday = convertToISODate(birthdayRaw);
             String gender = "Khác";
             int selectedId = rgGender.getCheckedRadioButtonId();
-            if (selectedId == R.id.rbMale) {
-                gender = "Nam";
-            } else if (selectedId == R.id.rbFemale) {
-                gender = "Nữ";
-            }
-
+            if (selectedId == R.id.rbMale) gender = "Nam";
+            else if (selectedId == R.id.rbFemale) gender = "Nữ";
             if (name.isEmpty() || cccd.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập đủ Tên và CCCD!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Nhập đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            // Cập nhật vào DB
-            boolean isSuccess = userDAO.updateUserInfo(currentUserPhone, name, cccd, address, gender, birthday);
-
-            if (isSuccess) {
-                Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
-                finish(); // Cập nhật xong thì tự động đóng màn hình này
-            } else {
-                Toast.makeText(this, "Cập nhật thất bại!", Toast.LENGTH_SHORT).show();
-            }
+            updateUserAPI(name, cccd, address, gender, birthday);
         });
     }
 
-    // Hàm lấy thông tin user từ CSDL và điền lên UI
-    private void loadUserData() {
-        Cursor cursor = userDAO.getUserInfo(currentUserPhone);
-        if (cursor != null && cursor.moveToFirst()) {
+    private String convertToISODate(String input) {
+        try {
+            java.text.SimpleDateFormat inputFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
+            java.text.SimpleDateFormat outputFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            java.util.Date date = inputFormat.parse(input);
+            return outputFormat.format(date);
+        } catch (Exception e) {
+            return "";
+        }
+    }
 
-            // Lấy vị trí (index) của các cột trong Database
-            int nameIdx = cursor.getColumnIndex("name");
-            int cccdIdx = cursor.getColumnIndex("cccd");
-            int addressIdx = cursor.getColumnIndex("address");
-            int genderIdx = cursor.getColumnIndex("gender");
-            int birthdayIdx = cursor.getColumnIndex("birthday");
+    private void updateUserAPI(String name, String cccd, String address, String gender, String birthday) {
 
-            // Điền dữ liệu vào các ô EditText
-            if (nameIdx != -1) etName.setText(cursor.getString(nameIdx));
-            if (cccdIdx != -1) etCccd.setText(cursor.getString(cccdIdx));
-            if (addressIdx != -1) etAddress.setText(cursor.getString(addressIdx));
-            if (birthdayIdx != -1) etBirthday.setText(cursor.getString(birthdayIdx));
+        String url = UPDATE;
+        String token = getToken(this);
+        if (token == null || token.isEmpty()) {
+            Toast.makeText(this, "Token lỗi, vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            // Chọn đúng giới tính trên RadioGroup
-            if (genderIdx != -1) {
-                String gender = cursor.getString(genderIdx);
-                if ("Nam".equals(gender)) {
-                    rgGender.check(R.id.rbMale);
-                } else if ("Nữ".equals(gender)) {
-                    rgGender.check(R.id.rbFemale);
-                } else {
-                    rgGender.check(R.id.rbOther);
-                }
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        JSONObject body = new JSONObject();
+        try {
+            body.put("name", name);
+            body.put("cccd", cccd);
+            body.put("address", address);
+            body.put("gender", gender);
+            if (!birthday.isEmpty()) {
+                body.put("birthday", birthday);
             }
-            cursor.close();
+        } catch (Exception e) {
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST,
+                url,
+                body,
+                response -> {
+                    if ("SUCCESS".equals(response.optString("message"))) {
+                        Toast.makeText(this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Toast.makeText(this, "Thất bại", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> Toast.makeText(this, "Lỗi server", Toast.LENGTH_SHORT).show()
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+        };
+
+        queue.add(request);
+    }
+
+    private void loadUserData() {
+        String url = USER;
+        String token = getToken(this);
+        if (token == null || token.isEmpty()) {
+            Log.d("TOKEN_DEBUG", "Token = " + token);
+            Toast.makeText(this, "Token lỗi, vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    etName.setText(response.optString("name"));
+                    etCccd.setText(response.optString("cccd"));
+                    etAddress.setText(response.optString("address"));
+                    etBirthday.setText(formatDateFromAPI(response.optString("birthday")));
+
+                    String gender = response.optString("gender");
+                    if ("Nam".equals(gender)) rgGender.check(R.id.rbMale);
+                    else if ("Nữ".equals(gender)) rgGender.check(R.id.rbFemale);
+                    else rgGender.check(R.id.rbOther);
+                },
+                error -> {
+                    if (error.networkResponse != null) {
+                        int code = error.networkResponse.statusCode;
+                        String data = new String(error.networkResponse.data);
+                        Log.e("API_ERROR", code + " | " + data);
+                        Toast.makeText(this, "Lỗi: " + code, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.e("API_ERROR", error.toString());
+                        Toast.makeText(this, "Không kết nối server", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+        };
+
+        queue.add(request);
+    }
+
+    private String formatDateFromAPI(String isoDate) {
+        try {
+            java.text.SimpleDateFormat input =
+                    new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            java.text.SimpleDateFormat output =
+                    new java.text.SimpleDateFormat("dd/MM/yyyy");
+
+            java.util.Date date = input.parse(isoDate);
+            return output.format(date);
+        } catch (Exception e) {
+            return "";
         }
     }
 }

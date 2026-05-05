@@ -1,10 +1,14 @@
 package com.example.qride.fragment;
 
+import static com.example.qride.helper.APIHelper.USER;
+import static com.example.qride.helper.APIHelper.getToken;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +20,18 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.qride.R;
 import com.example.qride.profile.ChangeLanguageActivity;
 import com.example.qride.profile.SecurityActivity;
 import com.example.qride.profile.UserInfoActivity;
 import com.example.qride.login.activity.LoginTaiKhoanActivity;
 import com.example.qride.sqlite.UserDAO;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProfileFragment extends Fragment {
 
@@ -98,29 +108,52 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserProfile() {
-        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("login_check", Context.MODE_PRIVATE);
-        String currentPhone = sharedPreferences.getString("phone", "");
-
-        if (!currentPhone.isEmpty()) {
-            tvProfilePhone.setText("+84" + currentPhone);
-
-            Cursor cursor = userDAO.getUserInfo(currentPhone);
-            if (cursor != null && cursor.moveToFirst()) {
-                int nameIdx = cursor.getColumnIndex("name");
-                if (nameIdx != -1) {
-                    String name = cursor.getString(nameIdx);
-                    if (name != null && !name.isEmpty()) {
-                        tvProfileName.setText(name);
-                    } else {
-                        tvProfileName.setText(getString(R.string.profile_no_name));
-                    }
-                }
-                cursor.close();
-            }
-        } else {
+        String token = getToken(getContext());
+        SharedPreferences sharedPreferences = requireActivity()
+                .getSharedPreferences("login_check", Context.MODE_PRIVATE);
+        String phone = sharedPreferences.getString("phone", "");
+        if (phone.isEmpty()) {
             tvProfileName.setText(getString(R.string.profile_guest));
             tvProfilePhone.setText(getString(R.string.profile_not_logged_in));
+            return;
         }
+        tvProfilePhone.setText("+84" + phone);
+        String url = USER;
+        RequestQueue queue =
+                com.android.volley.toolbox.Volley.newRequestQueue(requireContext());
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    try {
+                        String name = response.optString("name", "");
+                        if (!name.isEmpty()) {
+                            tvProfileName.setText(name);
+                        } else {
+                            tvProfileName.setText(getString(R.string.profile_no_name));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(getContext(), "Lỗi parse dữ liệu", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> {
+                    if (error.networkResponse != null) {
+                        String data = new String(error.networkResponse.data);
+                        android.util.Log.e("API_ERROR", data);
+                    }
+                    Toast.makeText(getContext(), "Lỗi server", Toast.LENGTH_SHORT).show();
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + token);
+                return headers;
+            }
+        };
+        queue.add(request);
     }
 
     private void setupMenuItem(View parentView, int viewId, String title, View.OnClickListener listener) {
