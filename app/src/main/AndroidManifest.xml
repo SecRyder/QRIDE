@@ -37,7 +37,7 @@
         android:theme="@style/Theme.Qride"
         tools:targetApi="31"> <meta-data
         android:name="com.google.android.geo.API_KEY"
-        android:value="AIzaSyAPEuMN5QRz_oQs1hzmQjxUzrbwlyDrl40"/>
+        android:value="${MAPS_API_KEY}"/>
 
         <activity
             android:name=".Splash.SplashActivity"
