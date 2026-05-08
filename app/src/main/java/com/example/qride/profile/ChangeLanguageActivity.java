@@ -1,5 +1,6 @@
 package com.example.qride.profile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.RadioButton;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,8 +38,18 @@ public class ChangeLanguageActivity extends AppCompatActivity {
     }
 
     private void changeLanguage(String languageCode) {
+        //Lưu lại vào bộ nhớ máy
+        getSharedPreferences("Settings", MODE_PRIVATE)
+                .edit()
+                .putString("My_Lang", languageCode)
+                .apply();
+
         LocaleListCompat appLocale = LocaleListCompat.forLanguageTags(languageCode);
         AppCompatDelegate.setApplicationLocales(appLocale);
         // Sau lệnh này, toàn bộ App sẽ tự động refresh lại với ngôn ngữ mới
+        Intent intent = new Intent(this, com.example.qride.MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish(); // Đóng luôn màn hình chọn ngôn ngữ này
     }
 }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/layoutSubHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+
+        android:background="@drawable/btn_outline_green"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvSubTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/imgSubArrow"
+            android:layout_alignParentStart="true"
+            android:text="Câu hỏi con?"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/imgSubArrow"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_arrow_down" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tvAnswer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginStart="20dp"
+        android:text="Đây là câu trả lời chi tiết..."
+        android:textColor="#555555"
+        android:textSize="13sp"
+        android:visibility="gone" />
+</LinearLayout>

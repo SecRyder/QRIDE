@@ -24,8 +24,7 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.VIBRATE" />
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
 
     <application
         android:allowBackup="true"
@@ -68,6 +67,12 @@
         <activity android:name=".login.activity.QuenPassActivity"/>
         <activity android:name=".login.activity.QuenPassOTPActivity"/>
         <activity android:name=".login.activity.QuenPassResetActivity"/>
+        <activity android:name=".profile.DarkModeActivity" />
+        <activity android:name=".profile.NotificationSettingsActivity" />
+        <activity android:name=".profile.InviteFriendsActivity" />
+        <activity android:name=".profile.SupportCenterActivity" />
+        <activity android:name=".profile.AboutQRideActivity" />
+        <activity android:name=".profile.TermsActivity" />
         <activity android:name=".thuexe.QRScanActivity"/>
         <activity android:name=".thuexe.QRNhapMaActivity"/>
         <activity android:name=".thuexe.ChiTietXeActivity"/>

@@ -75,12 +75,42 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
 
-        setupMenuItem(view, R.id.menuDarkMode, getString(R.string.menu_dark_mode), null);
-        setupMenuItem(view, R.id.menuNotify, getString(R.string.menu_notify), null);
-        setupMenuItem(view, R.id.menuInvite, getString(R.string.menu_invite), null);
-        setupMenuItem(view, R.id.menuSupport, getString(R.string.menu_support), null);
-        setupMenuItem(view, R.id.menuAbout, getString(R.string.menu_about), null);
-        setupMenuItem(view, R.id.menuTerms, getString(R.string.menu_terms), null);
+        setupMenuItem(view, R.id.menuDarkMode, getString(R.string.menu_dark_mode), v -> {
+            Intent intent = new Intent(requireActivity(), com.example.qride.profile.DarkModeActivity.class);
+            startActivity(intent);
+        });
+        setupMenuItem(view, R.id.menuNotify, getString(R.string.menu_notify), v -> {
+            Intent intent = new Intent(requireActivity(), com.example.qride.profile.NotificationSettingsActivity.class);
+            startActivity(intent);
+        });
+        setupMenuItem(view, R.id.menuInvite, getString(R.string.menu_invite), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(requireActivity(), com.example.qride.profile.InviteFriendsActivity.class);
+                startActivity(intent);
+            }
+        });
+        setupMenuItem(view, R.id.menuSupport, getString(R.string.menu_support), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(requireActivity(), com.example.qride.profile.SupportCenterActivity.class);
+                startActivity(intent);
+            }
+        });
+        setupMenuItem(view, R.id.menuAbout, getString(R.string.menu_about), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(requireActivity(), com.example.qride.profile.AboutQRideActivity.class);
+                startActivity(intent);
+            }
+        });
+        setupMenuItem(view, R.id.menuTerms, getString(R.string.menu_terms), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(requireActivity(), com.example.qride.profile.TermsActivity.class);
+                startActivity(intent);
+            }
+        });
 
         View btnLogout = view.findViewById(R.id.btnLogout);
         if (btnLogout != null) {

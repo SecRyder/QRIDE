@@ -70,6 +70,127 @@
     <string name="profile_guest">Khách</string>
     <string name="profile_not_logged_in">Chưa đăng nhập</string>
     <string name="profile_no_name">Chưa cập nhật tên</string>
+    <string name="aboutQ">Về QRIDE</string>
+    <string name="gioithieu">Giới thiệu</string>
+    <string name="gioithieu1">Dịch vụ thuê xe tự hành QRIDE là dự án của Công ty TNHH QRIDE, ra đời từ định hướng giao thông xanh theo Chỉ thị 20/CT-TTg, khi Việt Nam hướng tới không có xe dùng nhiên liệu hóa thạch tại các đô thị lớn. QRIDE được xây dựng với mục tiêu mang đến dịch vụ thuê xe tự hành thông minh, tiện lợi và an toàn, góp phần xây dựng thành phố hiện đại, sạch và bền vững.</string>
+    <string name="ynghiatenthuonghieu">Ý nghĩa của tên thương hiệu</string>
+    <string name="ynghia1">QRIDE kết hợp giữa \"Quick\" và \"Ride\", nó thể hiện tình thần tự do di chuyển nhanh chóng, linh hoạt và thân thiện với môi trường.</string>
+    <string name="sologan">Sologan</string>
+    <string name="sologan1">\"MOVE FREELY\" thể hiện triết lý tự do toàn diện mà QRIDE theo đuổi: tự do di chuyến, tự do tài chính và tự do lựa chọn lối sống xanh.</string>
+    <string name="tamnhinvasumenh">Tầm nhìn và sứ mệnh</string>
+    <string name="tamnhin1">QRIDE hướng tới là một thương hiệu dẫn đầu trong lĩnh vực di chuyển xanh tại Việt Nam, góp phần xây dựng hệ sinh thái giao thông thông minh, an toàn và bền vững.</string>
+    <string name="tamnhin">Tầm nhìn:</string>
+    <string name="sumenh">Sứ mệnh:</string>
+    <string name="sumenh1">QRIDE mang đến giải pháp di chuyển xanh, linh hoạt và tiết kiệm thông qua dịch vụ cho thuê xe tự hành, giúp người dân dễ dàng tiếp cận với lối sống xanh và cùng chung tay xây dựng thành phố xanh, sạch, đẹp.</string>
+    <string name="dinhvithuonghieu">Định vị thương hiệu</string>
+    <string name="dinhvi1">QRIDE được định vị là thương hiệu dịch vụ di chuyển xanh, an toàn và thông minh, hướng đến việc tối ưu hóa trải nghiệm di chuyển trong đô thị hiện đại. Thương hiệu tập trung cung cấp giải pháp giao thông tiện lợi, linh hoạt và thân thiện với môi trường, đồng thời thúc đẩy xu hướng chuyển đổi sang phương tiện năng lượng sạch theo định hướng phát triển bền vững của quốc gia.</string>
+    <string name="title_core_values">Giá trị cốt lõi của QRIDE:</string>
+
+    <string name="label_quality">Quality - Chất lượng</string>
+    <string name="desc_quality">QRIDE cam kết đảm bảo chất lượng vận hành vượt trội trong từng phương tiện, từng dịch vụ và từng điểm chạm với khách hàng. Tính ổn định, an toàn và độ bền được đặt lên hàng đầu.</string>
+
+    <string name="label_quick">Quick - Nhanh chóng</string>
+    <string name="desc_quick">Dịch vụ được thiết kế để tiết kiệm thời gian cho người dùng: thao tác nhanh, đặt xe dễ dàng và vận hành thuận tiện. Tốc độ xử lý và hiệu quả là ưu tiên cốt lõi.</string>
+
+    <string name="label_quiet">Quiet - Êm ái và yên tĩnh</string>
+    <string name="desc_quiet">Xe điện mang lại trải nghiệm di chuyển nhẹ nhàng, không tiếng ồn, phù hợp với các khu đô thị văn minh và góp phần giảm ô nhiễm tiếng ồn.</string>
+
+    <string name="label_quest">Quest - Khám phá</string>
+    <string name="desc_quest">QRIDE truyền cảm hứng cho người dùng khám phá thành phố theo cách của riêng mình. Tinh thần đổi mới và khám phá được thể hiện trong mọi hoạt động và sản phẩm.</string>
+
+    <string name="label_sustainability">Sustainability – Bền vững</string>
+    <string name="desc_sustainability">Thương hiệu chú trọng phát triển theo hướng xanh - sạch - bền vững, sử dụng năng lượng điện, giảm phát thải và giảm tác động đến môi trường.</string>
+
+    <string name="label_customer_centric">Customer Centric - Lấy khách hàng làm trọng tâm</string>
+    <string name="desc_customer_centric">Mọi cải tiến và dịch vụ của QRIDE đều được xây dựng dựa trên nhu cầu, hành vi và trải nghiệm của người dùng. Sự hài lòng của khách hàng là tiêu chí đánh giá quan trọng nhất.</string>
+
+    <string name="label_responsibility">Responsibility - Trách nhiệm</string>
+    <string name="desc_responsibility">QRIDE thể hiện trách nhiệm với cộng đồng bằng việc cung cấp dịch vụ an toàn, đáng tin cậy và đóng góp vào sự phát triển của hệ thống giao thông xanh đô thị.</string>
+
+
+    <string name="label_innovation">Innovation - Đổi mới</string>
+    <string name="desc_innovation">Thương hiệu liên tục nghiên cứu và áp dụng công nghệ mới để nâng cao chất lượng sản phẩm, tối ưu hoá trải nghiệm và tạo ra những giải pháp tiên phong trong lĩnh vực di chuyển.</string>
+
+    <string name="label_freedom">Freedom - Tự do</string>
+    <string name="desc_freedom">QRIDE hướng đến trao quyền tự do di chuyển cho mọi người dùng: tự do lựa chọn, tự do trải nghiệm và tự do khám phá mọi điểm đến theo cách cá nhân hóa.</string>
+
+    <string name="label_address2">Địa chỉ:</string>
+    <string name="content_address">13 Man Thiện, Hiệp Phú, Phường Tăng Nhơn Phú A, TP. Thủ Đức, TP. Hồ Chí Minh.</string>
+    <string name="label_hotline">Hotline:</string>
+    <string name="content_hotline">1900 123456 (7:00AM - 10:00PM)</string>
+    <string name="label_email">Email:</string>
+    <string name="content_email">contact@qride.com</string>
+    <string name="label_tax_code">Mã số thuế:</string>
+    <string name="content_tax_code">0114736678</string>
+    <string name="label_certification">Chứng nhận:</string>
+    <string name="content_certification">Đã đăng ký bộ công thương.</string>
+    <string name="view_detail">Xem chi tiết</string>
+    <string name="title_dark_mode">Chế độ tối</string>
+    <string name="dark_mode_on">Bật</string>
+    <string name="dark_mode_off">Tắt</string>
+    <string name="dark_mode_system">Hệ thống</string>
+    <string name="dark_mode_desc">Nếu bạn chọn hệ thống, QRIDE sẽ tự động điều chỉnh giao diện theo phần cài đặt hệ thống trên thiết bị.</string>
+    <string name="btn_update">Cập nhật</string>
+    <string name="gioithieubanbe">Giới thiệu bạn bè</string>
+    <string name="gioiThieu1">Hãy giới thiệu QRIDE đến bạn bè!</string>
+    <string name="gioiThieu2">Mời bạn bè cùng trải nghiệm hành trình xanh, thuê xe tiện lợi và nhận ưu đãi hấp dẫn từ QRIDE.</string>
+    <string name="codeMoiBanBe">Mã mời bạn bè</string>
+    <string name="inviteFr">Mời bạn bè</string>
+    <string name="tit_cat_dat_thong_bao">Cài đặt thông báo</string>
+    <string name="systemNotifi">Thông báo hệ thống</string>
+    <string name="trans_notifi">Thông báo giao dịch</string>
+    <string name="other_notifi">Thông báo khác</string>
+    <string name="content_notifi1">Nhận thông báo về trạng thái xe và các cảnh báo quan trọng trong quá trình sử dụng (bao gồm mở/đóng xe, lỗi, pin yếu, ra/vào vùng hoạt động ...).</string>
+    <string name="content_notifi2">Nhận thông báo về thanh toán, hóa đơn và các giao dịch liên quan đến chuyến đi.</string>
+    <string name="content_notifi3">Nhận thông báo về các ưu đãi, voucher và nhắc nhở gia hạn gói,...</string>
+    <string name="titTrungTamhotro">Trung tâm hỗ trợ</string>
+    <string name="support1">Cần hỗ trợ nhanh vui lòng gọi 1900 123456 (7:00AM - 10:00PM) hoặc chat cùng với trung tâm hỗ trợ 24/7 cùng QRide.</string>
+    <string name="call">Gọi</string>
+    <string name="chat">Chat</string>
+    <string name="cauhoithuonggap">Câu hỏi thường gặp</string>
+    <string name="dieukhoanvachinhsach">Điều khoản và chính sách</string>
+
+
+    <string name="terms_welcome">Chào mừng Bạn đến với ứng dụng dịch vụ cho thuê xe tự hành QRIDE - thuộc sở hữu của Công ty TNHH QRIDE.</string>
+    <string name="terms_acceptance">Bằng việc cài đặt và đồng ý truy cập bao gồm đăng nhập, đăng ký ứng dụng là đồng nghĩa với việc người dùng xác nhận đã ĐỌC, HIỂU RÕ và đồng ý tuân thủ toàn bộ Điều khoản dưới đây.</string>
+    <string name="terms_modification">QRIDE có thể điều chỉnh, bổ sung, thay thế một phần hoặc toàn bộ Điều khoản sử dụng và sẽ thông báo đến bạn qua ứng dụng và/ hoặc qua số điện thoại đã đăng ký của bạn. Bạn có trách nhiệm thường xuyên kiểm tra Điều khoản. Việc tiếp tục sử dụng dịch vụ/ ứng dụng đồng nghĩa với việc bạn chấp nhận, đồng ý với những Điều khoản đã thay đổi đó.</string>
+
+
+    <string name="terms_service_title">1. Dịch vụ thuê xe tự hành QRIDE:</string>
+    <string name="terms_service_desc">Là một dịch vụ cho thuê/ chia sẻ dùng chung xe đạp/ xe điện, giúp người dùng tham gia giao thông có thể di chuyển từ trạm xe đạp QRIDE bất kỳ và có thể tự do trả xe tại trạm bất kỳ.</string>
+
+    <string name="terms_fee_title">2. Phí dịch vụ</string>
+    <string name="terms_fee_desc">Phí dịch vụ là khoản phí thuê xe đạp/ điện khách hàng phải trả khi sử dụng dịch vụ thuê xe tự hành QRIDE.\n\nPhí dịch vụ được tính như sau:\n• Thuê xe đạp: 5.000đ mở khóa + 1.000đ/3 phút.\n• Thuê xe điện: 7.000đ mở khóa + 2.000đ/3 phút.\n\nPhí dịch vụ sẽ được hệ thống tính và tự động trừ vào ví QRIDE sau khi khách hàng kết thúc chuyến đi.\n\nQRIDE có quyền sửa đổi phí dịch vụ phù hợp, người dùng xác nhận đồng ý sửa đổi phí khi tiếp tục sử dụng dịch vụ của ứng dụng.</string>
+
+    <string name="terms_commitment_title">3. Cam đoan của khách hàng</string>
+    <string name="terms_commitment_desc">Với việc sử dụng dịch vụ thuê xe tự hành QRIDE, khách hàng đồng ý và cam đoan:\n• Cung cấp thông tin chính xác khi đăng ký.\n• Tuân thủ luật giao thông và quy định sử dụng xe.\n• Không sử dụng xe cho mục đích trái pháp luật.\n• Không có bất kỳ hành vi nào gây hư hỏng đến tài sản của công ty.\n• Không cho thuê lại xe hoặc giao xe cho đơn vị khác.\n• Chịu trách nhiệm và bồi thường về hành vi và thiệt hại phát sinh.\n• Thanh toán đủ chi phí sử dụng dịch vụ.</string>
+
+    <string name="terms_liability_title">4. Giới hạn trách nhiệm, bồi thường và đánh giá rủi ro</string>
+    <string name="terms_liability_desc">Trách nhiệm bồi thường:\n• Mọi hư hỏng, mất mát hoặc thiệt hại trực tiếp đến tài sản của công ty trong quá trình khách hàng sử dụng dịch vụ thì phải bồi thường 100% giá trị tài sản.\n• Mọi hư hỏng tài sản trong quá trình sử dụng do lỗi chủ quan của khách hàng thì phải chịu 100% chi phí sửa chữa.\n\nĐánh giá rủi ro bởi khách hàng:\n• Khách Hàng hoàn toàn chịu trách nhiệm về việc sử dụng và an toàn của xe tại bất kỳ thời điểm nào.\n• Khách Hàng hiểu rằng xe có thể phát sinh sự cố và việc điều khiển xe luôn tiềm ẩn rủi ro gây thương tích, tử vong hoặc thiệt hại tài sản.\n• Mọi rủi ro và hậu quả phát sinh trong quá trình sử dụng xe thuộc trách nhiệm của Khách Hàng.\n• Khách Hàng đồng ý rằng Công ty và các bên liên quan không chịu trách nhiệm cho bất kỳ thiệt hại hay chi phí nào phát sinh từ hành vi hoặc lỗi của Khách Hàng.</string>
+
+    <string name="privacy_policy_title">Chính sách bảo mật</string>
+
+    <string name="privacy_collect_title">1. Thu thập thông tin</string>
+    <string name="privacy_collect_desc">QRIDE thu thập thông tin cá nhân gồm: họ tên, số điện thoại, địa chỉ, CCCD, thông tin thanh toán, vị trí GPS khi sử dụng dịch vụ.\nViệc thu thập nhằm mục đích quản lý tài khoản, hỗ trợ giao dịch, nâng cao trải nghiệm và đảm bảo an toàn cho người dùng.</string>
+
+    <string name="privacy_use_title">2. Sử dụng thông tin</string>
+    <string name="privacy_use_desc">Thông tin cá nhân được sử dụng để xác minh danh tính, cung cấp dịch vụ, gửi thông báo, hỗ trợ khách hàng và cải thiện trải nghiệm ứng dụng.\nQRIDE cam kết không chia sẻ thông tin cá nhân với bên thứ ba nếu không được sự đồng ý của người dùng, trừ trường hợp pháp luật yêu cầu.</string>
+
+    <string name="privacy_protect_title">3. Bảo vệ thông tin</string>
+    <string name="privacy_protect_desc">QRIDE áp dụng các biện pháp kỹ thuật và quản lý nhằm bảo mật dữ liệu người dùng, ngăn chặn truy cập trái phép, rò rỉ, mất mát hoặc thay đổi dữ liệu.\nNgười dùng cũng có trách nhiệm bảo vệ tài khoản, mật khẩu và thiết bị của mình.</string>
+
+    <string name="privacy_rights_title">4. Quyền của người dùng</string>
+    <string name="privacy_rights_desc">Người dùng có quyền truy cập, chỉnh sửa, xóa hoặc yêu cầu QRIDE ngừng sử dụng dữ liệu cá nhân trong phạm vi luật cho phép.\nMọi yêu cầu liên quan đến dữ liệu cá nhân có thể được gửi đến bộ phận hỗ trợ khách hàng của QRIDE.</string>
+    <string name="dieukhoansudung">Điều khoản sử dụng</string>
+    <string name="faq_bike">Thắc mắc đi xe</string>
+    <string name="faq_payment">Vấn đề thanh toán</string>
+    <string name="faq_other">Vấn đề khác</string>
+    <string name="how_to_rent_title">Cách thức thuê và trả xe?</string>
+    <string name="how_to_rent_content">Chỉ cần tải app, đăng ký, nạp tiền và quét mã QR để mở khóa xe. Đi xong, trả xe tại trạm bất kỳ và xác nhận trả xe trên ứng dụng là hoàn tất.</string>
+    <string name="working_time_title">Thời gian hoạt động?</string>
+    <string name="working_time_content">Dịch vụ hoạt động 24/7. Bạn có thể thuê xe bất cứ lúc nào trong ngày.</string>
+    <string name="faq_payment_content">Hệ thống hỗ trợ thanh toán qua ví điện tử (Momo, ZaloPay), thẻ ngân hàng nội địa hoặc thẻ tín dụng quốc tế. Tiền sẽ được trừ tự động sau khi bạn kết thúc chuyến đi.</string>
+    <string name="faq_other_content">Nếu bạn gặp sự cố kỹ thuật, mất đồ hoặc cần khiếu nại về hành vi của người dùng khác, vui lòng gửi tin nhắn trực tiếp qua mục Chat hoặc gọi vào số hotline để được xử lý ngay lập tức.</string>
 
     <!-- Profile Menu -->
     <string name="menu_info">Thông tin cá nhân</string>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/xanhNgoc"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/white" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/title_dark_mode"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <View android:layout_width="28dp" android:layout_height="28dp" />
+    </LinearLayout>
+
+    <RadioGroup
+        android:id="@+id/rgDarkMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+        <RadioButton
+            android:id="@+id/rbOn"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/btn_outline_green"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawableTint="@color/xanhTieuDe"
+            android:paddingHorizontal="16dp"
+            android:text="@string/dark_mode_on"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <RadioButton
+            android:id="@+id/rbOff"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/btn_outline_green"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawableTint="@color/xanhTieuDe"
+            android:paddingHorizontal="16dp"
+            android:text="@string/dark_mode_off"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <RadioButton
+            android:id="@+id/rbSystem"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/btn_outline_green"
+            android:button="@null"
+            android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
+            android:drawableTint="@color/xanhTieuDe"
+            android:paddingHorizontal="16dp"
+            android:text="@string/dark_mode_system"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dark_mode_desc"
+            android:textColor="@color/text_gray"
+            android:textSize="13sp" />
+    </RadioGroup>
+
+    <View android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnUpdate"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_margin="20dp"
+        android:background="@drawable/btn_outline_green"
+        android:text="@string/btn_update"
+        android:textAllCaps="false"
+        android:textColor="@color/xanhTieuDe"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

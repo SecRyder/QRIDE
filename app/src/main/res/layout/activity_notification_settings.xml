@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/xanhNgoc"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp">
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/white" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/tit_cat_dat_thong_bao"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+        <View android:layout_width="28dp" android:layout_height="28dp" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_outline_green"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/systemNotifi"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="16sp" />
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/swSystem"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:thumbTint="@color/white"
+                        app:trackTint="@color/xanhNgoc" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="20dp"
+                android:paddingHorizontal="4dp"
+                android:text="@string/content_notifi1"
+                android:textColor="@color/text_gray"
+                android:textSize="13sp" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_outline_green"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/trans_notifi"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="16sp" />
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/swTransaction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:thumbTint="@color/white"
+                        app:trackTint="@color/xanhNgoc" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="20dp"
+                android:paddingHorizontal="4dp"
+                android:text="@string/content_notifi2"
+                android:textColor="@color/text_gray"
+                android:textSize="13sp" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_outline_green"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/other_notifi"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="16sp" />
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/swOther"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:thumbTint="@color/white"
+                        app:trackTint="@color/xanhNgoc" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="20dp"
+                android:paddingHorizontal="4dp"
+                android:text="@string/content_notifi3"
+                android:textColor="@color/text_gray"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
