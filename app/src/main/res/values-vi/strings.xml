@@ -192,6 +192,21 @@
     <string name="faq_payment_content">Hệ thống hỗ trợ thanh toán qua ví điện tử (Momo, ZaloPay), thẻ ngân hàng nội địa hoặc thẻ tín dụng quốc tế. Tiền sẽ được trừ tự động sau khi bạn kết thúc chuyến đi.</string>
     <string name="faq_other_content">Nếu bạn gặp sự cố kỹ thuật, mất đồ hoặc cần khiếu nại về hành vi của người dùng khác, vui lòng gửi tin nhắn trực tiếp qua mục Chat hoặc gọi vào số hotline để được xử lý ngay lập tức.</string>
 
+    <string name="title_account_info">Thông tin tài khoản</string>
+    <string name="label_your_name">Tên của bạn</string>
+    <string name="label_cccd">CCCD</string>
+    <string name="label_address">Địa chỉ (nơi ở hiện tại)</string>
+    <string name="label_gender">Giới tính</string>
+    <string name="gender_male">Nam</string>
+    <string name="gender_female">Nữ</string>
+    <string name="gender_other">Khác</string>
+    <string name="label_birthday">Ngày sinh</string>
+    <string name="log_out">Đăng xuất</string>
+
+    <string name="unit_trips">chuyến</string>
+    <string name="unit_km">km</string>
+    <string name="unit_hours">giờ</string>
+
     <!-- Profile Menu -->
     <string name="menu_info">Thông tin cá nhân</string>
     <string name="menu_security">Bảo mật &amp; Mật khẩu</string>

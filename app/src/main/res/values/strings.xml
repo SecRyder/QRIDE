@@ -191,6 +191,20 @@
     <string name="faq_payment_content">The system supports payments via e-wallets (Momo, ZaloPay), domestic bank cards, or international credit cards. The fee will be automatically deducted after your trip ends.</string>
     <string name="faq_other_content">If you encounter technical issues, lose items, or need to report another user\'s behavior, please message us via Chat or call our hotline for immediate assistance.</string>
 
+    <string name="title_account_info">Account Information</string>
+    <string name="label_your_name">Your Name</string>
+    <string name="label_cccd">ID Card Number</string>
+    <string name="label_address">Address (Current residence)</string>
+    <string name="label_gender">Gender</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_other">Other</string>
+    <string name="label_birthday">Date of Birth</string>
+    <string name="log_out">Log out</string>
+
+    <string name="unit_trips">trips</string>
+    <string name="unit_km">km</string>
+    <string name="unit_hours">hours</string>
 
 
     <!-- Profile Menu -->

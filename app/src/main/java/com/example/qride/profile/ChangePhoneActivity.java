@@ -19,8 +19,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -31,32 +31,27 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.qride.R;
 import com.example.qride.login.activity.RegisterOTPActivity;
-import com.example.qride.sqlite.UserDAO;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthOptions;
-import com.google.firebase.auth.PhoneAuthProvider;
-
-import java.util.concurrent.TimeUnit;
 
 public class ChangePhoneActivity extends AppCompatActivity {
 
     private EditText etPhoneNumber;
     private TextInputLayout tilPhoneNumber;
     private Button btnSendOTP;
-    private String oldPhoneNumber;
-    private String newPhoneNumber;
-    // Hằng số để nhận diện kết quả trả về từ màn hình OTP
+    private String oldPhoneNumber; // SĐT hiện tại của user
+    private String newPhoneNumber; // SĐT mới chuẩn bị đổi
     private static final int REQUEST_CODE_OTP = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_phone);
-        oldPhoneNumber = getIntent().getStringExtra("current_phone");
+
+        // LẤY SĐT CŨ TRỰC TIẾP TỪ SHAREDPREFERENCES ĐỂ ĐẢM BẢO KHÔNG BỊ NULL
+        SharedPreferences pref = getSharedPreferences("login_check", MODE_PRIVATE);
+        oldPhoneNumber = pref.getString("phone", "");
+
         initView();
         setupTextWatcher();
         btnSendOTP.setOnClickListener(v -> handleSendOTP());
@@ -75,12 +70,12 @@ public class ChangePhoneActivity extends AppCompatActivity {
     private void setupTextWatcher() {
         etPhoneNumber.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().trim().length() >= 9) {
+                // Thường SĐT là 10 số
+                if (s.toString().trim().length() == 10) {
                     setButtonActive();
                 } else {
                     setButtonInactive();
@@ -89,57 +84,33 @@ public class ChangePhoneActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-            }
+            public void afterTextChanged(Editable s) {}
         });
     }
 
-//    private void handleSendOTP() {
-//        String phoneInput = etPhoneNumber.getText().toString().trim();
-//        String phoneToVerify = phoneInput;
-//
-//        if (phoneToVerify.startsWith("0")) {
-//            phoneToVerify = phoneToVerify.substring(1);
-//        }
-//
-//        newPhoneNumber = phoneInput; // lưu số mới
-//
-//
-//        if (phoneToVerify.equals(oldPhoneNumber) || phoneInput.equals(oldPhoneNumber)) {
-//            tilPhoneNumber.setError("Đây là số điện thoại hiện tại của bạn!");
-//            return;
-//        }
-//
-//        UserDAO userDAO = new UserDAO(this);
-//        if (userDAO.isPhoneExist(phoneInput) || userDAO.isPhoneExist(phoneToVerify)) {
-//            tilPhoneNumber.setError("Số điện thoại này đã được đăng ký bởi tài khoản khác!");
-//            return;
-//        }
-//
-//        showBottomSheetOTP(phoneToVerify);
-//    }
-
     private void handleSendOTP() {
         String phoneInput = etPhoneNumber.getText().toString().trim();
-        if (phoneInput.isEmpty()) {
-            tilPhoneNumber.setError("Vui lòng nhập số điện thoại");
+
+        if (phoneInput.isEmpty() || phoneInput.length() < 10) {
+            tilPhoneNumber.setError("Vui lòng nhập số điện thoại hợp lệ (10 số)");
             return;
         }
-        String phoneToVerify = phoneInput;
-        if (phoneToVerify.startsWith("0")) {
-            phoneToVerify = phoneToVerify.substring(1);
-        }
-        newPhoneNumber = phoneInput;
-        // check trùng số cũ
-        if (phoneToVerify.equals(oldPhoneNumber) || phoneInput.equals(oldPhoneNumber)) {
+
+        // Kiểm tra xem có trùng với số đang dùng không
+        if (phoneInput.equals(oldPhoneNumber)) {
             tilPhoneNumber.setError("Đây là số điện thoại hiện tại của bạn!");
             return;
         }
-        checkPhoneFromServer(phoneInput, phoneToVerify);
+
+        newPhoneNumber = phoneInput;
+        checkPhoneFromServer(phoneInput);
     }
 
-    private void checkPhoneFromServer(String rawPhone, String normalizedPhone) {
-        String url = CHECK_PHONE + normalizedPhone;
+    private void checkPhoneFromServer(String phone) {
+        // FIX LỖI 404: Thêm dấu "/" ở giữa
+        String url = CHECK_PHONE + "/" + phone;
+        Log.d("API_DEBUG", "Checking phone: " + url);
+
         RequestQueue queue = Volley.newRequestQueue(this);
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET,
@@ -148,17 +119,19 @@ public class ChangePhoneActivity extends AppCompatActivity {
                 response -> {
                     try {
                         boolean exists = response.getBoolean("exists");
+                        // Logic đổi SĐT: Nếu số mới ĐÃ CÓ người dùng khác -> Không cho đổi
                         if (exists) {
-                            tilPhoneNumber.setError("Số điện thoại đã được sử dụng!");
+                            tilPhoneNumber.setError("Số điện thoại này đã được sử dụng bởi người khác!");
                         } else {
-                            showBottomSheetOTP(normalizedPhone);
+                            showBottomSheetOTP(phone);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 },
                 error -> {
-                    tilPhoneNumber.setError("Lỗi server");
+                    tilPhoneNumber.setError("Lỗi server hoặc mạng không ổn định");
+                    Log.e("API_ERROR", error.toString());
                 }
         );
         queue.add(request);
@@ -175,13 +148,12 @@ public class ChangePhoneActivity extends AppCompatActivity {
         Button btnCancel = view.findViewById(R.id.btnCancel);
 
         btnConfirm.setEnabled(false);
-        btnConfirm.setBackgroundResource(R.drawable.btn_outline_green);
-        btnConfirm.setTextColor(ContextCompat.getColor(this, R.color.xanhTieuDe));
 
         View.OnClickListener selectListener = v -> {
             btnConfirm.setEnabled(true);
             btnConfirm.setBackgroundResource(R.drawable.btn_solid_green);
             btnConfirm.setTextColor(ContextCompat.getColor(this, R.color.white));
+
             if (v.getId() == R.id.optionZalo || v.getId() == R.id.rbZalo) {
                 rbZalo.setChecked(true);
                 rbSMS.setChecked(false);
@@ -197,77 +169,48 @@ public class ChangePhoneActivity extends AppCompatActivity {
 
         btnConfirm.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
-            sendFirebaseOTP(phoneNo);
+
+            // CHUYỂN SANG MÀN HÌNH OTP (Chế độ Demo giống các bài trước)
+            Intent intent = new Intent(ChangePhoneActivity.this, RegisterOTPActivity.class);
+            intent.putExtra("mode", "CHANGE_PHONE");
+            intent.putExtra("phone", phoneNo);
+            intent.putExtra("old_phone", oldPhoneNumber);
+            intent.putExtra("verificationId", "demo_mode");
+
+            // Dùng startActivityForResult để nhận biết khi nào user đổi thành công ở màn hình kia
+            startActivityForResult(intent, REQUEST_CODE_OTP);
         });
 
         bottomSheetDialog.show();
     }
 
-    private void sendFirebaseOTP(String phone) {
-        // 1. Chuyển sang màn hình OTP luôn để dùng mã Demo
-        Intent intent = new Intent(ChangePhoneActivity.this, RegisterOTPActivity.class);
-        intent.putExtra("mode", "CHANGE_PHONE");
-        intent.putExtra("phone", phone);
-        intent.putExtra("old_phone", oldPhoneNumber);
-        intent.putExtra("verificationId", "demo_mode"); // Truyền ID giả để RegisterOTP không báo null
-        startActivityForResult(intent, REQUEST_CODE_OTP);
-
-        // 2. Vẫn gọi Firebase để hệ thống hiểu là có gửi (Kệ lỗi Billing)
-        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
-                .setPhoneNumber("+84" + phone)
-                .setTimeout(60L, TimeUnit.SECONDS)
-                .setActivity(this)
-                .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                    @Override
-                    public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
-                    }
-
-                    @Override
-                    public void onVerificationFailed(@NonNull FirebaseException e) {
-                        Log.e("OTP_Debug", "Firebase báo lỗi nhưng vẫn cho dùng mã Demo");
-                    }
-
-                    @Override
-                    public void onCodeSent(@NonNull String vId, @NonNull PhoneAuthProvider.ForceResendingToken token) {
-                    }
-                }).build();
-        PhoneAuthProvider.verifyPhoneNumber(options);
-    }
-
-    // PHẦN MỚI: Nhận tín hiệu từ RegisterOTPActivity trả về
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_OTP && resultCode == RESULT_OK) {
-            // Khi bên OTP báo thành công, hiện Dialog thông báo
-            showSuccessDialog("Thành công!", "Số điện thoại của bạn đã được \n cập nhật thành công. ");
-
+            // Khi RegisterOTPActivity gọi setResult(RESULT_OK), ta hiện dialog thành công ở đây
+            showSuccessDialog("Thành công!", "Số điện thoại của bạn đã được cập nhật thành công.");
         }
     }
 
-    // PHẦN MỚI: Hiển thị Dialog thành công
     private void showSuccessDialog(String title, String message) {
         Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_success_change);
         dialog.setCancelable(false);
 
-        // ánh xạ
         TextView tvTitle = dialog.findViewById(R.id.tvDialogTitle);
         TextView tvMessage = dialog.findViewById(R.id.tvDialogMessage);
 
         tvTitle.setText(title);
         tvMessage.setText(message);
 
-
-        // update session trước
+        // Cập nhật lại SĐT mới vào SharedPreferences để các màn hình khác nhận diện đúng
         SharedPreferences sharedPreferences = getSharedPreferences("login_check", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("phone", newPhoneNumber);
         editor.apply();
 
-
-        // Bo góc cho background dialog
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -280,14 +223,11 @@ public class ChangePhoneActivity extends AppCompatActivity {
         Button btnDone = dialog.findViewById(R.id.btnDone);
         btnDone.setOnClickListener(v -> {
             dialog.dismiss();
-
+            // Quay về SecurityActivity và xóa các task trung gian
             Intent intent = new Intent(ChangePhoneActivity.this, SecurityActivity.class);
-
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
             startActivity(intent);
-
-            finish(); // Đóng màn hình thay đổi số điện thoại và quay về SecurityActivity
+            finish();
         });
 
         dialog.show();

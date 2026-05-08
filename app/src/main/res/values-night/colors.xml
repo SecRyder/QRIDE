@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FFFFFF</color>
+    <color name="white">#121212</color>
+    <color name="xanhNgoc">#0FC8A0</color>
+    <color name="camDiu">#FF8250</color>
+    <color name="gray_light">#BDBDBD</color>
+    <color name="xanhTieuDe">#0FC8A0</color>
+    <color name="xanhButtonBack">#1E2A2A</color>
+
+    <color name="green_primary">#0FC8A0</color>
+    <color name="green_dark">#0FC8A0</color>
+    <color name="background_gray">#000000</color>
+    <color name="text_dark">#FFFFFF</color>
+    <color name="text_gray">#AAAAAA</color>
+    <color name="card_white">#1E1E1E</color>
+    <color name="divider">#333333</color>
+</resources>

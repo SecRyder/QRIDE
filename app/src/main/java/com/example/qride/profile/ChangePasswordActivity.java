@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -22,15 +22,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.qride.R;
-import com.example.qride.sqlite.UserDAO;
+import com.example.qride.login.activity.QuenPassOTPActivity; // Dùng màn hình OTP quên pass bạn đã có
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthOptions;
-import com.google.firebase.auth.PhoneAuthProvider;
-
-import java.util.concurrent.TimeUnit;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
@@ -51,13 +44,16 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         btnBack.setOnClickListener(v -> finish());
 
+        // 2. Theo dõi nhập liệu để bật/tắt nút
         etPhoneNumber.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().trim().length() > 0) {
+                String input = s.toString().trim();
+                // SĐT hợp lệ thường có 10 số
+                if (input.length() == 10) {
                     setButtonActive();
                 } else {
                     setButtonInactive();
@@ -68,18 +64,55 @@ public class ChangePasswordActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
 
-        // 4. Bấm nút Gửi OTP ở màn hình chính
+        // 3. Xử lý nút Gửi OTP
         btnSendOTP.setOnClickListener(v -> {
             String phoneInput = etPhoneNumber.getText().toString().trim();
-            if (phoneInput.isEmpty()) {
-                etPhoneNumber.setError("Vui lòng nhập số điện thoại");
+            if (!isValidPhone(phoneInput)) {
+                etPhoneNumber.setError("Số điện thoại không hợp lệ (10 số)");
                 return;
             }
             checkPhoneFromServer(phoneInput);
         });
     }
 
-    // Truyền phoneNumber vào hàm này để sử dụng
+    private void checkPhoneFromServer(String phone) {
+        // Log để bạn kiểm tra link trong Logcat xem có đúng IP không
+        String url = CHECK_PHONE + "/" + phone;
+        Log.d("API_CHECK", "Connecting to: " + url);
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    try {
+                        boolean exists = response.getBoolean("exists");
+                        if (exists) {
+                            showBottomSheetOTP(phone);
+                        } else {
+                            etPhoneNumber.setError("Số điện thoại này chưa được đăng ký!");
+                            Toast.makeText(this, "Số điện thoại không tồn tại", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(this, "Lỗi đọc dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> {
+                    // Fix lỗi "Lỗi server" chung chung bằng cách hiện lỗi chi tiết
+                    String errorMsg = "Không thể kết nối Server. ";
+                    if (error.networkResponse != null) {
+                        errorMsg += "Mã lỗi: " + error.networkResponse.statusCode;
+                    } else {
+                        errorMsg += "Vui lòng kiểm tra Wi-Fi/IP máy tính.";
+                    }
+                    Log.e("API_ERROR", error.toString());
+                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+                }
+        );
+        queue.add(request);
+    }
+
     private void showBottomSheetOTP(String phoneNumber) {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
         View view = getLayoutInflater().inflate(R.layout.layout_otp_selection, null);
@@ -88,72 +121,37 @@ public class ChangePasswordActivity extends AppCompatActivity {
         RadioButton rbZalo = view.findViewById(R.id.rbZalo);
         RadioButton rbSMS = view.findViewById(R.id.rbSMS);
         Button btnConfirm = view.findViewById(R.id.btnConfirmOTP);
-        Button btnCancel = view.findViewById(R.id.btnCancel);
 
+        // Thiết lập trạng thái ban đầu cho nút xác nhận trong BottomSheet
         btnConfirm.setEnabled(false);
-        btnConfirm.setBackgroundResource(R.drawable.btn_outline_green);
-        btnConfirm.setTextColor(ContextCompat.getColor(this, R.color.xanhTieuDe));
 
-        Runnable activeConfirmButton = () -> {
+        View.OnClickListener selectOption = v -> {
+            if (v.getId() == R.id.optionZalo) rbZalo.setChecked(true);
+            else rbSMS.setChecked(true);
+
             btnConfirm.setEnabled(true);
             btnConfirm.setBackgroundResource(R.drawable.btn_solid_green);
             btnConfirm.setTextColor(ContextCompat.getColor(this, R.color.white));
         };
 
-        view.findViewById(R.id.optionZalo).setOnClickListener(v -> {
-            rbZalo.setChecked(true);
-            rbSMS.setChecked(false);
-            activeConfirmButton.run();
-        });
+        view.findViewById(R.id.optionZalo).setOnClickListener(selectOption);
+        view.findViewById(R.id.optionSMS).setOnClickListener(selectOption);
 
-        view.findViewById(R.id.optionSMS).setOnClickListener(v -> {
-            rbSMS.setChecked(true);
-            rbZalo.setChecked(false);
-            activeConfirmButton.run();
-        });
-
-        btnCancel.setOnClickListener(v -> bottomSheetDialog.dismiss());
-
-        // 6. Nút Xác nhận gửi trong BottomSheet
         btnConfirm.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
-            Toast.makeText(this, "Đang xác thực ...", Toast.LENGTH_SHORT).show();
-            // CHUYỂN THẲNG SANG OTP (KHÔNG DÙNG FIREBASE)
-            Intent intent = new Intent(ChangePasswordActivity.this, com.example.qride.login.activity.RegisterOTPActivity.class);
-            intent.putExtra("mode", "FORGOT_PASS");
+
+            // Chuyển sang màn hình QuenPassOTPActivity bạn đã viết
+            Intent intent = new Intent(ChangePasswordActivity.this, QuenPassOTPActivity.class);
             intent.putExtra("phone", phoneNumber);
-            intent.putExtra("verificationId", "demo_mode");
+            intent.putExtra("verificationId", "demo_mode"); // Để khớp với logic demo trong QuenPassOTPActivity
             startActivity(intent);
         });
 
         bottomSheetDialog.show();
     }
 
-    private void checkPhoneFromServer(String phone) {
-        String url = CHECK_PHONE + phone;
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest request = new JsonObjectRequest(
-                        Request.Method.GET,
-                        url,
-                        null,
-                        response -> {
-                            try {
-                                boolean exists = response.getBoolean("exists");
-                                if (exists) {
-                                    showBottomSheetOTP(phone);
-                                } else {
-                                    etPhoneNumber.setError("Số điện thoại chưa đăng ký!");
-                                }
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        },
-                        error -> {
-                            Toast.makeText(this, "Lỗi server", Toast.LENGTH_SHORT).show();
-                        }
-                );
-        queue.add(request);
+    private boolean isValidPhone(String phone) {
+        return phone.length() == 10 && phone.startsWith("0");
     }
 
     private void setButtonActive() {

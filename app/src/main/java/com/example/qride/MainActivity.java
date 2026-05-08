@@ -108,21 +108,52 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
         updateNotifBadge();
 
         // Lắng nghe sự kiện quay lại Fragment để hiện/ẩn Header tự động
+        // Sửa lại đoạn này trong onCreate của bạn
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             if (currentFragment instanceof TramXeFragment) {
                 showMapUI(true);
                 updateBottomNavUI(navTramXe);
+            } else if (currentFragment instanceof ProfileFragment) {
+                showMapUI(false);
+                updateBottomNavUI(navTaiKhoan);
             } else if (currentFragment instanceof UuDaiFragment) {
                 showMapUI(false);
                 updateBottomNavUI(navUuDai);
+            } else if (currentFragment instanceof ThanhToanFragment) {
+                showMapUI(false);
+                updateBottomNavUI(navThanhToan);
+            } else if (currentFragment instanceof QuetQRFragment) {
+                showMapUI(false);
+                updateBottomNavUI(navQuetQR);
             }
-            // ... thêm các fragment khác nếu cần
         });
 
         if (savedInstanceState == null) {
             replaceFragment(new TramXeFragment(), "TRAM_XE");
             updateBottomNavUI(navTramXe);
+            showMapUI(true);
+        } else {
+            // FIX LỖI DARK MODE TẠI ĐÂY
+            // Tìm xem Fragment nào đang hiện khi App vừa nạp lại
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+            if (currentFragment instanceof ProfileFragment) {
+                showMapUI(false);
+                updateBottomNavUI(navTaiKhoan);
+            } else if (currentFragment instanceof TramXeFragment) {
+                showMapUI(true);
+                updateBottomNavUI(navTramXe);
+            } else if (currentFragment instanceof UuDaiFragment) {
+                showMapUI(false);
+                updateBottomNavUI(navUuDai);
+            } else if (currentFragment instanceof ThanhToanFragment) {
+                showMapUI(false);
+                updateBottomNavUI(navThanhToan);
+            } else if (currentFragment instanceof QuetQRFragment) {
+                showMapUI(false);
+                updateBottomNavUI(navQuetQR);
+            }
         }
 
         SharedPreferences pref = getSharedPreferences("ride_state", MODE_PRIVATE);

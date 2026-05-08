@@ -52,13 +52,16 @@ public class DarkModeActivity extends AppCompatActivity {
                 modeSelected = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
             }
 
-            // Lưu vào SharedPreferences (Lúc này biến pref đã được hiểu vì khai báo ở trên)
+            // 1. Lưu vào SharedPreferences
             pref.edit().putInt("Dark_Mode", modeSelected).apply();
 
-            // Áp dụng ngay
+            // 2. Áp dụng mode mới cho toàn hệ thống
             AppCompatDelegate.setDefaultNightMode(modeSelected);
 
-            recreate();
+            // 3. THOÁT RA để về màn hình trước đó
+            // Lưu ý: Khi gọi setDefaultNightMode, các Activity ở Backstack
+            // cũng sẽ tự động được làm mới khi bạn quay lại.
+            finish();
         });
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());

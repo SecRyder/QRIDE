@@ -155,6 +155,79 @@ public class RegisterOTPActivity extends AppCompatActivity {
         });
     }
 
+    private void handleChangePhoneAPI() {
+        String url = com.example.qride.helper.APIHelper.CHANGE_PHONE; // Đảm bảo APIHelper đã có CHANGE_PHONE
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JSONObject body = new JSONObject();
+
+        try {
+            // Lấy SĐT cũ được truyền từ ChangePhoneActivity qua Intent
+            String oldPhone = getIntent().getStringExtra("old_phone");
+            // SĐT mới chính là biến 'phone' đã có sẵn trong class
+            String newPhone = phone;
+
+            body.put("oldPhone", oldPhone);
+            body.put("newPhone", newPhone);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, body,
+                response -> {
+                    // Khi Server báo cập nhật Database thành công
+                    Toast.makeText(this, "Cập nhật số điện thoại thành công!", Toast.LENGTH_SHORT).show();
+
+                    // Trả kết quả về cho ChangePhoneActivity để nó hiện Dialog xác nhận
+                    setResult(RESULT_OK);
+                    finish();
+                },
+                error -> {
+                    // Mặc định là lỗi 401 chung
+                    String message = "Lỗi xác thực (401)";
+
+                    if (error.networkResponse != null) {
+                        int statusCode = error.networkResponse.statusCode;
+                        try {
+                            // Cố gắng đọc nội dung chi tiết từ Server gửi về (ví dụ: {"message": "Token expired"})
+                            String body2 = new String(error.networkResponse.data, "UTF-8");
+                            JSONObject res = new JSONObject(body2);
+                            if (res.has("message")) {
+                                message = res.getString("message");
+                            } else {
+                                message = "Lỗi " + statusCode + ": " + body2;
+                            }
+                        } catch (Exception e) {
+                            message = "Lỗi " + statusCode + " (Không thể đọc nội dung)";
+                        }
+                    } else {
+                        message = "Không kết nối được Server";
+                    }
+
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+                    Log.e("API_DEBUG_ERROR", message);
+                }
+        ) {
+            @Override
+            public java.util.Map<String, String> getHeaders() {
+                java.util.Map<String, String> headers = new java.util.HashMap<>();
+
+                com.example.qride.sqlite.UserDAO dao = new com.example.qride.sqlite.UserDAO(RegisterOTPActivity.this);
+
+                String token = dao.getToken();
+
+                android.util.Log.d("TOKEN_DEBUG", "Token lay tu SQLite: [" + token + "]");
+
+                if (token != null && !token.isEmpty()) {
+                    token = token.replace("\"", "").trim();
+                    headers.put("Authorization", "Bearer " + token);
+                }
+
+                return headers;
+            }
+        };
+        queue.add(request);
+    }
+
     private void handleFinalAction() {
         Toast.makeText(this, getString(R.string.success_authen), Toast.LENGTH_SHORT).show();
         if ("REGISTER".equals(mode)) {
@@ -205,6 +278,9 @@ public class RegisterOTPActivity extends AppCompatActivity {
             );
 
             queue.add(request);
+        }
+        else if ("CHANGE_PHONE".equals(mode)) {
+            handleChangePhoneAPI();
         }
     }
 

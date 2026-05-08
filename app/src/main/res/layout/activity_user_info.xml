@@ -28,8 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Thông tin tài khoản"
-            android:textColor="#FFFFFF"
+            android:text="@string/title_account_info"            android:textColor="#FFFFFF"
             android:textSize="23sp"
             android:textStyle="bold" />
 
@@ -62,8 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Tên của bạn"
-                android:textColor="#333333"
+                android:text="@string/label_your_name"                android:textColor="#333333"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -73,8 +71,7 @@
                 android:layout_height="50dp"
                 android:background="@drawable/btn_outline_green"
                 android:paddingHorizontal="16dp"
-                android:text="Heni Nguyễn"
-                android:textSize="13sp"
+                android:hint="@string/label_your_name"                android:textSize="13sp"
                 android:textColor="#333333" />
         </LinearLayout>
 
@@ -88,8 +85,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="CCCD"
-                android:textColor="#333333"
+                android:text="@string/label_cccd"                android:textColor="#333333"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -115,8 +111,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Địa chỉ (nơi ở hiện tại)"
-                android:textColor="#333333"
+                android:text="@string/label_address"                android:textColor="#333333"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -144,8 +139,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Giới tính"
-                android:textColor="#333333"
+                android:text="@string/label_gender"                android:textColor="#333333"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -167,8 +161,7 @@
                     android:layout_weight="1"
                     android:buttonTint="#00B087"
                     android:layoutDirection="rtl"
-                    android:text="Nam   "
-                    android:textSize="13sp"
+                    android:text="@string/gender_male"                    android:textSize="13sp"
                     android:textColor="#333333" />
 
                 <RadioButton
@@ -179,8 +172,7 @@
                     android:layout_weight="1"
                     android:buttonTint="#00B087"
                     android:layoutDirection="rtl"
-                    android:text="Nữ   "
-                    android:textSize="13sp"
+                    android:text="@string/gender_female"                    android:textSize="13sp"
                     android:textColor="#333333" />
 
                 <RadioButton
@@ -190,8 +182,7 @@
                     android:layout_weight="1"
                     android:buttonTint="#00B087"
                     android:layoutDirection="rtl"
-                    android:text="Khác   "
-                    android:textSize="13sp"
+                    android:text="@string/gender_other"                    android:textSize="13sp"
                     android:textColor="#333333" />
             </RadioGroup>
         </LinearLayout>
@@ -206,8 +197,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Ngày sinh"
-                android:textColor="#333333"
+                android:text="@string/label_birthday"                android:textColor="#333333"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -236,8 +226,7 @@
             android:layout_height="60dp"
             android:layout_marginBottom="20dp"
             android:background="@drawable/btn_outline_green"
-            android:text="Cập nhật"
-            android:textAllCaps="false"
+            android:text="@string/btn_update"            android:textAllCaps="false"
             android:textColor="#1CB954"
             android:textSize="14sp"
             android:textStyle="bold" />
