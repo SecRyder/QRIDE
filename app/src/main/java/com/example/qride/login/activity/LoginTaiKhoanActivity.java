@@ -132,15 +132,18 @@ public class LoginTaiKhoanActivity extends AppCompatActivity {
                         UserDAO dao = new UserDAO(this);
                         dao.saveUserSession(userId, phone, token);
 
-                        // ===== SHARED PREF (CHỈ LƯU REMEMBER) =====
+
                         SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                        editor.putString("phone", phone);
+
                         editor.putBoolean("remember", cbLuuTaiKhoan.isChecked());
 
                         if (cbLuuTaiKhoan.isChecked()) {
-                            editor.putString("phone", phone);
+                            // Nếu tích lưu: Lưu thêm mật khẩu để lần sau tự điền
                             editor.putString("password", password);
                         } else {
-                            editor.remove("phone");
+                            // Nếu không tích lưu: Xóa mật khẩu đi, chỉ giữ lại số điện thoại cho phiên làm việc này
                             editor.remove("password");
                         }
 
