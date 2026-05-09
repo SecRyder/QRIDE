@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30"/>
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Qride"
+        android:usesCleartextTraffic="true"
+        tools:replace="android:allowBackup,android:supportsRtl"
+        tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAPEuMN5QRz_oQs1hzmQjxUzrbwlyDrl40"/>
+
+        <activity
+            android:name=".Splash.SplashActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="locale|layoutDirection|screenSize"
+            android:exported="false" />
+
+        <activity
+            android:name=".profile.ChangeLanguageActivity"
+            android:configChanges="locale|layoutDirection|screenSize"
+            android:exported="false" />
+
+        <!-- Profile Activities -->
+        <activity android:name=".profile.ResetPasswordActivity" android:exported="false" />
+        <activity android:name=".profile.ChangePhoneActivity" android:exported="false" />
+        <activity android:name=".profile.ChangePasswordActivity" android:exported="false" />
+        <activity android:name=".profile.UserInfoActivity" android:exported="false" />
+        <activity android:name=".profile.SecurityActivity" android:exported="false" />
+        <activity android:name=".profile.DarkModeActivity" android:exported="false" />
+        <activity android:name=".profile.NotificationSettingsActivity" android:exported="false" />
+        <activity android:name=".profile.InviteFriendsActivity" android:exported="false" />
+        <activity android:name=".profile.RideHistoryActivity" android:exported="false" />
+        <activity android:name=".profile.SupportCenterActivity" android:exported="false" />
+        <activity android:name=".profile.AboutQRideActivity" android:exported="false" />
+        <activity android:name=".profile.TermsActivity" android:exported="false" />
+
+        <!-- Onboarding & Login -->
+        <activity android:name=".Onboarding.OnboardingActivity" android:exported="false" />
+        <activity android:name=".login.activity.PermissionActivity" android:exported="false" />
+        <activity android:name=".login.activity.LoginActivity" android:exported="false" />
+        <activity android:name=".login.activity.LoginTaiKhoanActivity" android:exported="false" />
+        <activity android:name=".login.activity.QuenPassActivity" android:exported="false" />
+        <activity android:name=".login.activity.QuenPassOTPActivity" android:exported="false" />
+        <activity android:name=".login.activity.QuenPassResetActivity" android:exported="false" />
+        <activity android:name=".login.activity.RegisterActivity" android:windowSoftInputMode="adjustResize" android:exported="false" />
+        <activity android:name=".login.activity.RegisterOTPActivity" android:exported="false" />
+
+        <!-- Thue Xe Activities -->
+        <activity android:name=".thuexe.QRScanActivity" android:exported="false" />
+        <activity android:name=".thuexe.QRNhapMaActivity" android:exported="false" />
+        <activity android:name=".thuexe.ChiTietXeActivity" android:exported="false" />
+        <activity android:name=".thuexe.EndRideActivity" android:exported="false" />
+
+        <!-- Thanh Toan / MoMo -->
+        <activity
+            android:name=".thanhtoan.NapTienActivity"
+            android:launchMode="singleTop"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="qride"
+                    android:host="payment-result"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".thanhtoan.RutTienActivity" android:exported="false" />
+        <activity android:name=".thanhtoan.TransactionHistoryActivity" android:exported="false" />
+        <activity android:name=".thanhtoan.TransactionDetailActivity" android:exported="false" />
+
+        <!-- Voucher / VIP Checkout -->
+        <activity android:name=".uudai.VipCheckoutActivity" android:exported="false" />
+
+    </application>
+</manifest>

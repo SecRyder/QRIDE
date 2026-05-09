@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- General / App Info -->
+    <string name="app_name">QRIDE</string>
+    <string name="slogan">One app, every ride</string>
+    <string name="welcome">Login to start your first experience!</string>
+
+    <!-- Login / Register / OTP / Reset Pass -->
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="no_account">Don\'t have an account? </string>
+    <string name="tieude_dangnhap">Log in to account</string>
+    <string name="tieude_dangky">Register account</string>
+    <string name="sodienthoai">Phone number</string>
+    <string name="edt_sodienthoai">Enter phone number</string>
+    <string name="password">Password</string>
+    <string name="edt_password">Enter password</string>
+    <string name="luu_tai_khoan">Remember account</string>
+    <string name="quen_pass">Forgot password</string>
+    <string name="nhaplai_pass">Re-enter password</string>
+    <string name="edt_nhaplai_pass">Re-enter password</string>
+    <string name="rulelength">✔ Password must be 8 to 20 characters</string>
+    <string name="rulecase">✔ Must include numbers, uppercase and lowercase letters</string>
+    <string name="rulespecial">✔ Must include at least one special character !</string>
+    <string name="account">Already have an account,</string>
+    <string name="maotp">OTP Verification Code</string>
+    <string name="huongdan_otp">Enter the 6-digit OTP code you received via %1$s to verify your account</string>
+    <string name="otp">Please enter the 6-digit OTP code </string>
+    <string name="guima_otp">Resend code (%1$ds)</string>
+    <string name="guima_otp_finish">Resend code</string>
+    <string name="confirm_otp">Confirm</string>
+
+    <string name="faile_authen">Authentication failed, try again</string>
+    <string name="success_authen">Authentication successful</string>
+    <string name="otp_fail">OTP incorrect or expired</string>
+    <string name="otp_resend_fail">Could not resend OTP</string>
+    <string name="otp_resend_sending">Resending OTP…</string>
+    <string name="otp_resend_success">OTP has been resent</string>
+    <string name="otp_resend_countdown">Resend in %1$ds</string>
+    <string name="otp_send_fail">OTP sending failed: %1$s</string>
+    <string name="otp_demo_message">Your OTP code is: %1$s</string>
+    <string name="otp_instruction">Enter the OTP code sent to %1$s</string>
+
+    <string name="tieude_quenpass">Forgot Password</string>
+    <string name="btn_guiOTP">Send OTP code</string>
+    <string name="reset_pass">Reset Password</string>
+    <string name="save_pass">Save Password</string>
+
+    <!-- Navigation -->
+    <string name="nav_tram_xe">Bike Station</string>
+    <string name="nav_uu_dai">Offers</string>
+    <string name="nav_quet_qr">Scan QR</string>
+    <string name="nav_thanh_toan">Payment</string>
+    <string name="nav_tai_khoan">Account</string>
+    <string name="nav_notifications">Notifications</string>
+    <string name="no_notifications">No notifications yet</string>
+    <string name="edt_search_hint">Search bike stations</string>
+    <string name="btn_rent_bike">Rent Now</string>
+
+    <!-- Profile & Account Info -->
+    <string name="title_account_info">Account Information</string>
+    <string name="label_your_name">Your Name</string>
+    <string name="label_cccd">ID Card Number</string>
+    <string name="label_address">Address (Current residence)</string>
+    <string name="label_gender">Gender</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_other">Other</string>
+    <string name="label_birthday">Date of Birth</string>
+    <string name="profile_membership">👑 Membership</string>
+    <string name="profile_trips">trips</string>
+    <string name="profile_km">km</string>
+    <string name="profile_hours">hours</string>
+    <string name="profile_logout">Logout</string>
+    <string name="logout_success">Logged out successfully!</string>
+    <string name="profile_guest">Guest</string>
+    <string name="profile_not_logged_in">Not logged in</string>
+    <string name="profile_no_name">Name not updated</string>
+    <string name="profile_name_loading">Loading…</string>
+    <string name="profile_phone_loading">Loading…</string>
+    <string name="unit_trips">trips</string>
+    <string name="unit_km">km</string>
+    <string name="unit_hours">hours</string>
+
+    <!-- Profile Menu -->
+    <string name="menu_info">Personal Information</string>
+    <string name="menu_security">Security &amp; Password</string>
+    <string name="menu_history">Ride History</string>
+    <string name="menu_language">Language</string>
+    <string name="menu_dark_mode">Dark Mode</string>
+    <string name="menu_notify">Notification Settings</string>
+    <string name="menu_invite">Invite Friends</string>
+    <string name="menu_support">Support Center</string>
+    <string name="menu_about">About QRIDE</string>
+    <string name="menu_terms">Terms &amp; Policies</string>
+
+    <!-- Dark Mode -->
+    <string name="title_dark_mode">Dark Mode</string>
+    <string name="dark_mode_on">On</string>
+    <string name="dark_mode_off">Off</string>
+    <string name="dark_mode_system">Follow System</string>
+    <string name="dark_mode_desc">When "Follow System" is selected, QRIDE will automatically adjust the interface to match your device settings.</string>
+    <string name="btn_update">Update</string>
+
+    <!-- Support Center / FAQ -->
+    <string name="titTrungTamhotro">Support Center</string>
+    <string name="support1">For quick support, please call 1900 123456 (7:00 AM - 10:00 PM) or chat with our 24/7 support center via QRide.</string>
+    <string name="call">Call</string>
+    <string name="chat">Chat</string>
+    <string name="cauhoithuonggap">Frequently Asked Questions</string>
+    <string name="faq_bike">Bike Inquiries</string>
+    <string name="faq_payment">Payment Issues</string>
+    <string name="faq_other">Other Issues</string>
+    <string name="how_to_rent_title">How to rent and return?</string>
+    <string name="how_to_rent_content">Simply download the app, register, top up your balance, and scan the QR code to unlock the vehicle. After your ride, return the vehicle at any station and confirm the return on the app to complete the transaction.</string>
+    <string name="working_time_title">Operating hours?</string>
+    <string name="working_time_content">The service operates 24/7. You can rent a car at any time of day.</string>
+    <string name="faq_payment_content">The system supports payments via e-wallets (Momo, ZaloPay), domestic bank cards, or international credit cards. The fee will be automatically deducted after your trip ends.</string>
+    <string name="faq_other_content">If you encounter technical issues, lose items, or need to report another user\'s behavior, please message us via Chat or call our hotline for immediate assistance.</string>
+
+    <!-- Invite Friends / Referral -->
+    <string name="gioithieubanbe">Invite Friends</string>
+    <string name="gioiThieu1">Please introduce QRIDE to your friends!</string>
+    <string name="gioiThieu2">Invite your friends to experience a green journey, rent a car conveniently, and receive attractive offers from QRIDE.</string>
+    <string name="codeMoiBanBe">Invitation code</string>
+    <string name="inviteFr">Invite friends</string>
+    <string name="share_app_text">Hey! Try QRide for easy urban mobility. Use my code to get rewards!</string>
+
+    <!-- Notification Settings -->
+    <string name="tit_cat_dat_thong_bao">Notification Setting</string>
+    <string name="systemNotifi">System notifications</string>
+    <string name="trans_notifi">Transaction notification</string>
+    <string name="other_notifi">Other notification</string>
+    <string name="content_notifi1">Receive notifications about vehicle status and important alerts during use (including vehicle opening/closing, errors, low battery, entering/exiting operating areas...).</string>
+    <string name="content_notifi2">Receive notifications about payments, bills, and trip-related transactions.</string>
+    <string name="content_notifi3">Receive notifications about offers, vouchers, and package renewal reminders,...</string>
+
+    <!-- About QRIDE -->
+    <string name="aboutQ">About QRIDE</string>
+    <string name="gioithieu">Introduction</string>
+    <string name="gioithieu1">QRIDE Autonomous Vehicle Rental Service is a project of QRIDE Co., Ltd., born from the green transportation orientation under Directive 20/CT-TTg, as Vietnam aims to eliminate fossil fuel-powered vehicles in major cities. QRIDE is built with the goal of providing a smart, convenient, and safe autonomous vehicle rental service, contributing to building a modern, clean, and sustainable city.</string>
+    <string name="ynghiatenthuonghieu">Brand Name Meaning</string>
+    <string name="ynghia1">QRIDE combines the words \"Quick\" and \"Ride,\" representing a spirit of freedom, speed, flexibility, and environmental friendliness.</string>
+    <string name="sologan">Slogan</string>
+    <string name="sologan1">\"MOVE FREELY\" embodies the holistic philosophy of freedom that QRIDE pursues: freedom of movement, financial freedom, and freedom to choose a green lifestyle.</string>
+    <string name="tamnhinvasumenh">Vision &amp; Mission</string>
+    <string name="tamnhin">Vision:</string>
+    <string name="tamnhin1">QRIDE aims to be a leading brand in the green mobility sector in Vietnam, contributing to building a smart, safe, and sustainable transportation ecosystem.</string>
+    <string name="sumenh">Mission:</string>
+    <string name="sumenh1">QRIDE offers a green, flexible, and cost-effective transportation solution through its self-driving car rental service, making it easier for people to access a green lifestyle and contribute to building a green, clean, and beautiful city.</string>
+    <string name="dinhvithuonghieu">Brand Positioning</string>
+    <string name="dinhvi1">QRIDE is positioned as a green, safe, and smart mobility service brand, aiming to optimize the travel experience in modern urban areas. The brand focuses on providing convenient, flexible, and environmentally friendly transportation solutions, while promoting the transition to clean energy vehicles in line with the nation\'s sustainable development goals.</string>
+    
+    <!-- Core Values -->
+    <string name="title_core_values">Core Values</string>
+    <string name="label_quality">Quality</string>
+    <string name="desc_quality">QRIDE is committed to ensuring superior operational quality in every vehicle, service, and customer touchpoint. Stability, safety, and durability are our top priorities.</string>
+    <string name="label_quick">Quick</string>
+    <string name="desc_quick">Our services are designed to save time for users: fast operations, easy booking, and convenient usage. Processing speed and efficiency are core priorities.</string>
+    <string name="label_quiet">Quiet</string>
+    <string name="desc_quiet">Electric vehicles provide a smooth, noise-free traveling experience, suitable for civilized urban areas and contributing to reduced noise pollution.</string>
+    <string name="label_quest">Quest</string>
+    <string name="desc_quest">QRIDE inspires users to explore the city in their own way. The spirit of innovation and exploration is reflected in all our activities and products.</string>
+    <string name="label_sustainability">Sustainability</string>
+    <string name="desc_sustainability">The brand focuses on green, clean, and sustainable development, using electric energy to reduce emissions and environmental impact.</string>
+    <string name="label_customer_centric">Customer Centric</string>
+    <string name="desc_customer_centric">All QRIDE improvements and services are built around user needs, behaviors, and experiences. Customer satisfaction is our most important evaluation criterion.</string>
+    <string name="label_responsibility">Responsibility</string>
+    <string name="desc_responsibility">QRIDE demonstrates community responsibility by providing safe, reliable services and contributing to the development of green urban transport systems.</string>
+    <string name="label_innovation">Innovation</string>
+    <string name="desc_innovation">The brand continuously researches and applies new technologies to improve product quality, optimize experiences, and create pioneering solutions in the field of mobility.</string>
+    <string name="label_freedom">Freedom</string>
+    <string name="desc_freedom">QRIDE aims to empower all users with the freedom of movement: freedom to choose, freedom to experience, and freedom to explore every destination in a personalized way.</string>
+
+    <!-- Contact Info -->
+    <string name="label_address2">Address:</string>
+    <string name="content_address">13 Man Thien, Hiep Phu, Tang Nhon Phu A Ward, Thu Duc City, Ho Chi Minh City.</string>
+    <string name="label_hotline">Hotline:</string>
+    <string name="content_hotline">1900 123456 (7:00AM - 10:00PM)</string>
+    <string name="label_email">Email:</string>
+    <string name="content_email">contact@qride.com</string>
+    <string name="label_tax_code">Tax code:</string>
+    <string name="content_tax_code">0114736678</string>
+    <string name="label_certification">Certification:</string>
+    <string name="content_certification">Registered with the Ministry of Industry and Trade.</string>
+    <string name="view_detail">View details</string>
+
+    <!-- Terms & Policies -->
+    <string name="dieukhoanvachinhsach">Terms &amp; Policies</string>
+    <string name="dieukhoansudung">Terms of Use</string>
+    <string name="terms_welcome">Welcome to the QRIDE self-driving car rental service application - owned by QRIDE Co., Ltd.</string>
+    <string name="terms_acceptance">By installing and agreeing to access, including logging in and registering the application, the user confirms that they have READ, UNDERSTOOD, and agreed to comply with all the Terms below.</string>
+    <string name="terms_modification">QRIDE may adjust, supplement, or replace part or all of the Terms of Use and will notify you via the application and/or your registered phone number.</string>
+    <string name="terms_service_title">1. QRIDE Self-Driving Service:</string>
+    <string name="terms_service_desc">A bicycle/electric vehicle sharing service that allows users to travel from any QRIDE station and freely return the vehicle to any station.</string>
+    <string name="terms_fee_title">2. Service Fees</string>
+    <string name="terms_fee_desc">Service fees are the rental fees customers must pay when using the QRIDE service.\n\nFees are calculated as follows:\n• Bicycle: 5,000 VND unlock + 1,000 VND/3 mins.\n• Electric bike: 7,000 VND unlock + 2,000 VND/3 mins.</string>
+    <string name="terms_commitment_title">3. Customer Commitments</string>
+    <string name="terms_commitment_desc">By using the service, customers agree to comply with traffic laws and vehicle regulations, not use vehicles for illegal purposes, and not cause any damage to company property.</string>
+    <string name="terms_liability_title">4. Limitation of Liability</string>
+    <string name="terms_liability_desc">Any loss or direct damage to company property during use requires 100% value compensation. The Company is not liable for any costs arising from customer errors.</string>
+    <string name="privacy_policy_title">Privacy Policy</string>
+    <string name="privacy_collect_title">1. Information Collection</string>
+    <string name="privacy_collect_desc">QRIDE collects personal information including: full name, phone number, address, ID card, payment information, and GPS location when using the service.</string>
+    <string name="privacy_use_title">2. Use of Information</string>
+    <string name="privacy_use_desc">Personal information is used to verify identity, provide services, send notifications, and improve the app experience.</string>
+    <string name="privacy_protect_title">3. Information Protection</string>
+    <string name="privacy_protect_desc">QRIDE applies technical and management measures to secure user data, preventing unauthorized access, leakage, or loss.</string>
+    <string name="privacy_rights_title">4. User Rights</string>
+    <string name="privacy_rights_desc">Users have the right to access, edit, delete, or request QRIDE to stop using personal data within legal limits.</string>
+
+    <!-- Voucher & Offers -->
+    <string name="tab_tich_qua">Collect Rewards</string>
+    <string name="tab_membership">Membership</string>
+    <string name="v_title_welcome">Welcome Gift</string>
+    <string name="v_discount_50">50% Off</string>
+    <string name="v_expiry_30d">Expiry: after 30 days</string>
+    <string name="v_title_invite">Invite friends to use app</string>
+    <string name="v_discount_free">Free 30-min voucher</string>
+    <string name="v_expiry_none">No expiry</string>
+    <string name="v_title_checkin">Check-in 3 times today</string>
+    <string name="v_discount_3k">3,000đ discount</string>
+    <string name="v_title_rate">Rate your trip</string>
+    <string name="v_discount_10">10% discount</string>
+    <string name="v_title_m_basic">Basic Package – 1 month</string>
+    <string name="v_discount_basic">30% discount voucher</string>
+    <string name="v_expiry_31_12">Expiry: 31/12/2025</string>
+    <string name="v_title_m_premium">Premium Package – 12 months</string>
+    <string name="v_discount_premium">50% discount voucher</string>
+
+    <!-- Voucher Actions (Standardized) -->
+    <string name="voucher_action_claim">Claim now</string>
+    <string name="voucher_action_invite">Invite friends</string>
+    <string name="voucher_action_register_vip">Upgrade VIP</string>
+    <string name="voucher_action_topup">Top up</string>
+    <string name="voucher_action_checkin">Check-in</string>
+    <string name="voucher_action_using">In use</string>
+    <string name="voucher_action_in_progress">In progress</string>
+    <string name="voucher_action_view">View detail</string>
+    <string name="voucher_status_used">Used</string>
+    <string name="voucher_status_expired">Expired</string>
+
+    <!-- QR & Payment -->
+    <string name="qr_instruction">Scan QR code on the bike to start</string>
+    <string name="qr_btn_open">Open Camera</string>
+    <string name="pay_wallet_balance">Wallet Balance: 50,000đ</string>
+    <string name="pay_method">Payment Method</string>
+    <string name="pay_default_method">Q-Ride Wallet (Default)</string>
+    <string name="pay_top_up">Top up</string>
+
+    <!-- Permissions / Illustrations -->
+    <string name="illustration_desc">QRIDE app illustration</string>
+    <string name="img_login_illustration">Login illustration</string>
+    <string name="perm_notif_title">QRIDE would like to send Notifications</string>
+    <string name="perm_notif_desc">Notifications include alerts, sounds and icon badges.</string>
+    <string name="perm_bt_title">QRIDE needs Bluetooth access</string>
+    <string name="perm_bt_desc">Needed to lock/unlock the bike.</string>
+    <string name="perm_loc_title">Allow QRIDE to use location</string>
+    <string name="perm_loc_desc">Needed to find nearest bike stations.</string>
+    <string name="perm_loc_once">Allow Once</string>
+    <string name="perm_loc_while_using">Allow While Using App</string>
+    <string name="perm_allow">Allow</string>
+    <string name="perm_deny">Deny</string>
+
+    <!-- Messages / Dialogs -->
+    <string name="message_login_success">Login successful</string>
+    <string name="message_login_fail">Incorrect phone number or password</string>
+    <string name="seterror_edtphone">Please enter phone number</string>
+    <string name="seterror_edtpassword">Please enter password</string>
+    <string name="seterror_edtphone_invalid">Invalid phone number</string>
+    <string name="seterror_edtpassword_invalid">Invalid password</string>
+    <string name="msg_developing">This feature is under development</string>
+    <string name="msg_opening_topup">Opening top-up screen…</string>
+    <string name="msg_voucher_in_use">This voucher is already in use.</string>
+    <string name="msg_progress_updated">Progress updated: %1$s</string>
+    <string name="msg_activated">Activated: %1$s</string>
+    <string name="msg_buy_vip_success">VIP activated successfully!</string>
+    <string name="error_server">Connection error. Please try again.</string>
+    <string name="confirm_register">Confirm Registration</string>
+    <string name="msg_confirm_buy_package">Buy %1$s for %2$s?</string>
+    <string name="btn_agree">Agree</string>
+    <string name="btn_cancel">Cancel</string>
+
+
+    <!-- Ride History -->
+    <string name="ride_history_empty">No ride history yet.</string>
+    <string name="ride_status_done">Completed</string>
+    <string name="ride_status_renting">In Progress</string>
+    <string name="ride_status_cancelled">Cancelled</string>
+
+    <!-- Change Password -->
+    <string name="change_password_title">Change Password</string>
+    <string name="change_password_current">Current Password</string>
+    <string name="change_password_new">New Password</string>
+    <string name="change_password_confirm">Confirm New Password</string>
+    <string name="change_password_success">Password changed successfully!</string>
+    <string name="change_password_wrong">Current password is incorrect</string>
+    <string name="change_password_mismatch">New passwords do not match</string>
+
+</resources>

@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- General / App Info -->
+    <string name="app_name">QRIDE</string>
+    <string name="slogan">Một ứng dụng, mọi chuyến đi</string>
+    <string name="welcome">Đăng nhập để bắt đầu trải nghiệm ngay!</string>
+
+    <!-- Login / Register / OTP / Reset Pass -->
+    <string name="login">Đăng nhập</string>
+    <string name="register">Đăng ký</string>
+    <string name="no_account">Bạn chưa có tài khoản? </string>
+    <string name="tieude_dangnhap">Đăng nhập tài khoản</string>
+    <string name="tieude_dangky">Đăng ký tài khoản</string>
+    <string name="sodienthoai">Số điện thoại</string>
+    <string name="edt_sodienthoai">Nhập số điện thoại</string>
+    <string name="password">Mật khẩu</string>
+    <string name="edt_password">Nhập mật khẩu</string>
+    <string name="luu_tai_khoan">Ghi nhớ tài khoản</string>
+    <string name="quen_pass">Quên mật khẩu</string>
+    <string name="nhaplai_pass">Nhập lại mật khẩu</string>
+    <string name="edt_nhaplai_pass">Nhập lại mật khẩu</string>
+    <string name="rulelength">✔ Mật khẩu phải từ 8 đến 20 ký tự</string>
+    <string name="rulecase">✔ Bao gồm số, chữ hoa và chữ thường</string>
+    <string name="rulespecial">✔ Bao gồm ít nhất một ký tự đặc biệt !</string>
+    <string name="account">Bạn đã có tài khoản,</string>
+    <string name="maotp">Mã xác thực OTP</string>
+    <string name="huongdan_otp">Nhập mã OTP gồm 6 chữ số gửi qua %1$s để xác thực tài khoản</string>
+    <string name="otp">Vui lòng nhập mã OTP 6 chữ số</string>
+    <string name="guima_otp">Gửi lại mã (%1$ds)</string>
+    <string name="guima_otp_finish">Gửi lại mã</string>
+    <string name="confirm_otp">Xác nhận</string>
+
+    <string name="faile_authen">Lỗi xác thực, thử lại</string>
+    <string name="success_authen">Xác thực thành công</string>
+    <string name="otp_fail">OTP sai hoặc hết hạn</string>
+    <string name="otp_resend_fail">Không thể gửi lại OTP</string>
+    <string name="otp_resend_sending">Đang gửi lại OTP…</string>
+    <string name="otp_resend_success">OTP đã được gửi lại</string>
+    <string name="otp_resend_countdown">Gửi lại sau %1$ds</string>
+    <string name="otp_send_fail">Gửi OTP thất bại: %1$s</string>
+    <string name="otp_demo_message">Mã OTP của bạn là: %1$s</string>
+    <string name="otp_instruction">Nhập mã OTP đã gửi tới %1$s</string>
+
+    <string name="tieude_quenpass">Quên mật khẩu</string>
+    <string name="btn_guiOTP">Gửi mã OTP</string>
+    <string name="reset_pass">Đặt lại mật khẩu</string>
+    <string name="save_pass">Lưu mật khẩu</string>
+
+    <!-- Navigation -->
+    <string name="nav_tram_xe">Trạm xe</string>
+    <string name="nav_uu_dai">Ưu đãi</string>
+    <string name="nav_quet_qr">Quét QR</string>
+    <string name="nav_thanh_toan">Thanh toán</string>
+    <string name="nav_tai_khoan">Tài khoản</string>
+    <string name="nav_notifications">Thông báo</string>
+    <string name="no_notifications">Chưa có thông báo nào</string>
+    <string name="edt_search_hint">Tìm kiếm trạm xe</string>
+    <string name="btn_rent_bike">Thuê ngay</string>
+
+    <!-- Profile & Account Info -->
+    <string name="title_account_info">Thông tin tài khoản</string>
+    <string name="label_your_name">Tên của bạn</string>
+    <string name="label_cccd">Số CCCD/CMND</string>
+    <string name="label_address">Địa chỉ (Nơi ở hiện tại)</string>
+    <string name="label_gender">Giới tính</string>
+    <string name="gender_male">Nam</string>
+    <string name="gender_female">Nữ</string>
+    <string name="gender_other">Khác</string>
+    <string name="label_birthday">Ngày sinh</string>
+    <string name="profile_membership">👑 Gói hội viên</string>
+    <string name="profile_trips">chuyến đi</string>
+    <string name="profile_km">km</string>
+    <string name="profile_hours">giờ</string>
+    <string name="profile_logout">Đăng xuất</string>
+    <string name="logout_success">Đăng xuất thành công!</string>
+    <string name="profile_guest">Khách</string>
+    <string name="profile_not_logged_in">Chưa đăng nhập</string>
+    <string name="profile_no_name">Chưa cập nhật tên</string>
+    <string name="profile_name_loading">Đang tải…</string>
+    <string name="profile_phone_loading">Đang tải…</string>
+    <string name="unit_trips">chuyến</string>
+    <string name="unit_km">km</string>
+    <string name="unit_hours">giờ</string>
+
+    <!-- Profile Menu -->
+    <string name="menu_info">Thông tin cá nhân</string>
+    <string name="menu_security">Bảo mật &amp; Mật khẩu</string>
+    <string name="menu_history">Lịch sử chuyến đi</string>
+    <string name="menu_language">Ngôn ngữ</string>
+    <string name="menu_dark_mode">Giao diện tối</string>
+    <string name="menu_notify">Cài đặt thông báo</string>
+    <string name="menu_invite">Mời bạn bè</string>
+    <string name="menu_support">Trung tâm hỗ trợ</string>
+    <string name="menu_about">Về QRIDE</string>
+    <string name="menu_terms">Điều khoản &amp; Chính sách</string>
+
+    <!-- Dark Mode -->
+    <string name="title_dark_mode">Giao diện tối</string>
+    <string name="dark_mode_on">Bật</string>
+    <string name="dark_mode_off">Tắt</string>
+    <string name="dark_mode_system">Theo hệ thống</string>
+    <string name="dark_mode_desc">Khi chọn "Theo hệ thống", QRIDE sẽ tự động điều chỉnh giao diện phù hợp với cài đặt thiết bị của bạn.</string>
+    <string name="btn_update">Cập nhật</string>
+
+    <!-- Support Center / FAQ -->
+    <string name="titTrungTamhotro">Trung tâm hỗ trợ</string>
+    <string name="support1">Cần hỗ trợ nhanh vui lòng gọi 1900 123456 (7:00AM - 10:00PM) hoặc chat cùng trung tâm hỗ trợ 24/7 của QRide.</string>
+    <string name="call">Gọi điện</string>
+    <string name="chat">Nhắn tin</string>
+    <string name="cauhoithuonggap">Câu hỏi thường gặp</string>
+    <string name="faq_bike">Thắc mắc đi xe</string>
+    <string name="faq_payment">Vấn đề thanh toán</string>
+    <string name="faq_other">Vấn đề khác</string>
+    <string name="how_to_rent_title">Cách thuê và trả xe?</string>
+    <string name="how_to_rent_content">Tải app, đăng ký, nạp tiền và quét mã QR để mở khóa xe. Sau khi đi xong, hãy trả xe tại trạm bất kỳ và xác nhận trên app.</string>
+    <string name="working_time_title">Thời gian hoạt động?</string>
+    <string name="working_time_content">Dịch vụ hoạt động 24/7. Bạn có thể thuê xe bất cứ lúc nào.</string>
+    <string name="faq_payment_content">Hệ thống hỗ trợ Momo, ZaloPay, thẻ ngân hàng. Tiền sẽ được trừ tự động sau khi kết thúc chuyến đi.</string>
+    <string name="faq_other_content">Nếu gặp sự cố kỹ thuật hoặc mất đồ, vui lòng nhắn tin qua Chat hoặc gọi Hotline để được hỗ trợ ngay.</string>
+
+    <!-- Invite Friends / Referral -->
+    <string name="gioithieubanbe">Mời bạn bè</string>
+    <string name="gioiThieu1">Hãy giới thiệu QRIDE đến bạn bè!</string>
+    <string name="gioiThieu2">Mời bạn bè cùng trải nghiệm hành trình xanh và nhận những ưu đãi hấp dẫn từ QRIDE.</string>
+    <string name="codeMoiBanBe">Mã giới thiệu</string>
+    <string name="inviteFr">Mời bạn bè</string>
+    <string name="share_app_text">Chào bạn! Hãy thử dùng QRide để di chuyển trong thành phố. Nhập mã của mình để nhận quà nhé!</string>
+
+    <!-- Notification Settings -->
+    <string name="tit_cat_dat_thong_bao">Cài đặt thông báo</string>
+    <string name="systemNotifi">Thông báo hệ thống</string>
+    <string name="trans_notifi">Thông báo giao dịch</string>
+    <string name="other_notifi">Thông báo khác</string>
+    <string name="content_notifi1">Nhận thông báo về trạng thái xe và cảnh báo quan trọng (mở/đóng xe, lỗi, pin yếu...).</string>
+    <string name="content_notifi2">Nhận thông báo về thanh toán, hóa đơn và các giao dịch chuyến đi.</string>
+    <string name="content_notifi3">Nhận thông báo về ưu đãi, voucher và nhắc nhở gia hạn gói,...</string>
+
+    <!-- About QRIDE -->
+    <string name="aboutQ">Về QRIDE</string>
+    <string name="gioithieu">Giới thiệu</string>
+    <string name="gioithieu1">Dịch vụ thuê xe tự hành QRIDE là dự án của Công ty TNHH QRIDE, ra đời từ định hướng giao thông xanh theo Chỉ thị 20/CT-TTg. QRIDE hướng tới cung cấp dịch vụ thuê xe thông minh, tiện lợi và an toàn cho thành phố hiện đại.</string>
+    <string name="ynghiatenthuonghieu">Ý nghĩa thương hiệu</string>
+    <string name="ynghia1">QRIDE kết hợp giữa \"Quick\" và \"Ride\", thể hiện tinh thần di chuyển nhanh chóng, linh hoạt và thân thiện môi trường.</string>
+    <string name="sologan">Slogan</string>
+    <string name="sologan1">\"MOVE FREELY\" thể hiện triết lý tự do di chuyển, tự do tài chính và tự do lựa chọn lối sống xanh.</string>
+    <string name="tamnhinvasumenh">Tầm nhìn &amp; Sứ mệnh</string>
+    <string name="tamnhin">Tầm nhìn:</string>
+    <string name="tamnhin1">QRIDE hướng tới là thương hiệu dẫn đầu trong lĩnh vực di chuyển xanh tại Việt Nam.</string>
+    <string name="sumenh">Sứ mệnh:</string>
+    <string name="sumenh1">Mang đến giải pháp di chuyển xanh, tiết kiệm, giúp người dân dễ dàng tiếp cận lối sống bền vững.</string>
+    <string name="dinhvithuonghieu">Định vị thương hiệu</string>
+    <string name="dinhvi1">QRIDE định vị là dịch vụ di chuyển xanh, an toàn và thông minh, tối ưu hóa trải nghiệm đi lại trong đô thị hiện đại.</string>
+    
+    <!-- Core Values -->
+    <string name="title_core_values">Giá trị cốt lõi</string>
+    <string name="label_quality">Chất lượng</string>
+    <string name="desc_quality">Cam kết đảm bảo chất lượng vận hành vượt trội trong từng phương tiện và dịch vụ. An toàn là ưu tiên hàng đầu.</string>
+    <string name="label_quick">Nhanh chóng</string>
+    <string name="desc_quick">Tiết kiệm thời gian cho người dùng: thao tác nhanh, đặt xe dễ dàng và hiệu quả.</string>
+    <string name="label_quiet">Yên tĩnh</string>
+    <string name="desc_quiet">Xe điện mang lại trải nghiệm di chuyển nhẹ nhàng, không tiếng ồn, giảm ô nhiễm âm thanh đô thị.</string>
+    <string name="label_quest">Khám phá</string>
+    <string name="desc_quest">Truyền cảm hứng khám phá thành phố theo cách riêng. Tinh thần đổi mới luôn được đề cao.</string>
+    <string name="label_sustainability">Bền vững</string>
+    <string name="desc_sustainability">Chú trọng phát triển xanh - sạch - bền vững, sử dụng năng lượng điện để giảm phát thải.</string>
+    <string name="label_customer_centric">Khách hàng là trọng tâm</string>
+    <string name="desc_customer_centric">Mọi cải tiến đều dựa trên nhu cầu và trải nghiệm người dùng. Sự hài lòng của bạn là thước đo của chúng tôi.</string>
+    <string name="label_responsibility">Trách nhiệm</string>
+    <string name="desc_responsibility">Cung cấp dịch vụ an toàn, đáng tin cậy và đóng góp vào hệ thống giao thông xanh đô thị.</string>
+    <string name="label_innovation">Đổi mới</string>
+    <string name="desc_innovation">Liên tục áp dụng công nghệ mới để nâng cao chất lượng sản phẩm và tối ưu trải nghiệm.</string>
+    <string name="label_freedom">Tự do</string>
+    <string name="desc_freedom">Trao quyền tự do di chuyển cho mọi người: tự do lựa chọn và khám phá mọi điểm đến.</string>
+
+    <!-- Contact Info -->
+    <string name="label_address2">Địa chỉ:</string>
+    <string name="content_address">13 Man Thiện, Hiệp Phú, Phường Tăng Nhơn Phú A, TP. Thủ Đức, TP. HCM.</string>
+    <string name="label_hotline">Hotline:</string>
+    <string name="content_hotline">1900 123456 (7:00AM - 10:00PM)</string>
+    <string name="label_email">Email:</string>
+    <string name="content_email">contact@qride.com</string>
+    <string name="label_tax_code">Mã số thuế:</string>
+    <string name="content_tax_code">0114736678</string>
+    <string name="label_certification">Chứng nhận:</string>
+    <string name="content_certification">Đã đăng ký với Bộ Công Thương.</string>
+    <string name="view_detail">Xem chi tiết</string>
+
+    <!-- Terms & Policies -->
+    <string name="dieukhoanvachinhsach">Điều khoản &amp; Chính sách</string>
+    <string name="dieukhoansudung">Điều khoản sử dụng</string>
+    <string name="terms_welcome">Chào mừng bạn đến với QRIDE. Bằng việc sử dụng dịch vụ, bạn đồng ý tuân thủ các điều khoản dưới đây.</string>
+    <string name="terms_acceptance">Sử dụng ứng dụng đồng nghĩa với việc bạn xác nhận đã ĐỌC, HIỂU và đồng ý với các quy định này.</string>
+    <string name="terms_modification">QRIDE có thể cập nhật điều khoản và sẽ thông báo đến bạn qua ứng dụng hoặc số điện thoại.</string>
+    <string name="terms_service_title">1. Dịch vụ thuê xe tự hành:</string>
+    <string name="terms_service_desc">Dịch vụ chia sẻ xe đạp/xe điện, cho phép lấy xe tại trạm bất kỳ và trả xe tại trạm bất kỳ.</string>
+    <string name="terms_fee_title">2. Phí dịch vụ</string>
+    <string name="terms_fee_desc">Phí được tính như sau:\n• Xe đạp: 5.000đ mở khóa + 1.000đ/3 phút.\n• Xe điện: 7.000đ mở khóa + 2.000đ/3 phút.</string>
+    <string name="terms_commitment_title">3. Cam đoan khách hàng</string>
+    <string name="terms_commitment_desc">Tuân thủ luật giao thông, không sử dụng xe trái pháp luật và không gây hư hỏng tài sản công ty.</string>
+    <string name="terms_liability_title">4. Giới hạn trách nhiệm</string>
+    <string name="terms_liability_desc">Bồi thường 100% giá trị nếu gây mất mát tài sản. Công ty không chịu trách nhiệm cho lỗi từ phía khách hàng.</string>
+    <string name="privacy_policy_title">Chính sách bảo mật</string>
+    <string name="privacy_collect_title">1. Thu thập thông tin</string>
+    <string name="privacy_collect_desc">Thu thập họ tên, số điện thoại, CCCD, thông tin thanh toán và vị trí GPS khi dùng dịch vụ.</string>
+    <string name="privacy_use_title">2. Sử dụng thông tin</string>
+    <string name="privacy_use_desc">Dùng để xác minh danh tính, cung cấp dịch vụ và nâng cao trải nghiệm ứng dụng.</string>
+    <string name="privacy_protect_title">3. Bảo vệ thông tin</string>
+    <string name="privacy_protect_desc">Áp dụng kỹ thuật bảo mật để ngăn chặn truy cập trái phép hoặc rò rỉ dữ liệu.</string>
+    <string name="privacy_rights_title">4. Quyền người dùng</string>
+    <string name="privacy_rights_desc">Bạn có quyền truy cập, chỉnh sửa hoặc yêu cầu ngừng sử dụng dữ liệu cá nhân theo quy định.</string>
+
+    <!-- Voucher & Offers -->
+    <string name="tab_tich_qua">Tích quà</string>
+    <string name="tab_membership">Hội viên</string>
+    <string name="v_title_welcome">Quà chào mừng</string>
+    <string name="v_discount_50">Giảm 50%</string>
+    <string name="v_expiry_30d">HSD: sau 30 ngày</string>
+    <string name="v_title_invite">Mời bạn dùng app</string>
+    <string name="v_discount_free">Miễn phí 30 phút</string>
+    <string name="v_expiry_none">Không hết hạn</string>
+    <string name="v_title_checkin">Điểm danh 3 lần</string>
+    <string name="v_discount_3k">Giảm 3.000đ</string>
+    <string name="v_title_rate">Đánh giá chuyến đi</string>
+    <string name="v_discount_10">Giảm 10%</string>
+    <string name="v_title_m_basic">Gói Cơ bản – 1 tháng</string>
+    <string name="v_discount_basic">Voucher giảm 30%</string>
+    <string name="v_expiry_31_12">HSD: 31/12/2025</string>
+    <string name="v_title_m_premium">Gói Cao cấp – 12 tháng</string>
+    <string name="v_discount_premium">Voucher giảm 50%</string>
+
+    <!-- Voucher Actions (Standardized) -->
+    <string name="voucher_action_claim">Nhận ngay</string>
+    <string name="voucher_action_invite">Mời bạn</string>
+    <string name="voucher_action_register_vip">Nâng cấp VIP</string>
+    <string name="voucher_action_topup">Nạp tiền</string>
+    <string name="voucher_action_checkin">Điểm danh</string>
+    <string name="voucher_action_using">Đang dùng</string>
+    <string name="voucher_action_in_progress">Đang làm</string>
+    <string name="voucher_action_view">Chi tiết</string>
+    <string name="voucher_status_used">Đã dùng</string>
+    <string name="voucher_status_expired">Hết hạn</string>
+
+    <!-- QR & Payment -->
+    <string name="qr_instruction">Quét mã QR trên xe để bắt đầu</string>
+    <string name="qr_btn_open">Mở Camera</string>
+    <string name="pay_wallet_balance">Số dư ví: 50.000đ</string>
+    <string name="pay_method">Thanh toán</string>
+    <string name="pay_default_method">Ví QRIDE (Mặc định)</string>
+    <string name="pay_top_up">Nạp tiền</string>
+
+    <!-- Permissions / Illustrations -->
+    <string name="illustration_desc">Hình minh họa QRIDE</string>
+    <string name="img_login_illustration">Minh họa đăng nhập</string>
+    <string name="perm_notif_title">QRIDE muốn gửi Thông báo</string>
+    <string name="perm_notif_desc">Thông báo bao gồm các cảnh báo, âm thanh và huy hiệu.</string>
+    <string name="perm_bt_title">QRIDE cần truy cập Bluetooth</string>
+    <string name="perm_bt_desc">Cần thiết để đóng/mở khóa xe.</string>
+    <string name="perm_loc_title">Cho phép truy cập vị trí</string>
+    <string name="perm_loc_desc">Cần thiết để tìm trạm xe gần nhất.</string>
+    <string name="perm_loc_once">Chỉ một lần</string>
+    <string name="perm_loc_while_using">Khi dùng ứng dụng</string>
+    <string name="perm_allow">Cho phép</string>
+    <string name="perm_deny">Từ chối</string>
+
+    <!-- Messages / Dialogs -->
+    <string name="message_login_success">Đăng nhập thành công</string>
+    <string name="message_login_fail">Sai số điện thoại hoặc mật khẩu</string>
+    <string name="seterror_edtphone">Vui lòng nhập số điện thoại</string>
+    <string name="seterror_edtpassword">Vui lòng nhập mật khẩu</string>
+    <string name="seterror_edtphone_invalid">SĐT không hợp lệ</string>
+    <string name="seterror_edtpassword_invalid">Mật khẩu không hợp lệ</string>
+    <string name="msg_developing">Tính năng đang phát triển</string>
+    <string name="msg_opening_topup">Đang mở màn hình nạp tiền…</string>
+    <string name="msg_voucher_in_use">Voucher này đang được sử dụng.</string>
+    <string name="msg_progress_updated">Tiến trình: %1$s</string>
+    <string name="msg_activated">Đã kích hoạt: %1$s</string>
+    <string name="msg_buy_vip_success">Kích hoạt VIP thành công!</string>
+    <string name="error_server">Lỗi kết nối. Thử lại sau.</string>
+    <string name="confirm_register">Xác nhận đăng ký</string>
+    <string name="msg_confirm_buy_package">Mua %1$s với giá %2$s?</string>
+    <string name="btn_agree">Đồng ý</string>
+    <string name="btn_cancel">Hủy</string>
+
+
+    <!-- Ride History -->
+    <string name="ride_history_empty">Chưa có lịch sử chuyến đi.</string>
+    <string name="ride_status_done">Hoàn thành</string>
+    <string name="ride_status_renting">Đang thuê</string>
+    <string name="ride_status_cancelled">Đã hủy</string>
+
+    <!-- Change Password -->
+    <string name="change_password_title">Đổi mật khẩu</string>
+    <string name="change_password_current">Mật khẩu hiện tại</string>
+    <string name="change_password_new">Mật khẩu mới</string>
+    <string name="change_password_confirm">Xác nhận mật khẩu mới</string>
+    <string name="change_password_success">Đổi mật khẩu thành công!</string>
+    <string name="change_password_wrong">Mật khẩu hiện tại không đúng</string>
+    <string name="change_password_mismatch">Mật khẩu mới không khớp</string>
+
+</resources>
