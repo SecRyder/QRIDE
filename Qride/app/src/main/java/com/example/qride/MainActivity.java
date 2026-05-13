@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -91,6 +92,17 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // 1. Lấy cấu hình Dark Mode đã lưu
+        SharedPreferences darkPref = getSharedPreferences("Settings", MODE_PRIVATE);
+        int savedMode = darkPref.getInt("Dark_Mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+
+        // 2. Áp dụng ngay lập tức TRƯỚC KHI nạp layout
+        AppCompatDelegate.setDefaultNightMode(savedMode);
+
+
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().setStatusBarColor(Color.TRANSPARENT);
