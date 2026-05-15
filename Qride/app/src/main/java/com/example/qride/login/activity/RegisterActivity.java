@@ -98,65 +98,69 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void setupRegister() {
         btnDangKy.setOnClickListener(v -> {
-
             String rawPhone = edtPhone.getText().toString().trim();
             String password = edtPassword.getText().toString();
             String passwordNhapLai = edtPasswordNhapLai.getText().toString();
-
             String name = etName.getText().toString().trim();
             String cccd = etCccd.getText().toString().trim();
             String address = etAddress.getText().toString().trim();
             String birthday = etBirthday.getText().toString().trim();
 
+            // 1. Kiểm tra Họ tên
+            if (name.isEmpty()) {
+                etName.setError("Họ tên không được để trống");
+                etName.requestFocus();
+                return;
+            }
+
+            // 2. Kiểm tra Địa chỉ
+            if (address.isEmpty()) {
+                etAddress.setError("Địa chỉ không được để trống");
+                etAddress.requestFocus();
+                return;
+            }
+
+            // 3. Kiểm tra CCCD
+            if (cccd.length() != 12) {
+                etCccd.setError("CCCD phải đúng 12 số");
+                etCccd.requestFocus();
+                return;
+            }
+
+            // 4. Kiểm tra Ngày sinh
+            if (birthday.isEmpty()) {
+                Toast.makeText(this, "Vui lòng chọn ngày sinh", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 5. Kiểm tra Số điện thoại (Regex chuẩn 10 số Việt Nam)
+            if (!rawPhone.matches("^0\\d{9}$")) {
+                edtPhone.setError("SĐT phải gồm 10 số và bắt đầu bằng số 0");
+                edtPhone.requestFocus();
+                return;
+            }
+
+            // 6. Kiểm tra Mật khẩu
+            if (!isValidPassword(password)) {
+                edtPassword.setError("Mật khẩu 8-20 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt");
+                edtPassword.requestFocus();
+                return;
+            }
+
+            // 7. Kiểm tra Nhập lại mật khẩu
+            if (!password.equals(passwordNhapLai)) {
+                edtPasswordNhapLai.setError("Mật khẩu nhập lại không khớp");
+                edtPasswordNhapLai.requestFocus();
+                return;
+            }
+
+            // Giới tính
             String tempGender = "Khác";
             int selectedId = rgGender.getCheckedRadioButtonId();
             if (selectedId == R.id.rbMale) tempGender = "Nam";
             else if (selectedId == R.id.rbFemale) tempGender = "Nữ";
 
-            final String finalGender = tempGender;
-
-            // ===== VALIDATION =====
-            if (name.isEmpty()) {
-                etName.setError("Không được để trống");
-                return;
-            }
-
-            if (cccd.length() != 12) {
-                etCccd.setError("CCCD phải 12 số");
-                return;
-            }
-
-            if (birthday.isEmpty()) {
-                Toast.makeText(this, "Chọn ngày sinh", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (!rawPhone.matches("^0\\d{9}$")) {
-                edtPhone.setError("SĐT không hợp lệ");
-                return;
-            }
-
-            if (!isValidPassword(password)) {
-                edtPassword.setError("Password yếu");
-                return;
-            }
-
-            if (!password.equals(passwordNhapLai)) {
-                edtPasswordNhapLai.setError("Không khớp");
-                return;
-            }
-
-            // ===== FIX CRASH =====
-            if (rawPhone.length() < 10) {
-                Toast.makeText(this, "SĐT lỗi", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            String phoneFirebase = "+84" + rawPhone.substring(1);
-
-            // ====================================================
-            // CHUYỂN SANG MÀN HÌNH OTP DEMO
-            // ====================================================
+            // CHUYỂN SANG MÀN HÌNH OTP
             Intent intent = new Intent(RegisterActivity.this, RegisterOTPActivity.class);
             intent.putExtra("mode", "REGISTER");
             intent.putExtra("phone", rawPhone);
@@ -164,12 +168,11 @@ public class RegisterActivity extends AppCompatActivity {
             intent.putExtra("name", name);
             intent.putExtra("cccd", cccd);
             intent.putExtra("address", address);
-            intent.putExtra("gender", finalGender);
+            intent.putExtra("gender", tempGender);
             intent.putExtra("birthday", birthday);
             startActivity(intent);
 
-// Toast thông báo giả lập
-            Toast.makeText(this, "Đang gửi mã xác thực demo...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Đang gửi mã xác thực ...", Toast.LENGTH_SHORT).show();
         });
     }
 
