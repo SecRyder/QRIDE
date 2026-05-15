@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -43,7 +44,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         phoneNumber = getIntent().getStringExtra("phone");
 
         initView();
-
+        setupPasswordWatcher();
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         btnSavePassword.setOnClickListener(v -> handleResetPassword());
@@ -63,71 +64,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
         btnSavePassword = findViewById(R.id.btnSavePassword);
     }
 
-//    private void handleResetPassword() {
-//        // 1. Xóa tất cả các thông báo lỗi cũ trên TextInputLayout
-//        tilOld.setError(null);
-//        tilNew.setError(null);
-//        tilConfirm.setError(null);
-//
-//        String oldPass = etOldPassword.getText().toString().trim();
-//        String newPass = etNewPassword.getText().toString().trim();
-//        String confirmPass = etConfirmPassword.getText().toString().trim();
-//
-//        // 2. Kiểm tra Mật khẩu cũ
-//        if (oldPass.isEmpty()) {
-//            tilOld.setError("Vui lòng nhập mật khẩu hiện tại!");
-//            etOldPassword.requestFocus();
-//            return;
-//        }
-//
-//        // 3. Kiểm tra Mật khẩu mới (Ràng buộc: 8-20 ký tự, hoa, thường, số, đặc biệt)
-//        if (newPass.isEmpty()) {
-//            tilNew.setError("Vui lòng nhập mật khẩu mới!");
-//            etNewPassword.requestFocus();
-//            return;
-//        }
-//
-//        if (!isValidPassword(newPass)) {
-//            tilNew.setError("Mật khẩu 8-20 ký tự, gồm chữ hoa, thường, số và ký tự đặc biệt!");
-//            etNewPassword.requestFocus();
-//            return;
-//        }
-//
-//        // 4. Kiểm tra Nhập lại mật khẩu mới
-//        if (confirmPass.isEmpty()) {
-//            tilConfirm.setError("Vui lòng xác nhận lại mật khẩu mới!");
-//            etConfirmPassword.requestFocus();
-//            return;
-//        }
-//
-//        if (!newPass.equals(confirmPass)) {
-//            tilConfirm.setError("Mật khẩu xác nhận không khớp!");
-//            etConfirmPassword.requestFocus();
-//            return;
-//        }
-//
-//        // 5. Kiểm tra mật khẩu mới không được trùng mật khẩu cũ
-//        if (newPass.equals(oldPass)) {
-//            tilNew.setError("Mật khẩu mới không được giống mật khẩu cũ!");
-//            etNewPassword.requestFocus();
-//            return;
-//        }
-//
-//        // 6. Gọi Database để cập nhật
-//        UserDAO userDAO = new UserDAO(this);
-//        boolean isUpdated = userDAO.updatePassword(phoneNumber, oldPass, newPass);
-//
-//        if (isUpdated) {
-
-    /// /            Toast.makeText(this, "Đổi mật khẩu thành công!", Toast.LENGTH_SHORT).show();
-    /// /            finish();
-//            showSuccessDialog("Thành công!", "Mật khẩu của bạn đã được\ncập nhật thành công.");
-//        } else {
-//            // Hiển thị lỗi mật khẩu cũ ngay trên khung TextInputLayout
-//            tilOld.setError("Mật khẩu cũ không chính xác!");
-//            etOldPassword.requestFocus();
-//        }
-//    }
     private void handleResetPassword() {
         tilOld.setError(null);
         tilNew.setError(null);
@@ -227,6 +163,42 @@ public class ResetPasswordActivity extends AppCompatActivity {
         });
 
         dialog.show();
+    }
+
+    private void setButtonActive() {
+        btnSavePassword.setBackgroundResource(R.drawable.btn_solid_green);
+        btnSavePassword.setTextColor(ContextCompat.getColor(this, R.color.white));
+        btnSavePassword.setEnabled(true);
+    }
+
+    private void setButtonInactive() {
+        btnSavePassword.setBackgroundResource(R.drawable.btn_outline_green);
+        btnSavePassword.setTextColor(ContextCompat.getColor(this, R.color.xanhTieuDe));
+        btnSavePassword.setEnabled(false);
+    }
+
+    private void setupPasswordWatcher() {
+        android.text.TextWatcher watcher = new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                int oldLen = etOldPassword.getText().toString().trim().length();
+                int newLen = etNewPassword.getText().toString().trim().length();
+                int confirmLen = etConfirmPassword.getText().toString().trim().length();
+                // ĐIỀU KIỆN: Cả 3 ô đều phải >= 8 ký tự
+                if (oldLen >= 8 && newLen >= 8 && confirmLen >= 8) {
+                    setButtonActive();
+                } else {
+                    setButtonInactive();
+                }
+            }
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        };
+        etOldPassword.addTextChangedListener(watcher);
+        etNewPassword.addTextChangedListener(watcher);
+        etConfirmPassword.addTextChangedListener(watcher);
     }
 
 
