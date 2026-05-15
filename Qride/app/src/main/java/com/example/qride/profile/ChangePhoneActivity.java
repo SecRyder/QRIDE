@@ -170,7 +170,7 @@ public class ChangePhoneActivity extends AppCompatActivity {
         btnConfirm.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
 
-            // CHUYỂN SANG MÀN HÌNH OTP (Chế độ Demo giống các bài trước)
+            // CHUYỂN SANG MÀN HÌNH OTP
             Intent intent = new Intent(ChangePhoneActivity.this, RegisterOTPActivity.class);
             intent.putExtra("mode", "CHANGE_PHONE");
             intent.putExtra("phone", phoneNo);
@@ -204,6 +204,9 @@ public class ChangePhoneActivity extends AppCompatActivity {
 
         tvTitle.setText(title);
         tvMessage.setText(message);
+
+        com.example.qride.sqlite.UserDAO dao = new com.example.qride.sqlite.UserDAO(this);
+        dao.updatePhone(newPhoneNumber);
 
         // Cập nhật lại SĐT mới vào SharedPreferences để các màn hình khác nhận diện đúng
         SharedPreferences sharedPreferences = getSharedPreferences("login_check", MODE_PRIVATE);

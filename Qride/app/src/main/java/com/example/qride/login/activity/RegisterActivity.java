@@ -155,43 +155,21 @@ public class RegisterActivity extends AppCompatActivity {
             String phoneFirebase = "+84" + rawPhone.substring(1);
 
             // ====================================================
-            // GỌI FIREBASE GỬI OTP
+            // CHUYỂN SANG MÀN HÌNH OTP DEMO
             // ====================================================
+            Intent intent = new Intent(RegisterActivity.this, RegisterOTPActivity.class);
+            intent.putExtra("mode", "REGISTER");
+            intent.putExtra("phone", rawPhone);
+            intent.putExtra("password", password);
+            intent.putExtra("name", name);
+            intent.putExtra("cccd", cccd);
+            intent.putExtra("address", address);
+            intent.putExtra("gender", finalGender);
+            intent.putExtra("birthday", birthday);
+            startActivity(intent);
 
-            FirebaseAuth auth = FirebaseAuth.getInstance();
-            PhoneAuthOptions options = PhoneAuthOptions.newBuilder(auth)
-                    .setPhoneNumber(phoneFirebase)
-                    .setTimeout(60L, TimeUnit.SECONDS)
-                    .setActivity(this)
-                    .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-
-                        @Override
-                        public void onVerificationCompleted(PhoneAuthCredential credential) {}
-
-                        @Override
-                        public void onVerificationFailed(FirebaseException e) {
-                            Toast.makeText(RegisterActivity.this, "OTP lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-
-                        @Override
-                        public void onCodeSent(String verificationId, PhoneAuthProvider.ForceResendingToken token) {
-                            Intent intent = new Intent(RegisterActivity.this, RegisterOTPActivity.class);
-                            intent.putExtra("verificationId", verificationId);
-                            intent.putExtra("resendToken", token);
-                            intent.putExtra("mode", "REGISTER");
-                            intent.putExtra("phone", rawPhone);
-                            intent.putExtra("password", password);
-                            intent.putExtra("name", name);
-                            intent.putExtra("cccd", cccd);
-                            intent.putExtra("address", address);
-                            intent.putExtra("gender", finalGender);
-                            intent.putExtra("birthday", birthday);
-                            startActivity(intent);
-                        }
-                    })
-                    .build();
-
-            PhoneAuthProvider.verifyPhoneNumber(options);
+// Toast thông báo giả lập
+            Toast.makeText(this, "Đang gửi mã xác thực demo...", Toast.LENGTH_SHORT).show();
         });
     }
 

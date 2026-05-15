@@ -46,9 +46,30 @@ public class LoginTaiKhoanActivity extends AppCompatActivity {
 
         initViews();
 
-        sharedPreferences = getSharedPreferences("login_check", MODE_PRIVATE);
-        loadSavedAccount();
+        // TRONG onCreate của LoginTaiKhoanActivity.java
 
+        sharedPreferences = getSharedPreferences("login_check", MODE_PRIVATE);
+
+        // Lấy dữ liệu từ Intent TRƯỚC
+        String newPhone = getIntent().getStringExtra("new_phone");
+        String newPass = getIntent().getStringExtra("new_password");
+
+        if (newPhone != null && !newPhone.isEmpty()) {
+            // TRƯỜNG HỢP 1: Vừa đăng ký xong quay về
+            edtPhone.setText(newPhone);
+            edtPassword.setText(newPass);
+            cbLuuTaiKhoan.setChecked(true);
+
+            // Đưa con trỏ xuống cuối dòng
+            edtPhone.setSelection(edtPhone.getText().length());
+
+            Toast.makeText(this, "Đăng ký thành công! Mời bạn đăng nhập", Toast.LENGTH_SHORT).show();
+        } else {
+            // TRƯỜNG HỢP 2: Người dùng mở App bình thường -> Load tài khoản cũ
+            loadSavedAccount();
+        }
+
+        // 3. Các sự kiện Click
         btnDangNhap.setOnClickListener(v -> handleLogin());
         tvDangKy.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
         tvQuenPass.setOnClickListener(v -> startActivity(new Intent(this, QuenPassActivity.class)));
@@ -128,21 +149,22 @@ public class LoginTaiKhoanActivity extends AppCompatActivity {
                             return;
                         }
                         
-                        // ===== SAVE SQLITE (SESSION CHUẨN) =====
+                        // ===== SAVE SQLITE ==
                         UserDAO dao = new UserDAO(this);
                         dao.saveUserSession(userId, phone, token);
 
-                        // ===== SHARED PREF (LƯU TRẠNG THÁI ĐĂNG NHẬP) =====
+                        // ===== SHARED PREF (LƯU TRẠNG THÁI ĐỂ AUTO-FILL) =====
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("phone", phone);
                         editor.putBoolean("remember", cbLuuTaiKhoan.isChecked());
 
                         if (cbLuuTaiKhoan.isChecked()) {
+                            // Nếu có tích: Lưu mật khẩu để lần sau tự điền
                             editor.putString("password", password);
                         } else {
+                            // Nếu không tích: Xóa mật khẩu cũ đi, lần sau vào sẽ trống trơn
                             editor.remove("password");
                         }
-
                         editor.apply();
 
                         Toast.makeText(this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();

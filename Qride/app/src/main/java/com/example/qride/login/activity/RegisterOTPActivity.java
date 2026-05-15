@@ -75,8 +75,6 @@ public class RegisterOTPActivity extends AppCompatActivity {
     }
 
     private void getDataFromIntent() {
-        verificationId = getIntent().getStringExtra("verificationId");
-        resendToken = (PhoneAuthProvider.ForceResendingToken) getIntent().getSerializableExtra("resendToken");
 
         mode = getIntent().getStringExtra("mode");
 
@@ -111,47 +109,25 @@ public class RegisterOTPActivity extends AppCompatActivity {
             String code = getOtpCode();
 
             if (code.length() != 6) {
-                Toast.makeText(this, getString(R.string.otp), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Vui lòng nhập đủ 6 số", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Ưu tiên kiểm tra mã Demo để tránh lỗi Firebase Billing
+            // CHỈ KIỂM TRA MÃ DEMO
             if (code.equals(DEMO_OTP)) {
-                handleFinalAction();
+                handleFinalAction(); // Mã đúng -> Gọi API đăng ký lên Server của bạn
             } else {
-                if (verificationId == null) {
-                    Toast.makeText(this, getString(R.string.faile_authen), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
-                FirebaseAuth.getInstance().signInWithCredential(credential)
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                handleFinalAction();
-                            } else {
-                                Toast.makeText(this, "Mã xác thực không chính xác hoặc lỗi!", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                Toast.makeText(this, "Mã OTP không đúng (Mã demo: " + DEMO_OTP + ")", Toast.LENGTH_SHORT).show();
             }
         });
 
         tvResend.setOnClickListener(v -> {
             if (!tvResend.isEnabled()) return;
-            if (resendToken == null || phone == null) {
-                Toast.makeText(this, getString(R.string.otp_resend_fail), Toast.LENGTH_SHORT).show();
-                return;
-            }
-            PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
-                    .setPhoneNumber("+84" + phone.substring(1))
-                    .setTimeout(60L, TimeUnit.SECONDS)
-                    .setActivity(this)
-                    .setForceResendingToken(resendToken)
-                    .setCallbacks(callbacks)
-                    .build();
-            PhoneAuthProvider.verifyPhoneNumber(options);
-            Toast.makeText(this, getString(R.string.otp_resend_sending), Toast.LENGTH_SHORT).show();
+
+            // Giả lập gửi lại mã
+            Toast.makeText(this, "Đã gửi lại mã demo!", Toast.LENGTH_SHORT).show();
             startResendCountdown();
+            simulateOtpReceive();
         });
     }
 
@@ -253,12 +229,20 @@ public class RegisterOTPActivity extends AppCompatActivity {
                     url,
                     body,
                     response -> {
-
                         FirebaseAuth.getInstance().signOut();
-
                         Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
 
-                        startActivity(new Intent(this, LoginTaiKhoanActivity.class));
+                        // 1. Tạo intent và đưa dữ liệu vào
+                        Intent intent = new Intent(this, LoginTaiKhoanActivity.class);
+                        intent.putExtra("new_phone", phone);
+                        intent.putExtra("new_password", password);
+
+                        // 2. Thiết lập flag để xóa sạch các activity cũ
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                        // 3. QUAN TRỌNG: Phải truyền biến 'intent' vào đây, không dùng 'new Intent' nữa
+                        startActivity(intent);
+
                         finish();
                     },
                     error -> {if (error.networkResponse != null) {
@@ -303,23 +287,7 @@ public class RegisterOTPActivity extends AppCompatActivity {
                 otp5.getText().toString().trim() + otp6.getText().toString().trim();
     }
 
-    private final PhoneAuthProvider.OnVerificationStateChangedCallbacks callbacks =
-            new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                @Override
-                public void onVerificationCompleted(PhoneAuthCredential credential) {
-                }
 
-                @Override
-                public void onVerificationFailed(FirebaseException e) {
-                    Log.e("OTP_Debug", "Firebase Error: " + e.getMessage());
-                }
-
-                @Override
-                public void onCodeSent(String newVerificationId, PhoneAuthProvider.ForceResendingToken token) {
-                    verificationId = newVerificationId;
-                    resendToken = token;
-                }
-            };
 
     private void startResendCountdown() {
         tvResend.setEnabled(false);

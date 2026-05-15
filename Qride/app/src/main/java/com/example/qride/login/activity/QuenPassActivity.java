@@ -61,6 +61,8 @@ public class QuenPassActivity extends AppCompatActivity {
         btnGuiOTP.setOnClickListener(v -> handleSendOtp());
     }
 
+    // Trong file QuenPassActivity.java, sửa lại phương thức handleSendOtp:
+
     private void handleSendOtp() {
         String phone = edtPhone.getText().toString().trim();
         if (phone.isEmpty()) {
@@ -71,7 +73,8 @@ public class QuenPassActivity extends AppCompatActivity {
             edtPhone.setError(getString(R.string.seterror_edtphone_invalid));
             return;
         }
-        // ================= CALL SERVER CHECK PHONE =================
+
+        // GỌI API KIỂM TRA SĐT TRÊN SERVER CỦA BẠN
         String url = CHECK_PHONE;
         RequestQueue queue = Volley.newRequestQueue(this);
         JSONObject body = new JSONObject();
@@ -80,6 +83,7 @@ public class QuenPassActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
                 url,
@@ -87,18 +91,25 @@ public class QuenPassActivity extends AppCompatActivity {
                 response -> {
                     try {
                         boolean exists = response.getBoolean("exists");
-
                         if (!exists) {
                             edtPhone.setError("Số điện thoại chưa đăng ký");
-                            return;
+                        } else {
+                            // CHUYỂN THẲNG SANG MÀN HÌNH OTP (BỎ QUA FIREBASE)
+                            Intent intent = new Intent(QuenPassActivity.this, QuenPassOTPActivity.class);
+                            intent.putExtra("phone", phone); // Chỉ cần truyền SĐT là đủ để demo
+                            startActivity(intent);
                         }
-                        // ================= SEND OTP =================
-                        sendOTP(phone);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 },
-                error -> Toast.makeText(this, "Lỗi server", Toast.LENGTH_SHORT).show()
+                error -> {
+                    // Nếu server lỗi thì cứ cho qua để Demo luôn (tùy bạn chọn)
+                    Toast.makeText(this, "Demo: Server lỗi nhưng vẫn cho qua", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, QuenPassOTPActivity.class);
+                    intent.putExtra("phone", phone);
+                    startActivity(intent);
+                }
         );
         queue.add(request);
     }

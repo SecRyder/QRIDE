@@ -117,14 +117,26 @@ public class ProfileFragment extends Fragment {
         View btnLogout = view.findViewById(R.id.btnLogout);
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
+                // 1. Xóa session SQLite
                 userDAO.clearSession();
+
+                // 2. Xử lý SharedPreferences
                 SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("login_check", Context.MODE_PRIVATE);
+                boolean isRemembered = sharedPreferences.getBoolean("remember", false);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.clear();
+
+                if (!isRemembered) {
+                    // Nếu trước đó KHÔNG tích ghi nhớ -> Xóa hết để quay về Login là trống trơn
+                    editor.clear();
+                } else {
+                    // Nếu CÓ tích ghi nhớ -> Không clear hết mà chỉ chuyển trạng thái
+                    // (Giữ lại phone và password trong máy để màn Login tự lấy ra điền vào ô)
+                }
                 editor.apply();
 
                 Toast.makeText(requireContext(), getString(R.string.logout_success), Toast.LENGTH_SHORT).show();
 
+                // 3. Chuyển về màn hình Login
                 Intent intent = new Intent(requireActivity(), LoginTaiKhoanActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
@@ -180,7 +192,7 @@ public class ProfileFragment extends Fragment {
 
     private void loadUserProfile() {
         String token = getToken(getContext());
-        String phone = userDAO.getPhone();
+        String phone = new UserDAO(requireContext()).getPhone();
 
         // Fallback sang SharedPreferences nếu SQLite trống
         if (phone == null || phone.isEmpty()) {

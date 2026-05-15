@@ -141,4 +141,15 @@ public class UserDAO {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete("rental_local", null, null);
     }
+
+    public void updatePhone(String newPhone) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("phone", newPhone); // 'phone' phải khớp với tên cột lúc bạn tạo bảng
+
+        // Vì bảng user_session chỉ luôn có 1 dòng của người dùng hiện tại
+        // nên ta update mà không cần điều kiện WHERE
+        db.update("user_session", values, null, null);
+        db.close();
+    }
 }
