@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -117,26 +118,35 @@ public class ProfileFragment extends Fragment {
         View btnLogout = view.findViewById(R.id.btnLogout);
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
-                // 1. Xóa session SQLite
+                // 1. Xóa sạch session trong SQLite
+                // Đảm bảo hàm clearSession() hoặc clearData() của bạn xóa sạch bảng user_session
                 userDAO.clearSession();
 
                 // 2. Xử lý SharedPreferences
                 SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("login_check", Context.MODE_PRIVATE);
-                boolean isRemembered = sharedPreferences.getBoolean("remember", false);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                if (!isRemembered) {
-                    // Nếu trước đó KHÔNG tích ghi nhớ -> Xóa hết để quay về Login là trống trơn
-                    editor.clear();
-                } else {
-                    // Nếu CÓ tích ghi nhớ -> Không clear hết mà chỉ chuyển trạng thái
-                    // (Giữ lại phone và password trong máy để màn Login tự lấy ra điền vào ô)
+                // CHỖ NÀY QUAN TRỌNG:
+                // Để tránh lỗi "cài lại app có luôn tài khoản", bạn nên xóa sạch Token.
+                // Chỉ giữ lại Phone/Pass nếu người dùng tích "Ghi nhớ" để họ đỡ phải gõ lại thôi.
+
+                boolean isRemembered = sharedPreferences.getBoolean("remember", false);
+                String savedPhone = sharedPreferences.getString("phone", "");
+                String savedPass = sharedPreferences.getString("password", "");
+
+                editor.clear(); // Xóa sạch tất cả (bao gồm cả Token và trạng thái Login)
+
+                if (isRemembered) {
+                    // Nếu có ghi nhớ, ta nạp lại phone và pass vào để màn Login tự điền
+                    editor.putBoolean("remember", true);
+                    editor.putString("phone", savedPhone);
+                    editor.putString("password", savedPass);
                 }
                 editor.apply();
 
                 Toast.makeText(requireContext(), getString(R.string.logout_success), Toast.LENGTH_SHORT).show();
 
-                // 3. Chuyển về màn hình Login
+                // 3. Chuyển về màn hình Login và xóa sạch lịch sử các màn hình trước
                 Intent intent = new Intent(requireActivity(), LoginTaiKhoanActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
@@ -194,6 +204,7 @@ public class ProfileFragment extends Fragment {
         String token = getToken(getContext());
         String phone = new UserDAO(requireContext()).getPhone();
 
+        ImageView imgProfileAvatar = getView() != null ? getView().findViewById(R.id.imgProfileAvatar) : null;
         // Fallback sang SharedPreferences nếu SQLite trống
         if (phone == null || phone.isEmpty()) {
             SharedPreferences sp = requireActivity().getSharedPreferences("login_check", Context.MODE_PRIVATE);
@@ -222,6 +233,15 @@ public class ProfileFragment extends Fragment {
                         } else {
                             tvProfileName.setText(getString(R.string.profile_no_name));
                         }
+
+                        //  Load Avatar
+                        String avatarBase64 = response.optString("avatar", "");
+                        if (!avatarBase64.isEmpty() && !avatarBase64.equals("null") && imgProfileAvatar != null) {
+                            byte[] decodedString = android.util.Base64.decode(avatarBase64, android.util.Base64.DEFAULT);
+                            android.graphics.Bitmap decodedByte = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                            imgProfileAvatar.setImageBitmap(decodedByte);
+                        }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

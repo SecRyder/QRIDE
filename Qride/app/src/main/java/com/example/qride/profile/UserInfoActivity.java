@@ -4,9 +4,14 @@ import static com.example.qride.helper.APIHelper.UPDATE;
 import static com.example.qride.helper.APIHelper.USER;
 import static com.example.qride.helper.APIHelper.getToken;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
@@ -25,6 +31,8 @@ import com.example.qride.sqlite.UserDAO;
 
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +42,12 @@ public class UserInfoActivity extends AppCompatActivity {
     private RadioGroup rgGender;
     private Button btnUpdate;
     private UserDAO userDAO;
+
+
+    // ---  BIẾN CHO AVATAR ---
+    private ImageView imgAvatar;
+    private Uri selectedImageUri;
+    private static final int PICK_IMAGE_REQUEST = 101;
 
     // Biến lưu số điện thoại đang đăng nhập
     private String currentUserPhone = "";
@@ -46,6 +60,11 @@ public class UserInfoActivity extends AppCompatActivity {
         // Ánh xạ giao diện
         ImageView btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> finish());
+
+        imgAvatar = findViewById(R.id.imgAvatar);
+
+        imgAvatar.setOnClickListener(v -> openGallery());
+        // ---------------------
 
         etName = findViewById(R.id.etName);
         etCccd = findViewById(R.id.etCccd);
@@ -113,6 +132,36 @@ public class UserInfoActivity extends AppCompatActivity {
         });
     }
 
+    // --- HÀM MỞ THƯ VIỆN ẢNH ---
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            selectedImageUri = data.getData();
+            imgAvatar.setImageURI(selectedImageUri); // Hiển thị lên giao diện
+        }
+    }
+
+    // --- CHUYỂN ẢNH SANG BASE64 ĐỂ GỬI API ---
+    private String imageToString(Uri uri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            // Nén ảnh xuống 70% để giảm dung lượng khi gửi
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+            byte[] imageBytes = baos.toByteArray();
+            return Base64.encodeToString(imageBytes, Base64.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private String convertToISODate(String input) {
         try {
             java.text.SimpleDateFormat inputFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
@@ -132,9 +181,7 @@ public class UserInfoActivity extends AppCompatActivity {
             Toast.makeText(this, "Token lỗi, vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
             return;
         }
-
         RequestQueue queue = Volley.newRequestQueue(this);
-
         JSONObject body = new JSONObject();
         try {
             body.put("name", name);
@@ -143,6 +190,13 @@ public class UserInfoActivity extends AppCompatActivity {
             body.put("gender", gender);
             if (!birthday.isEmpty()) {
                 body.put("birthday", birthday);
+            }
+            // NẾU CÓ CHỌN ẢNH MỚI -> GỬI KÈM CHUỖI BASE64
+            if (selectedImageUri != null) {
+                String encodedImage = imageToString(selectedImageUri);
+                if (encodedImage != null) {
+                    body.put("avatar", encodedImage);
+                }
             }
         } catch (Exception e) {
         }
@@ -191,10 +245,16 @@ public class UserInfoActivity extends AppCompatActivity {
                     etName.setText(response.optString("name").equals("null") ? "" : response.optString("name", ""));
                     etCccd.setText(response.optString("cccd").equals("null") ? "" : response.optString("cccd", ""));
                     etAddress.setText(response.optString("address").equals("null") ? "" : response.optString("address", ""));
-                    
+
                     String bday = response.optString("birthday", "");
                     if (!bday.isEmpty() && !bday.equals("null")) {
                         etBirthday.setText(formatDateFromAPI(bday));
+                    }
+                    String avatarBase64 = response.optString("avatar", "");
+                    if (!avatarBase64.isEmpty() && !avatarBase64.equals("null")) {
+                        byte[] decodedString = Base64.decode(avatarBase64, Base64.DEFAULT);
+                        Bitmap decodedByte = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        imgAvatar.setImageBitmap(decodedByte);
                     }
 
                     String gender = response.optString("gender", "");
