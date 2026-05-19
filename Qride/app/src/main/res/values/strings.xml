@@ -296,5 +296,26 @@
     <string name="change_password_success">Password changed successfully!</string>
     <string name="change_password_wrong">Current password is incorrect</string>
     <string name="change_password_mismatch">New passwords do not match</string>
+    <!-- Dialogs / Booking -->
+    <string name="booking_success_title">Booking successful</string>
+    <string name="booking_success_message">Your booking request has been confirmed. Please move to the station...</string>
+    <string name="cancel_booking">Cancel hold</string>
+    <string name="go_to_pickup">Go to pick up</string>
+
+    <string name="cancel_booking_title">You have cancelled the booking</string>
+    <string name="cancel_booking_message">The booking has been cancelled. You have 2 remaining uses for this service today. Please wait 5 minutes before booking again.</string>
+    <string name="understood">Understood</string>
+
+    <string name="confirm_booking_title">Book a vehicle</string>
+    <string name="confirm_booking_message">You can hold this vehicle for 10 minutes. The system will automatically cancel if you are late. Confirm now to hold the vehicle!</string>
+    <string name="later">Later</string>
+    <string name="confirm_booking_btn">Confirm</string>
+
+    <!-- Station Detail Dialog -->
+    <string name="station_name_placeholder">Station Name</string>
+    <string name="station_address_placeholder">Detailed Address</string>
+    <string name="parking_slots_placeholder">Parking slots: 10</string>
+    <string name="bike_count_placeholder">BICYCLES (5)</string>
+    <string name="emotor_count_placeholder">E-BIKES (3)</string>
 
 </resources>

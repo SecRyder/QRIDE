@@ -12,12 +12,12 @@
         android:layout_height="350dp"
         android:adjustViewBounds="true"
         android:src="@drawable/splash_xoanen"
-        android:tint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.571"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.498" />
+        app:layout_constraintVertical_bias="0.498"
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

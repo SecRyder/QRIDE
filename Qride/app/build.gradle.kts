@@ -47,6 +47,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.maps.android:android-maps-utils:3.5.3")
 
     // Firebase (BoM quản lý version)
     implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
@@ -67,4 +68,5 @@ dependencies {
     // Thue xe
     implementation("com.android.volley:volley:1.2.1")
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
 }

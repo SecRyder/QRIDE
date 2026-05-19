@@ -277,7 +277,14 @@ public class ChiTietXeActivity extends AppCompatActivity {
                         Toast.makeText(this, "Sai mật khẩu", Toast.LENGTH_SHORT).show();
                     }
                 },
-                error -> Toast.makeText(this, "Lỗi xác thực", Toast.LENGTH_SHORT).show()
+                error -> {
+                    // Xem chi tiết lỗi từ Server trả về trong Logcat
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        String errorData = new String(error.networkResponse.data);
+                        android.util.Log.e("VERIFY_PASS", "Server Response: " + errorData);
+                    }
+                    Toast.makeText(this, "Lỗi xác thực (401)", Toast.LENGTH_SHORT).show();
+                }
         );
         queue.add(request);
     }

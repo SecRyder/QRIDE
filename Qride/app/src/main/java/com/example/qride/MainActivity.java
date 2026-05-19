@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -237,6 +239,16 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
         });
 
         findViewById(R.id.btnEndRide).setOnClickListener(v -> endRide());
+
+        // Animate QR Scanner Line
+        View viewScannerLine = findViewById(R.id.viewScannerLine);
+        if (viewScannerLine != null) {
+            float distance = 7 * getResources().getDisplayMetrics().density;
+            ObjectAnimator animator = ObjectAnimator.ofFloat(viewScannerLine, "translationY", -distance, distance);            animator.setDuration(1500);
+            animator.setRepeatMode(ValueAnimator.REVERSE);
+            animator.setRepeatCount(ValueAnimator.INFINITE);
+            animator.start();
+        }
     }
 
     public void updateNotifBadge() {
@@ -257,6 +269,15 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
     }
 
     private void setupBottomNav() {
+
+        View btnCircleQR = findViewById(R.id.btnTronQR);
+        if (btnCircleQR != null) {
+            btnCircleQR.setOnClickListener(v -> {
+                replaceFragment(new QuetQRFragment(), "QUET_QR");
+                updateBottomNavUI(navQuetQR); // Vẫn dùng navQuetQR để đổi màu toàn bộ icon/chữ Quét QR
+                showMapUI(false);
+            });
+        }
         navTramXe.setOnClickListener(v -> {
             replaceFragment(new TramXeFragment(), "TRAM_XE");
             updateBottomNavUI(navTramXe);
@@ -269,11 +290,11 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
             showMapUI(false);
         });
 
-        navQuetQR.setOnClickListener(v -> {
-            replaceFragment(new QuetQRFragment(), "QUET_QR");
-            updateBottomNavUI(navQuetQR);
-            showMapUI(false);
-        });
+//        navQuetQR.setOnClickListener(v -> {
+//            replaceFragment(new QuetQRFragment(), "QUET_QR");
+//            updateBottomNavUI(navQuetQR);
+//            showMapUI(false);
+//        });
 
         navThanhToan.setOnClickListener(v -> {
             replaceFragment(new ThanhToanFragment(), "THANH_TOAN");

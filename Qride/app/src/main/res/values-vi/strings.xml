@@ -296,5 +296,26 @@
     <string name="change_password_success">Đổi mật khẩu thành công!</string>
     <string name="change_password_wrong">Mật khẩu hiện tại không đúng</string>
     <string name="change_password_mismatch">Mật khẩu mới không khớp</string>
+    <!-- Dialogs / Booking -->
+    <string name="booking_success_title">Đặt giữ xe thành công</string>
+    <string name="booking_success_message">Yêu cầu đặt giữ xe của bạn đã được xác nhận. Vui lòng di chuyển đến trạm...</string>
+    <string name="cancel_booking">Hủy giữ</string>
+    <string name="go_to_pickup">Đến nhận xe</string>
+
+    <string name="cancel_booking_title">Bạn đã hủy giữ xe</string>
+    <string name="cancel_booking_message">Đặt giữ xe đã được hủy. Quý khách còn 2 lượt sử dụng dịch vụ này trong ngày. Vui lòng chờ 5 phút để có thể đặt giữ xe lại.</string>
+    <string name="understood">Đã hiểu</string>
+
+    <string name="confirm_booking_title">Đặt giữ xe</string>
+    <string name="confirm_booking_message">Bạn có thể giữ xe này trong 10 phút. Hệ thống sẽ tự động hủy giữ nếu quá giờ hẹn. Xác nhận ngay để giữ xe nhé!</string>
+    <string name="later">Để sau</string>
+    <string name="confirm_booking_btn">Xác nhận</string>
+
+    <!-- Station Detail Dialog -->
+    <string name="station_name_placeholder">Tên Trạm</string>
+    <string name="station_address_placeholder">Địa chỉ chi tiết</string>
+    <string name="parking_slots_placeholder">Số chỗ đỗ: 10</string>
+    <string name="bike_count_placeholder">XE ĐẠP CƠ (5)</string>
+    <string name="emotor_count_placeholder">XE MÁY ĐIỆN (3)</string>
 
 </resources>
