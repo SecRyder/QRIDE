@@ -13,7 +13,7 @@ import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "qride.db";
-    private static final int DATABASE_VERSION = 25; // Cập nhật bản 25: thêm cột price cho voucher
+    private static final int DATABASE_VERSION = 26; // Cập nhật bản 25: thêm cột price cho voucher
     private Context context;
 
     public DatabaseHelper(Context context) {
@@ -42,15 +42,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // 2. Bảng Vouchers
         db.execSQL("CREATE TABLE vouchers (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "\"type\" TEXT," + 
-                "status TEXT," + 
+                "\"type\" TEXT," +
+                "status TEXT," +
                 "icon TEXT," +
                 "title TEXT," +
                 "title_key TEXT," +
                 "discount TEXT," +
                 "price INTEGER," + // Thêm cột price
                 "expiry TEXT," +
-                "\"action\" TEXT," + 
+                "\"action\" TEXT," +
                 "btn_type TEXT," +
                 "has_progress INTEGER," +
                 "prog_curr INTEGER," +
