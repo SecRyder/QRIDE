@@ -229,16 +229,32 @@
     <string name="v_discount_premium">50% discount voucher</string>
 
     <!-- Voucher Actions (Standardized) -->
-    <string name="voucher_action_claim">Claim now</string>
+    <string name="voucher_action_claim">Use now</string>
     <string name="voucher_action_invite">Invite friends</string>
-    <string name="voucher_action_register_vip">Upgrade VIP</string>
+    <string name="voucher_action_register_vip">Register VIP</string>
     <string name="voucher_action_topup">Top up</string>
     <string name="voucher_action_checkin">Check-in</string>
-    <string name="voucher_action_using">In use</string>
+    <string name="voucher_action_using">Using</string>
     <string name="voucher_action_in_progress">In progress</string>
-    <string name="voucher_action_view">View detail</string>
+    <string name="voucher_action_view">View details</string>
     <string name="voucher_status_used">Used</string>
     <string name="voucher_status_expired">Expired</string>
+    <!-- Voucher UI - Empty state & Loading -->
+    <string name="voucher_loading">Loading offers…</string>
+    <string name="voucher_empty_tich_qua">No rewards yet.\nComplete tasks to receive gifts!</string>
+    <string name="voucher_empty_membership">No membership packages yet.\nUpgrade now to receive exclusive offers!</string>
+    <string name="voucher_retry">Retry</string>
+    <string name="voucher_error_load">Could not load offers. Please try again.</string>
+    <!-- VIP Checkout -->
+    <string name="vip_checkout_title">VIP Checkout</string>
+    <string name="vip_checkout_price_label">Price:</string>
+    <string name="vip_checkout_benefit_label">Benefits:</string>
+    <string name="vip_checkout_confirm">Confirm MoMo Payment</string>
+    <string name="vip_checkout_note">Secure payment via MoMo wallet</string>
+    <string name="vip_connecting_momo">Connecting to MoMo…</string>
+    <string name="vip_error_no_link">Could not retrieve payment link. Please try again.</string>
+    <string name="vip_error_connect">Connection error. Please try again!</string>
+
 
     <!-- QR & Payment -->
     <string name="qr_instruction">Scan QR code on the bike to start</string>

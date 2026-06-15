@@ -69,4 +69,10 @@ dependencies {
     implementation("com.android.volley:volley:1.2.1")
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
+    // SwipeRefreshLayout (kéo để refresh)
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    // CardView (dùng trong item_voucher và VIP checkout)
+    implementation("androidx.cardview:cardview:1.0.0")
+
 }

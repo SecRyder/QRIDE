@@ -134,6 +134,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void insertVoucher(SQLiteDatabase db, String type, String icon, String title, String titleKey, String discount, int price, String expiry, String action, String btnType, int hasProg, int curr, int max) {
         ContentValues values = new ContentValues();
         values.put("type", type);
+        values.put("status", "NEW");   // Status mặc định
         values.put("icon", icon);
         values.put("title", title);
         values.put("title_key", titleKey);

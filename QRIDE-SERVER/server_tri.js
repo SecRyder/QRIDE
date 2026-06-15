@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const sql = require("mssql");
+const mysql = require("mysql2/promise");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const momoService = require("./services/momo.service");
@@ -13,8 +13,8 @@ if (!SECRET_KEY) {
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.static("public"));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Request Logger để Debug 404/500
 app.use((req, res, next) => {
@@ -26,100 +26,49 @@ app.use((req, res, next) => {
 const apiRouter = express.Router();
 app.use("/api", apiRouter);
 
-// ================= DB SQL SERVER =================
-const dbConfig = {
+// ================= DB MYSQL =================
+const pool = mysql.createPool({
+    host: process.env.DB_SERVER || "localhost",
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    server: process.env.DB_SERVER,
     database: process.env.DB_NAME,
-    options: {
-        encrypt: false,
-        trustServerCertificate: true
-    },
-    pool: {
-        max: 10,
-        min: 0,
-        idleTimeoutMillis: 30000
-    }
-};
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
 
-const poolPromise = new sql.ConnectionPool(dbConfig)
-    .connect()
-    .then(pool => {
-        console.log("Connected to SQL Server: " + process.env.DB_SERVER);
-        return pool;
+// Kiểm tra kết nối khi khởi động
+pool.getConnection()
+    .then(conn => {
+        console.log("Connected to MySQL: " + (process.env.DB_SERVER || "localhost"));
+        conn.release();
     })
     .catch(err => {
-        console.error("Database Connection Failed! ", err);
-        throw err;
+        console.error("Database Connection Failed! ", err.message);
     });
 
 const db = {
     query: async (queryText, params) => {
-        const pool = await poolPromise;
-        const request = pool.request();
-        if (params) {
-            params.forEach((val, i) => {
-                request.input(`p${i}`, val);
-            });
-            let i = 0;
-            queryText = queryText.replace(/\?/g, () => `@p${i++}`);
-        }
-        queryText = queryText.replace(/NOW\(\)/gi, "GETDATE()");
-        if (queryText.toUpperCase().includes("LIMIT 1")) {
-            queryText = queryText.replace(/LIMIT 1/gi, "");
-            if (queryText.trim().toUpperCase().startsWith("SELECT") && !queryText.toUpperCase().includes("TOP")) {
-                queryText = queryText.replace(/SELECT/i, "SELECT TOP 1");
-            }
-        }
-
-        const result = await request.query(queryText);
-
-        let rows = result.recordset;
-        if (!rows && queryText.trim().toUpperCase().startsWith("INSERT")) {
-            const idRes = await pool.request().query("SELECT SCOPE_IDENTITY() AS id");
-            rows = { insertId: idRes.recordset[0].id };
-        }
-        return [rows, result];
+        const [rows, fields] = await pool.execute(queryText, params || []);
+        return [rows, fields];
     },
     getConnection: async () => {
-        const pool = await poolPromise;
-        const transaction = new sql.Transaction(pool);
-        await transaction.begin();
+        const conn = await pool.getConnection();
+        await conn.beginTransaction();
         return {
-            beginTransaction: async () => { }, // No-op
-            commit: () => transaction.commit(),
-            rollback: () => transaction.rollback(),
+            beginTransaction: async () => { },
+            commit: () => conn.commit(),
+            rollback: () => conn.rollback(),
             query: async (queryText, params) => {
-                const request = new sql.Request(transaction);
-                if (params) {
-                    params.forEach((val, i) => {
-                        request.input(`p${i}`, val);
-                    });
-                    let i = 0;
-                    queryText = queryText.replace(/\?/g, () => `@p${i++}`);
-                }
-                queryText = queryText.replace(/NOW\(\)/gi, "GETDATE()");
-                queryText = queryText.replace(/NOW\(\)/gi, "GETDATE()");
-                if (queryText.toUpperCase().includes("LIMIT 1")) {
-                    queryText = queryText.replace(/LIMIT 1/gi, "");
-                    if (queryText.trim().toUpperCase().startsWith("SELECT") && !queryText.toUpperCase().includes("TOP")) {
-                        queryText = queryText.replace(/SELECT/i, "SELECT TOP 1");
-                    }
-                }
-
-                const result = await request.query(queryText);
-                let rows = result.recordset;
-                if (!rows && queryText.trim().toUpperCase().startsWith("INSERT")) {
-                    const idRes = await new sql.Request(transaction).query("SELECT SCOPE_IDENTITY() AS id");
-                    rows = { insertId: idRes.recordset[0].id };
-                }
-                return [rows, result];
+                const [rows, fields] = await conn.execute(queryText, params || []);
+                return [rows, fields];
             },
-            release: () => { }
+            release: () => conn.release()
         };
     }
 };
+
 
 const momoRoute = require("./routes/momo.route");
 apiRouter.use("/momo", momoRoute(db));
@@ -212,7 +161,7 @@ apiRouter.get("/user", authMiddleware, async (req, res) => {
     try {
         // Tự động kiểm tra và thêm cột referral_code nếu chưa có (Migration)
         try {
-            await db.query("ALTER TABLE users ADD referral_code NVARCHAR(20) NULL");
+            await db.query("ALTER TABLE users ADD referral_code VARCHAR(20) NULL");
         } catch (e) {
             // Cột đã tồn tại hoặc lỗi khác, bỏ qua
         }
@@ -266,9 +215,10 @@ apiRouter.post("/user/update", authMiddleware, async (req, res) => {
                 [name, cccd, address, gender, birthday, userId]
             );
         }
-
         res.json({ message: "SUCCESS" });
     } catch (err) {
+
+        console.error("UPDATE_USER_ERROR:", err);
         res.status(500).json({ message: "SERVER_ERROR" });
     }
 });
@@ -349,12 +299,12 @@ apiRouter.post("/reset-password", async (req, res) => {
 
     const hash = await bcrypt.hash(newPassword, 10);
 
-    const [result, raw] = await db.query(
+    const [result] = await db.query(
         "UPDATE users SET password_hash=? WHERE phone=?",
         [hash, phone]
     );
 
-    if (raw.rowsAffected[0] === 0)
+    if (result.affectedRows === 0)
         return res.status(404).json({ message: "USER_NOT_FOUND" });
 
     res.json({ message: "SUCCESS" });
@@ -393,7 +343,7 @@ apiRouter.get("/user/stats", authMiddleware, async (req, res) => {
             `SELECT 
                 COUNT(*) as total_trips,
                 COALESCE(SUM(total_distance), 0) as total_km,
-                COALESCE(SUM(DATEDIFF(MINUTE, start_time, COALESCE(end_time, GETDATE()))), 0) as total_minutes
+                COALESCE(SUM(TIMESTAMPDIFF(MINUTE, start_time, COALESCE(end_time, NOW()))), 0) as total_minutes
              FROM rental
              WHERE user_id=? AND status='done'`,
             [userId]
@@ -467,14 +417,12 @@ apiRouter.post("/momo/ipn", async (req, res) => {
             if (orderId.startsWith("VIP_")) {
                 // VIP purchase - update user_vouchers
                 if (payment.target_id) {
-                    await conn.query(`
-                        IF EXISTS (SELECT 1 FROM user_vouchers WHERE user_id=? AND voucher_id=?)
-                            UPDATE user_vouchers SET status='ACTIVE', action_key='USING', btn_type='ORANGE', updated_at=GETDATE()
-                            WHERE user_id=? AND voucher_id=?
-                        ELSE
-                            INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, btn_type, updated_at)
-                            VALUES (?, ?, 'ACTIVE', 'USING', 'ORANGE', GETDATE())
-                    `, [payment.user_id, payment.target_id, payment.user_id, payment.target_id, payment.user_id, payment.target_id]);
+                    await conn.query(
+                        `INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, btn_type, updated_at)
+                         VALUES (?, ?, 'ACTIVE', 'USING', 'ORANGE', NOW())
+                         ON DUPLICATE KEY UPDATE status='ACTIVE', action_key='USING', btn_type='ORANGE', updated_at=NOW()`,
+                        [payment.user_id, payment.target_id]
+                    );
                 }
             } else {
                 // Wallet topup
@@ -546,7 +494,7 @@ apiRouter.get("/vehicle-by-plate/:plate", async (req, res) => {
 apiRouter.get("/vehicles/:stationId", async (req, res) => {
     try {
         const [rows] = await db.query(
-            `SELECT v.id, v.plate, v.pin, v.current_status,
+            `SELECT v.id, v.plate, v.pin, v.type, v.current_status, 
                     s.name as station_name, s.address as station_address
              FROM vehicle v
              JOIN stations s ON v.station_id = s.id
@@ -593,7 +541,7 @@ apiRouter.post("/rent", authMiddleware, async (req, res) => {
             throw new Error("Đang thuê xe");
 
         const [vehicles] = await conn.query(
-            "SELECT * FROM vehicle WITH (UPDLOCK, ROWLOCK) WHERE id=?",
+            "SELECT * FROM vehicle WHERE id=?",
             [vehicleId]
         );
 
@@ -605,7 +553,7 @@ apiRouter.post("/rent", authMiddleware, async (req, res) => {
 
         // ===== CHECK WALLET =====
         const [walletRows] = await conn.query(
-            "SELECT * FROM wallet WITH (UPDLOCK, ROWLOCK) WHERE user_id=?",
+            "SELECT * FROM wallet WHERE user_id=?",
             [userId]
         );
 
@@ -625,7 +573,7 @@ apiRouter.post("/rent", authMiddleware, async (req, res) => {
         // check số dư tối thiểu 20k
         // lấy config
         const [configRows] = await conn.query(
-            "SELECT value FROM system_config WHERE [key]='min_wallet_to_rent'"
+            "SELECT value FROM system_config WHERE `key`='min_wallet_to_rent'"
         );
 
         const minBalance = configRows.length > 0 ? parseInt(configRows[0].value) : 20000;
@@ -663,31 +611,21 @@ apiRouter.post("/rent", authMiddleware, async (req, res) => {
         conn.release();
     }
 });
-
-apiRouter.get("/wallet/check", authMiddleware, async (req, res) => {
+apiRouter.get("/wallet", authMiddleware, async (req, res) => {
     const userId = req.user.userId;
+    try {
+        let [rows] = await db.query("SELECT * FROM wallet WHERE user_id=?", [userId]);
 
-    const [walletRows] = await db.query(
-        "SELECT * FROM wallet WHERE user_id=?",
-        [userId]
-    );
+        if (rows.length === 0) {
+            // Tự tạo ví mới với số dư 0 nếu chưa có
+            await db.query("INSERT INTO wallet (user_id, balance, status) VALUES (?, 0, 'active')", [userId]);
+            [rows] = await db.query("SELECT * FROM wallet WHERE user_id=?", [userId]);
+        }
 
-    if (walletRows.length === 0)
-        return res.json({ message: "NO_WALLET" });
-
-    const wallet = walletRows[0];
-
-    const [configRows] = await db.query(
-        "SELECT value FROM system_config WHERE [key]='min_wallet_to_rent'"
-    );
-
-    const minBalance = configRows.length > 0 ? parseInt(configRows[0].value) : 20000;
-
-    res.json({
-        balance: wallet.balance,
-        min_required: minBalance,
-        can_rent: wallet.balance >= minBalance
-    });
+        res.json(rows[0]);
+    } catch (err) {
+        res.status(500).json({ message: "SERVER_ERROR" });
+    }
 });
 
 // ================= RETURN =================
@@ -879,7 +817,7 @@ apiRouter.post("/return", authMiddleware, async (req, res) => {
 
         // ===== WALLET =====
         const [walletRows] = await conn.query(
-            "SELECT * FROM wallet WITH (UPDLOCK, ROWLOCK) WHERE user_id=?",
+            "SELECT * FROM wallet WHERE user_id=?",
             [userId]
         );
 
@@ -1193,7 +1131,7 @@ apiRouter.post("/wallet/withdraw", authMiddleware, async (req, res) => {
 
         // ===== LOCK WALLET =====
         const [walletRows] = await conn.query(
-            "SELECT * FROM wallet WITH (UPDLOCK, ROWLOCK) WHERE user_id=?",
+            "SELECT * FROM wallet WHERE user_id=?",
             [userId]
         );
 
@@ -1212,7 +1150,7 @@ apiRouter.post("/wallet/withdraw", authMiddleware, async (req, res) => {
 
         // ===== LẤY MIN BALANCE (config) =====
         const [configRows] = await conn.query(
-            "SELECT value FROM system_config WHERE [key]='min_wallet_balance'"
+            "SELECT value FROM system_config WHERE `key`='min_wallet_balance'"
         );
 
         const minBalance = configRows.length > 0
@@ -1424,18 +1362,20 @@ apiRouter.get("/vouchers", authMiddleware, async (req, res) => {
     const { type } = req.query; // TICH_QUA or GOI_HOI_VIEN
 
     try {
+        // Tự động kiểm tra và thêm cột price nếu chưa có
+        try {
+            await db.query("ALTER TABLE vouchers ADD price INT NULL");
+        } catch (e) { }
+
         let query = `
             SELECT 
-                v.id, v.type, v.icon_name AS icon, v.title_display AS title, v.title_key,
-                v.discount_text AS discount, 
-                v.price, v.expiry_text AS expiry,
-                CAST(v.has_progress AS INT) AS has_progress,
-                v.max_progress AS prog_max,
-                COALESCE(uv.current_progress, 0) AS prog_curr, 
-                COALESCE(uv.status, v.status, 'NEW') AS status, 
-                COALESCE(uv.action_key, v.default_action_key) AS action, 
-                v.default_action_key AS action_label,
-                COALESCE(uv.btn_type, v.default_btn_type) AS btn_type
+                v.id, v.type, v.icon_name AS icon, v.title_display AS title, v.title_key, v.discount_text AS discount, 
+                v.price, v.expiry_text AS expiry, v.has_progress, v.max_progress AS prog_max,
+                COALESCE(uv.current_progress, 0) as prog_curr, 
+                COALESCE(uv.status, v.status, 'NEW') as status, 
+                COALESCE(uv.action_key, v.default_action_key) as action, 
+                v.default_action_key as action_label,
+                COALESCE(uv.btn_type, v.default_btn_type) as btn_type
             FROM vouchers v
             LEFT JOIN user_vouchers uv ON v.id = uv.voucher_id AND uv.user_id = ?
         `;
@@ -1446,13 +1386,11 @@ apiRouter.get("/vouchers", authMiddleware, async (req, res) => {
             params.push(type);
         }
 
-        query += " ORDER BY v.id ASC";
-
         const [rows] = await db.query(query, params);
         res.json(rows);
     } catch (err) {
-        console.error("VOUCHERS_GET_ERROR:", err);
-        res.status(500).json({ message: "SERVER_ERROR", detail: err.message });
+        console.error(err);
+        res.status(500).json({ message: "SERVER_ERROR" });
     }
 });
 
@@ -1508,7 +1446,7 @@ apiRouter.post("/vouchers/update-progress", authMiddleware, async (req, res) => 
             }
 
             await db.query(
-                "UPDATE user_vouchers SET current_progress = ?, action_key = ?, btn_type = ?, status = ?, updated_at = GETDATE() WHERE id = ?",
+                "UPDATE user_vouchers SET current_progress = ?, action_key = ?, btn_type = ?, status = ?, updated_at = NOW() WHERE id = ?",
                 [currentProgress, actionKey, btnType, status, uv.id]
             );
         } else {
@@ -1521,7 +1459,7 @@ apiRouter.post("/vouchers/update-progress", authMiddleware, async (req, res) => 
             }
 
             await db.query(
-                "INSERT INTO user_vouchers (user_id, voucher_id, current_progress, status, action_key, btn_type, updated_at) VALUES (?, ?, ?, ?, ?, ?, GETDATE())",
+                "INSERT INTO user_vouchers (user_id, voucher_id, current_progress, status, action_key, btn_type, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW())",
                 [userId, voucherId, currentProgress, status, actionKey, btnType]
             );
         }
@@ -1546,16 +1484,13 @@ apiRouter.post("/vouchers/activate", authMiddleware, async (req, res) => {
     if (!voucherId) return res.status(400).json({ message: "MISSING_VOUCHER_ID" });
 
     try {
-        // Upsert: update nếu đã có, insert nếu chưa có
-        await db.query(`
-            IF EXISTS (SELECT 1 FROM user_vouchers WHERE user_id = ? AND voucher_id = ?)
-                UPDATE user_vouchers 
-                SET status = 'ACTIVE', action_key = 'USING', btn_type = 'ORANGE', updated_at = GETDATE()
-                WHERE user_id = ? AND voucher_id = ?
-            ELSE
-                INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, btn_type, current_progress, updated_at)
-                VALUES (?, ?, 'ACTIVE', 'USING', 'ORANGE', 0, GETDATE())
-        `, [userId, voucherId, userId, voucherId, userId, voucherId]);
+        // Upsert logic for MySQL
+        await db.query(
+            `INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, btn_type, current_progress, updated_at)
+             VALUES (?, ?, 'ACTIVE', 'USING', 'ORANGE', 0, NOW())
+             ON DUPLICATE KEY UPDATE status = 'ACTIVE', action_key = 'USING', btn_type = 'ORANGE', updated_at = NOW()`,
+            [userId, voucherId]
+        );
 
         // Gửi notification
         try {
@@ -1581,55 +1516,41 @@ apiRouter.post("/vouchers/buy", authMiddleware, async (req, res) => {
     const conn = await db.getConnection();
     try {
         await conn.beginTransaction();
-
         const [vouchers] = await conn.query("SELECT * FROM vouchers WHERE id = ?", [voucherId]);
         if (vouchers.length === 0) throw new Error("VOUCHER_NOT_FOUND");
         const voucher = vouchers[0];
 
-        // Dùng trường price (số nguyên) trực tiếp từ DB, không parse discount_text
+        // Dùng trường price (số nguyên) trực tiếp từ DB
         const price = parseInt(voucher.price) || 0;
         if (price <= 0) return res.status(400).json({ message: "INVALID_PRICE" });
 
-        const [wallets] = await conn.query(
-            "SELECT * FROM wallet WITH (UPDLOCK, ROWLOCK) WHERE user_id = ?",
-            [userId]
-        );
+        const [wallets] = await conn.query("SELECT * FROM wallet WHERE user_id = ?", [userId]);
         if (wallets.length === 0) throw new Error("NO_WALLET");
         const wallet = wallets[0];
         if (wallet.balance < price) throw new Error("INSUFFICIENT_BALANCE");
 
-        const newBalance = wallet.balance - price;
-
-        await conn.query("UPDATE wallet SET balance = ? WHERE id = ?", [newBalance, wallet.id]);
+        await conn.query("UPDATE wallet SET balance = balance - ? WHERE user_id = ?", [price, userId]);
 
         try {
             await conn.query(
-                `INSERT INTO wallet_transactions (wallet_id, amount, type, balance_before, balance_after, description, created_at)
-                 VALUES (?, ?, 'payment', ?, ?, ?, GETDATE())`,
-                [wallet.id, -price, wallet.balance, newBalance, `Mua gói: ${voucher.title_display || voucher.title_key}`]
+                "INSERT INTO wallet_transactions (wallet_id, amount, type, description, created_at) VALUES (?, ?, 'payment', ?, NOW())",
+                [wallet.id, -price, `Mua gói: ${voucher.title_display || voucher.title_key}`,]
             );
         } catch (e) { console.error("WALLET_TRANSACTION_LOG_ERROR:", e); }
 
-        await conn.query(`
-            IF EXISTS (SELECT 1 FROM user_vouchers WHERE user_id = ? AND voucher_id = ?)
-            BEGIN
-                UPDATE user_vouchers SET status = 'IN_PROGRESS', action_key = 'IN_PROGRESS', updated_at = GETDATE()
-                WHERE user_id = ? AND voucher_id = ?
-            END
-            ELSE
-            BEGIN
-                INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, current_progress, btn_type, updated_at)
-                VALUES (?, ?, 'IN_PROGRESS', 'IN_PROGRESS', 0, 'GREEN', GETDATE())
-            END
-        `, [userId, voucherId, userId, voucherId, userId, voucherId]);
+        await conn.query(
+            `INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, current_progress, btn_type, updated_at)
+             VALUES (?, ?, 'IN_PROGRESS', 'IN_PROGRESS', 0, 'GREEN', NOW())
+             ON DUPLICATE KEY UPDATE status='IN_PROGRESS', action_key='IN_PROGRESS', updated_at=NOW()`,
+            [userId, voucherId]
+        );
 
         await conn.commit();
-        res.json({ message: "SUCCESS", newBalance });
+        res.json({ message: "SUCCESS", newBalance: wallet.balance - price });
     } catch (err) {
         if (conn) await conn.rollback();
         console.error("BUY_VOUCHER_ERROR:", err);
-        const code = err.message === "INSUFFICIENT_BALANCE" ? 402 : 500;
-        res.status(code).json({ message: err.message || "SERVER_ERROR" });
+        res.status(500).json({ message: "SERVER_ERROR", detail: err.message });
     } finally {
         if (conn) conn.release();
     }
@@ -1640,13 +1561,8 @@ apiRouter.post("/referral/submit", authMiddleware, async (req, res) => {
     const userId = req.user.userId;
     const { code } = req.body;
 
-    if (!code || code.trim() === "") {
-        return res.status(400).json({ message: "Vui lòng nhập mã mời" });
-    }
-
     try {
-        // Tìm người có mã giới thiệu đó
-        const [targetUser] = await db.query("SELECT id FROM users WHERE referral_code = ?", [code.trim().toUpperCase()]);
+        const [targetUser] = await db.query("SELECT id FROM users WHERE referral_code = ?", [code]);
         if (targetUser.length === 0) {
             return res.status(404).json({ message: "Mã giới thiệu không tồn tại" });
         }
@@ -1654,23 +1570,20 @@ apiRouter.post("/referral/submit", authMiddleware, async (req, res) => {
             return res.status(400).json({ message: "Bạn không thể nhập mã của chính mình" });
         }
 
-        // Cập nhật tiến trình nhiệm vụ INVITE cho người đã mời
-        // Bảng vouchers dùng cột default_action_key với giá trị 'action_invite_now'
+        // Logic tặng quà: Ví dụ tặng voucher hoặc cộng tiền
+        // Ở đây ta có thể cập nhật tiến trình nhiệm vụ INVITE cho người mời
         await db.query(`
             UPDATE user_vouchers 
-            SET current_progress = current_progress + 1, updated_at = GETDATE()
-            WHERE user_id = ? AND voucher_id IN (
-                SELECT id FROM vouchers WHERE default_action_key = 'action_invite_now'
-            )
+            SET current_progress = current_progress + 1, updated_at = NOW()
+            WHERE user_id = ? AND voucher_id IN (SELECT id FROM vouchers WHERE action = 'INVITE')
         `, [targetUser[0].id]);
 
-        res.json({ message: "Nhập mã thành công! Cảm ơn bạn đã tham gia QRIDE." });
+        res.json({ message: "Nhập mã thành công! Quà sẽ được gửi sớm." });
     } catch (err) {
-        console.error("REFERRAL_SUBMIT_ERROR:", err);
-        res.status(500).json({ message: "Lỗi server, vui lòng thử lại sau" });
+        console.error(err);
+        res.status(500).json({ message: "SERVER_ERROR" });
     }
 });
-
 
 // ================= NOTIFICATIONS =================
 apiRouter.get("/notifications", authMiddleware, async (req, res) => {
@@ -1856,8 +1769,8 @@ apiRouter.post("/admin/voucher-actions", async (req, res) => {
     const { action_key, label } = req.body;
     try {
         await db.query(
-            "IF NOT EXISTS (SELECT 1 FROM voucher_actions WHERE action_key = ?) INSERT INTO voucher_actions (action_key, label) VALUES (?, ?)",
-            [action_key, action_key, label]
+            "INSERT IGNORE INTO voucher_actions (action_key, label) VALUES (?, ?)",
+            [action_key, label]
         );
         res.json({ message: "SUCCESS" });
     } catch (err) {
@@ -1873,6 +1786,9 @@ apiRouter.delete("/admin/voucher-actions/:id", async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {

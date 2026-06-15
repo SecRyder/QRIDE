@@ -3,6 +3,9 @@ package com.example.qride.uudai;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,18 +19,23 @@ import com.example.qride.helper.APIHelper;
 
 import org.json.JSONObject;
 
+import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
  * Màn hình thanh toán gói VIP/Hội viên qua MoMo.
+ * Hiển thị thông tin gói và giá tiền rõ ràng trước khi thanh toán.
  */
 public class VipCheckoutActivity extends AppCompatActivity {
 
     private int voucherId;
-    private String title;
-    private String discount;
+    private String voucherTitle;
+    private String voucherDiscount;
     private int voucherPrice;
+
+    private Button btnConfirmPayment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,48 +43,64 @@ public class VipCheckoutActivity extends AppCompatActivity {
         setContentView(R.layout.activity_vip_checkout);
 
         // Lấy dữ liệu từ Intent
-        voucherId = getIntent().getIntExtra("VOUCHER_ID", -1);
-        title = getIntent().getStringExtra("VOUCHER_TITLE");
-        discount = getIntent().getStringExtra("VOUCHER_DISCOUNT");
-        voucherPrice = getIntent().getIntExtra("VOUCHER_PRICE", 0);
+        voucherId       = getIntent().getIntExtra("VOUCHER_ID", -1);
+        voucherTitle    = getIntent().getStringExtra("VOUCHER_TITLE");
+        voucherDiscount = getIntent().getStringExtra("VOUCHER_DISCOUNT");
+        voucherPrice    = getIntent().getIntExtra("VOUCHER_PRICE", 0);
 
-        // Ánh xạ View
-        TextView tvVoucherName = findViewById(R.id.tvVoucherName);
-        TextView tvVoucherPrice = findViewById(R.id.tvVoucherPrice);
+        // Ánh xạ Views
+        TextView tvVoucherName    = findViewById(R.id.tvVoucherName);
+        TextView tvVoucherBenefit = findViewById(R.id.tvVoucherBenefit);
+        TextView tvVoucherPrice   = findViewById(R.id.tvVoucherPrice);
+        btnConfirmPayment         = findViewById(R.id.btnConfirmPayment);
 
-        tvVoucherName.setText(title);
-        tvVoucherPrice.setText(discount);
+        // Hiển thị tên gói
+        if (voucherTitle != null) tvVoucherName.setText(voucherTitle);
 
-        findViewById(R.id.btnConfirmPayment).setOnClickListener(v -> {
-            v.setEnabled(false); // Chống nhấn nhiều lần
+        // Hiển thị quyền lợi (discount text)
+        if (voucherDiscount != null && !voucherDiscount.isEmpty()) {
+            tvVoucherBenefit.setText(voucherDiscount);
+            tvVoucherBenefit.setVisibility(View.VISIBLE);
+        } else {
+            tvVoucherBenefit.setVisibility(View.GONE);
+        }
+
+        // Hiển thị giá tiền (format VND)
+        if (voucherPrice > 0) {
+            NumberFormat nf = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+            tvVoucherPrice.setText(nf.format(voucherPrice) + "đ");
+        } else {
+            tvVoucherPrice.setText("Liên hệ");
+        }
+
+        // Nút thanh toán
+        btnConfirmPayment.setOnClickListener(v -> {
+            v.setEnabled(false);
             payWithMoMo();
         });
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
+        // Nút back
+        ImageView btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
     }
 
     private void payWithMoMo() {
-        int amount = 0;
-        
-        // Ưu tiên dùng giá tiền số (Price) nếu có
+        // Tính giá thanh toán thực tế
+        int amount;
         if (voucherPrice > 0) {
             amount = voucherPrice;
         } else {
-            // Nhảy vào logic cũ nếu Price = 0 (dùng cho các gói cũ chưa update DB)
+            // Fallback: thử parse từ discount text nếu price = 0
             try {
-                String cleanPrice = discount.replaceAll("[^0-9]", "");
-                if (cleanPrice.isEmpty()) {
-                    amount = 50000;
-                } else {
-                    amount = Integer.parseInt(cleanPrice);
-                    if (amount < 1000) amount = 1000; 
-                }
+                String clean = voucherDiscount != null
+                        ? voucherDiscount.replaceAll("[^0-9]", "") : "";
+                amount = clean.isEmpty() ? 50000 : Math.max(1000, Integer.parseInt(clean));
             } catch (Exception e) {
                 amount = 50000;
             }
         }
 
-        // Hiện Toast thông báo đang xử lý
-        Toast.makeText(this, "Đang kết nối MoMo...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.vip_connecting_momo), Toast.LENGTH_SHORT).show();
 
         JSONObject body = new JSONObject();
         try {
@@ -84,30 +108,35 @@ public class VipCheckoutActivity extends AppCompatActivity {
             body.put("amount", amount);
         } catch (Exception ignored) {}
 
-        String url = APIHelper.BASE_URL + "payment/vip/momo";
+        String url = APIHelper.PAYMENT_VIP_MOMO;
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, body,
                 response -> {
-                    String payUrl = response.optString("payUrl");
+                    String payUrl = response.optString("payUrl", "");
                     if (!payUrl.isEmpty()) {
-                        // Mở MoMo hoặc trình duyệt để thanh toán
+                        // Mở MoMo app hoặc trình duyệt
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(payUrl));
                         startActivity(intent);
-                        finish(); // Đóng màn hình checkout sau khi mở link
+                        finish();
                     } else {
-                        Toast.makeText(this, "Không lấy được link thanh toán", Toast.LENGTH_SHORT).show();
+                        btnConfirmPayment.setEnabled(true);
+                        Toast.makeText(this,
+                                getString(R.string.vip_error_no_link),
+                                Toast.LENGTH_LONG).show();
                     }
                 },
                 error -> {
-                    findViewById(R.id.btnConfirmPayment).setEnabled(true);
-                    Toast.makeText(this, "Lỗi kết nối Server. Vui lòng thử lại!", Toast.LENGTH_SHORT).show();
+                    btnConfirmPayment.setEnabled(true);
+                    Toast.makeText(this,
+                            getString(R.string.vip_error_connect),
+                            Toast.LENGTH_SHORT).show();
                 }
         ) {
             @Override
             public Map<String, String> getHeaders() {
-                Map<String, String> params = new HashMap<>();
-                params.put("Authorization", "Bearer " + APIHelper.getToken(VipCheckoutActivity.this));
-                return params;
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + APIHelper.getToken(VipCheckoutActivity.this));
+                return headers;
             }
         };
 
