@@ -343,7 +343,7 @@ public class TramXeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void drawRealRoute(LatLng origin, LatLng dest) {
-        String apiKey = "AIzaSyAPEuMN5QRz_oQs1hzmQjxUzrbwlyDrl40";
+        String apiKey = "AIzaSyBqCHAQ5pyinQwqY08CG4SsQ1x4DLzAX3o";
         String url = "https://maps.googleapis.com/maps/api/directions/json?" +
                 "origin=" + origin.latitude + "," + origin.longitude +
                 "&destination=" + dest.latitude + "," + dest.longitude +

@@ -255,6 +255,9 @@ public class EndRideActivity extends AppCompatActivity {
                                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
                                 intent.putExtra("rideEnded", true);
+                                // Dung cho danh gia
+                                intent.putExtra("rental_id",rentalId);
+                                // Dung cho xem chi tiet
                                 intent.putExtra("transaction_id", response.optInt("transaction_id", -1));
 
                                 startActivity(intent);

@@ -111,5 +111,10 @@
         <!-- Voucher / VIP Checkout -->
         <activity android:name=".uudai.VipCheckoutActivity" android:exported="false" />
 
+        <!-- Cong dong QRIDE -->
+        <activity android:name=".community.CommunityActivity" android:exported="false"/>
+        <activity android:name=".community.CreatePostActivity" android:exported="false"/>
+
+        <activity android:name=".community.CommentActivity" android:exported="false"/>
     </application>
 </manifest>

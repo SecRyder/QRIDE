@@ -69,4 +69,6 @@ dependencies {
     implementation("com.android.volley:volley:1.2.1")
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
+    // Hien thi tai anh tu link URL
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 }

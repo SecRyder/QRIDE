@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +33,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.qride.community.CommunityActivity;
 import com.example.qride.fragment.NotificationFragment;
 import com.example.qride.fragment.ProfileFragment;
 import com.example.qride.fragment.QuetQRFragment;
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
     private TextView tvNotificationBadge;
     private CardView cardStationInfo;
     private TextView tvStationName, tvStationAddress;
-    private FloatingActionButton btnLocateMe;
+    private FloatingActionButton btnLocateMe, btnCommunity;
     private LinearLayout layoutTopBar;
 
     private View navTramXe, navUuDai, navQuetQR, navThanhToan, navTaiKhoan;
@@ -101,8 +103,6 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
 
         // 2. Áp dụng ngay lập tức TRƯỚC KHI nạp layout
         AppCompatDelegate.setDefaultNightMode(savedMode);
-
-
 
 
         super.onCreate(savedInstanceState);
@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
         tvStationName = findViewById(R.id.tvStationName);
         tvStationAddress = findViewById(R.id.tvStationAddress);
         btnLocateMe = findViewById(R.id.btnLocateMe);
+        btnCommunity = findViewById(R.id.btnCommunity);
 
         cardRiding = findViewById(R.id.cardRiding);
         tvBikeCode = findViewById(R.id.tvBikeCode);
@@ -238,13 +239,19 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
             }
         });
 
+        btnCommunity.setOnClickListener(v->{
+            Intent intent = new Intent(MainActivity.this, CommunityActivity.class);
+            startActivity(intent);
+        });
+
         findViewById(R.id.btnEndRide).setOnClickListener(v -> endRide());
 
         // Animate QR Scanner Line
         View viewScannerLine = findViewById(R.id.viewScannerLine);
         if (viewScannerLine != null) {
             float distance = 7 * getResources().getDisplayMetrics().density;
-            ObjectAnimator animator = ObjectAnimator.ofFloat(viewScannerLine, "translationY", -distance, distance);            animator.setDuration(1500);
+            ObjectAnimator animator = ObjectAnimator.ofFloat(viewScannerLine, "translationY", -distance, distance);
+            animator.setDuration(1500);
             animator.setRepeatMode(ValueAnimator.REVERSE);
             animator.setRepeatCount(ValueAnimator.INFINITE);
             animator.start();
@@ -531,13 +538,15 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
             body.put("vehicleId", vehicleId);
             body.put("lat", loc.getLatitude());
             body.put("lng", loc.getLongitude());
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         JsonObjectRequest req = new JsonObjectRequest(
                 Request.Method.POST,
                 url,
                 body,
-                res -> {},
+                res -> {
+                },
                 err -> err.printStackTrace()
         ) {
             @Override
@@ -569,9 +578,11 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
             getIntent().removeExtra("rideEnded");
         }
     }
+
     private void showEndRideSuccessDialog() {
         View view = getLayoutInflater().inflate(R.layout.dialog_endride_success, null);
         int transactionId = getIntent().getIntExtra("transaction_id", -1);
+        int rentalId = getIntent().getIntExtra("rental_id",-1);
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(view)
                 .create();
@@ -589,13 +600,109 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
 
             dialog.dismiss();
         });
+//        view.findViewById(R.id.btnRate).setOnClickListener(v -> {
+//            Toast.makeText(this, "Cảm ơn bạn đã đánh giá chuyến đi!", Toast.LENGTH_SHORT).show();
+//            dialog.dismiss();
+//        });
         view.findViewById(R.id.btnRate).setOnClickListener(v -> {
-            Toast.makeText(this, "Cảm ơn bạn đã đánh giá chuyến đi!", Toast.LENGTH_SHORT).show();
             dialog.dismiss();
+            View ratingView = getLayoutInflater().inflate(R.layout.dialog_rating, null);
+            AlertDialog ratingDialog = new AlertDialog.Builder(this).setView(ratingView).create();
+            RatingBar ratingBar = ratingView.findViewById(R.id.ratingBar);
+            EditText edtComment = ratingView.findViewById(R.id.edtComment);
+            ratingView.findViewById(R.id.btnSubmitRating).setOnClickListener(v1 -> {
+                int rating = (int) ratingBar.getRating();
+                String comment = edtComment.getText().toString();
+                if (rating == 0) {
+                    Toast.makeText(this, "Vui lòng chọn số sao", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                sendReview(rentalId, rating, comment);
+                ratingDialog.dismiss();
+            });
+            ratingDialog.show();
         });
         dialog.show();
     }
 
+    // Gui danh gia
+    private void sendReview(
+            int rentalId,
+            int rating,
+            String comment
+    ) {
+        String url = APIHelper.CREATE_REVIEW;
+        String token = APIHelper.getToken(this);
+        JSONObject body = new JSONObject();
+        try {
+            body.put("rental_id", rentalId);
+            body.put("rating", rating);
+            body.put("comment", comment);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest request =
+                new JsonObjectRequest(
+                        Request.Method.POST,
+                        url,
+                        body,
+                        response -> {
+                            Toast.makeText(
+                                    this,
+                                    "Đánh giá thành công!",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        },
+                        error -> {
+                            error.printStackTrace();
+                            if (error.networkResponse != null) {
+                                String msg =
+                                        new String(
+                                                error.networkResponse.data
+                                        );
+
+                                Toast.makeText(
+                                        this,
+                                        msg,
+                                        Toast.LENGTH_LONG
+                                ).show();
+
+                            } else {
+
+                                Toast.makeText(
+                                        this,
+                                        "Không kết nối được server",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                            }
+                        }
+                ) {
+                    @Override
+                    public java.util.Map<String, String> getHeaders() {
+
+                        java.util.Map<String, String> headers =
+                                new java.util.HashMap<>();
+
+                        headers.put(
+                                "Authorization",
+                                "Bearer " + token
+                        );
+
+                        headers.put(
+                                "Content-Type",
+                                "application/json"
+                        );
+
+                        return headers;
+                    }
+
+                };
+
+
+        Volley.newRequestQueue(this)
+                .add(request);
+
+    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -610,7 +717,6 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
             intent.removeExtra("rideEnded");
         }
     }
-
 
 
     @Override
