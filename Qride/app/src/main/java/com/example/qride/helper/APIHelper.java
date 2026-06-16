@@ -11,6 +11,8 @@ public class APIHelper {
     //public static final String BASE_URL = "http://10.242.93.214:3000/api/";
     // public static final String BASE_URL = "http://192.168.1.9:3000/api/"; // IP tu GitHub
     //public static final String BASE_URL = "http://10.30.10.247:3000/api/";
+    //public static final String BASE_URL = "http://192.168.1.195:3000/api/"; // IP tu GitHub
+    //public static final String BASE_URL = "http://10.30.10.247:3000/api/";
     public static final String LOGIN = BASE_URL + "login";
     public static final String USER = BASE_URL + "user";
     public static final String VEHICLE = BASE_URL + "vehicle/";
@@ -37,8 +39,11 @@ public class APIHelper {
     public static final String NOTIFICATIONS_LIST = BASE_URL + "notifications";
     public static final String CLIENT_LOG = BASE_URL + "client-log";
     public static final String CREATE_REVIEW = BASE_URL + "reviews";
+
     public static final String COMMUNITY_FEED = BASE_URL+"community/feed";
+
     public static final String CREATE_POST = BASE_URL+"community/posts";
+
     public static final String LIKE_POST = BASE_URL+"community/like";
 
     public static String getToken(Context context) {

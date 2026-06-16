@@ -85,20 +85,31 @@
                 android:padding="20dp">
 
                 <TextView
+                    android:id="@+id/tvCodeLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Mã giới thiệu của bạn"
                     android:textColor="@color/text_gray"
                     android:textSize="14sp" />
 
+                <!-- ProgressBar hiển thị khi đang tải mã -->
+                <ProgressBar
+                    android:id="@+id/progressLoadingCode"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="8dp"
+                    android:indeterminateTint="@color/xanhNgoc"
+                    android:visibility="gone" />
+
                 <TextView
                     android:id="@+id/tvInviteCode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Loading..."
+                    android:letterSpacing="0.15"
+                    android:text="--"
                     android:textColor="@color/black"
-                    android:textSize="24sp"
+                    android:textSize="28sp"
                     android:textStyle="bold" />
 
                 <LinearLayout
@@ -113,6 +124,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:backgroundTint="@color/xanhNgoc"
+                        android:enabled="false"
                         android:text="Copy mã"
                         android:textAllCaps="false" />
 
@@ -126,6 +138,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:backgroundTint="#FF9800"
+                        android:enabled="false"
                         android:text="Chia sẻ"
                         android:textAllCaps="false" />
                 </LinearLayout>

@@ -65,10 +65,14 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.1")
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
 
-    // Thue xe
+    // Thue xe va hien thi anh tu URL
     implementation("com.android.volley:volley:1.2.1")
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
-    // Hien thi tai anh tu link URL
-    implementation("com.github.bumptech.glide:glide:4.16.0")
+    // SwipeRefreshLayout (kéo để refresh)
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    // CardView (dùng trong item_voucher và VIP checkout)
+    implementation("androidx.cardview:cardview:1.0.0")
+
 }

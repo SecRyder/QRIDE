@@ -10,6 +10,8 @@
     tools:context=".MainActivity">
 
     <!-- Fragment Container (Main Content Area) -->
+
+    <!-- Top Search Bar Area -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
@@ -17,12 +19,11 @@
         android:layout_marginBottom="70dp"
         android:elevation="1dp" />
 
-    <!-- Top Search Bar Area -->
     <LinearLayout
         android:id="@+id/layoutTopBar"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="@color/xanhNgoc"
+        android:background="@drawable/backgroudxanh"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:elevation="12dp"

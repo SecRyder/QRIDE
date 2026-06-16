@@ -91,6 +91,9 @@ const db = {
 const momoRoute = require("./routes/momo.route");
 apiRouter.use("/momo", momoRoute(db));
 
+const mapRouter = require("./routes/map");
+apiRouter.use("/", mapRouter);
+
 // ================= HELPER =================
 function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371000;
@@ -220,15 +223,15 @@ apiRouter.post("/user/update", authMiddleware, async (req, res) => {
         // Nếu có gửi avatar mới thì cập nhật, không thì giữ nguyên (tránh bị null đè lên ảnh cũ)
         if (avatar) {
             await db.query(
-                `UPDATE users 
-                 SET name=?, cccd=?, address=?, gender=?, birthday=?, avatar=? 
+                `UPDATE users
+                 SET name=?, cccd=?, address=?, gender=?, birthday=?, avatar=?
                  WHERE id=?`,
                 [name, cccd, address, gender, birthday, avatar, userId]
             );
         } else {
             await db.query(
-                `UPDATE users 
-                 SET name=?, cccd=?, address=?, gender=?, birthday=? 
+                `UPDATE users
+                 SET name=?, cccd=?, address=?, gender=?, birthday=?
                  WHERE id=?`,
                 [name, cccd, address, gender, birthday, userId]
             );
@@ -317,12 +320,12 @@ apiRouter.post("/reset-password", async (req, res) => {
 
     const hash = await bcrypt.hash(newPassword, 10);
 
-    const [result] = await db.query(
+    const [result, raw] = await db.query(
         "UPDATE users SET password_hash=? WHERE phone=?",
         [hash, phone]
     );
 
-    if (result.affectedRows === 0)
+    if (raw.rowsAffected[0] === 0)
         return res.status(404).json({ message: "USER_NOT_FOUND" });
 
     res.json({ message: "SUCCESS" });
@@ -361,7 +364,7 @@ apiRouter.get("/user/stats", authMiddleware, async (req, res) => {
             `SELECT 
                 COUNT(*) as total_trips,
                 COALESCE(SUM(total_distance), 0) as total_km,
-                COALESCE(SUM(TIMESTAMPDIFF(MINUTE, start_time, COALESCE(end_time, NOW()))), 0) as total_minutes
+                COALESCE(SUM(DATEDIFF(MINUTE, start_time, COALESCE(end_time, GETDATE()))), 0) as total_minutes
              FROM rental
              WHERE user_id=? AND status='done'`,
             [userId]
@@ -435,12 +438,14 @@ apiRouter.post("/momo/ipn", async (req, res) => {
             if (orderId.startsWith("VIP_")) {
                 // VIP purchase - update user_vouchers
                 if (payment.target_id) {
-                    await conn.query(
-                        `INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, btn_type, updated_at)
-                         VALUES (?, ?, 'ACTIVE', 'USING', 'ORANGE', NOW())
-                         ON DUPLICATE KEY UPDATE status='ACTIVE', action_key='USING', btn_type='ORANGE', updated_at=NOW()`,
-                        [payment.user_id, payment.target_id]
-                    );
+                    await conn.query(`
+                        IF EXISTS (SELECT 1 FROM user_vouchers WHERE user_id=? AND voucher_id=?)
+                            UPDATE user_vouchers SET status='ACTIVE', action_key='USING', btn_type='ORANGE', updated_at=GETDATE()
+                            WHERE user_id=? AND voucher_id=?
+                        ELSE
+                            INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, btn_type, updated_at)
+                            VALUES (?, ?, 'ACTIVE', 'USING', 'ORANGE', GETDATE())
+                    `, [payment.user_id, payment.target_id, payment.user_id, payment.target_id, payment.user_id, payment.target_id]);
                 }
             } else {
                 // Wallet topup
@@ -479,18 +484,24 @@ apiRouter.post("/momo/ipn", async (req, res) => {
 
 // ================= VEHICLE =================
 apiRouter.get("/vehicle/:id", async (req, res) => {
-    const [rows] = await db.query(
-        `SELECT v.*, s.name as station_name, s.address as station_address
-         FROM vehicle v
-         JOIN stations s ON v.station_id = s.id
-         WHERE v.id=?`,
-        [req.params.id]
-    );
+    const { id } = req.params;
+    try {
+        const [vehicles] = await db.query(
+            `SELECT v.*, s.name AS station_name, s.address AS station_address
+             FROM vehicle v
+             LEFT JOIN stations s ON v.station_id = s.id
+             WHERE v.id = ?`,
+            [id]
+        );
 
-    if (rows.length === 0)
-        return res.status(404).json({ message: "Not found" });
+        if (vehicles.length === 0) {
+            return res.status(404).json({ message: "Không tìm thấy xe" });
+        }
 
-    res.json(rows[0]);
+        res.json(vehicles[0]);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 apiRouter.get("/vehicle-by-plate/:plate", async (req, res) => {
@@ -512,7 +523,7 @@ apiRouter.get("/vehicle-by-plate/:plate", async (req, res) => {
 apiRouter.get("/vehicles/:stationId", async (req, res) => {
     try {
         const [rows] = await db.query(
-            `SELECT v.id, v.plate, v.pin, v.type, v.current_status, 
+            `SELECT v.id, v.plate, v.pin, v.type, v.current_status,
                     s.name as station_name, s.address as station_address
              FROM vehicle v
              JOIN stations s ON v.station_id = s.id
@@ -624,7 +635,7 @@ apiRouter.post("/rent", authMiddleware, async (req, res) => {
 
     } catch (err) {
         await conn.rollback();
-        res.json({ message: err });
+        res.json({ message: err.message || err.toString() });
     } finally {
         conn.release();
     }
@@ -647,6 +658,134 @@ apiRouter.get("/wallet", authMiddleware, async (req, res) => {
 });
 
 // ================= RETURN =================
+// app.post("/api/return", authMiddleware, async (req, res) => {
+//     const { vehicleId, lat, lng } = req.body;
+
+//     const conn = await db.getConnection();
+
+//     try {
+//         await conn.beginTransaction();
+
+//         const userId = req.user.userId;
+
+//         const [rentals] = await conn.query(
+//             "SELECT * FROM rental WHERE vehicle_id=? AND user_id=? AND status='renting'",
+//             [vehicleId, userId]
+//         );
+
+//         if (rentals.length === 0)
+//             throw "NO_RENTAL";
+
+//         const rental = rentals[0];
+
+//         // ===== CHECK STATION =====
+//         const [stations] = await conn.query("SELECT * FROM stations");
+
+//         let minDistance = Infinity;
+
+//         for (const s of stations) {
+//             const d = getDistance(lat, lng, s.lat, s.lng);
+//             if (d < minDistance) minDistance = d;
+//         }
+
+//         if (minDistance > 5000) {
+//             await conn.rollback();
+//             return res.json({
+//                 message: "NOT_IN_STATION",
+//                 distance: Math.floor(minDistance)
+//             });
+//         }
+
+//         // ===== TÍNH THỜI GIAN =====
+//         const startTime = new Date(rental.start_time);
+//         const endTime = new Date();
+
+//         const minutes = Math.ceil((endTime - startTime) / 60000);
+
+//         // ===== LẤY PRICING =====
+//         const [pricingRows] = await conn.query(
+//             "SELECT * FROM pricing ORDER BY id DESC LIMIT 1"
+//         );
+
+//         const pricing = pricingRows[0] || {
+//             price_per_minute: 1000,
+//             unlock_fee: 5000
+//         };
+
+//         const totalPrice =
+//             pricing.unlock_fee + (minutes * pricing.price_per_minute);
+
+//         // ===== TRỪ TIỀN VÍ =====
+//         const [walletRows] = await conn.query(
+//             "SELECT * FROM wallet WHERE user_id=? FOR UPDATE",
+//             [userId]
+//         );
+
+//         if (walletRows.length === 0) throw "NO_WALLET";
+// 
+//         const wallet = walletRows[0];
+
+
+
+//         if (wallet.balance < totalPrice) {
+//             await conn.rollback();
+//             return res.json({
+//                 message: "NOT_ENOUGH_MONEY",
+//                 balance: wallet.balance,
+//                 need: totalPrice
+//             });
+//         }
+
+//         const newBalance = wallet.balance - totalPrice;
+
+//         // ===== UPDATE DB =====
+//         await conn.query(
+//             "UPDATE rental SET status='done', end_time=NOW(), total_price=? WHERE id=?",
+//             [totalPrice, rental.id]
+//         );
+
+//         await conn.query(
+//             "UPDATE vehicle SET current_status='available' WHERE id=?",
+//             [vehicleId]
+//         );
+
+//         await conn.query(
+//             "UPDATE wallet SET balance=? WHERE id=?",
+//             [newBalance, wallet.id]
+//         );
+
+//         const [txResult] = await conn.query(
+//             `INSERT INTO wallet_transactions
+//             (wallet_id, amount, type, balance_before, balance_after, description)
+//             VALUES (?, ?, 'payment', ?, ?, ?)`,
+//             [
+//                 wallet.id,
+//                 totalPrice,
+//                 wallet.balance,
+//                 newBalance,
+//                 "Thanh toán chuyến đi"
+//             ]
+//         );
+
+//         const transactionId = txResult.insertId;
+
+//         await conn.commit();
+
+//         res.json({
+//             message: "SUCCESS",
+//             total_price: totalPrice,
+//             minutes: minutes,
+//             transaction_id: transactionId
+//         });
+
+//     } catch (err) {
+//         await conn.rollback();
+//         res.json({ message: err.toString() });
+//     } finally {
+//         conn.release();
+//     }
+// });
+
 apiRouter.post("/return", authMiddleware, async (req, res) => {
     const { vehicleId, lat, lng } = req.body;
 
@@ -1489,11 +1628,74 @@ apiRouter.post("/notifications/add", authMiddleware, async (req, res) => {
 });
 
 // ================= ADMIN API =================
+apiRouter.get("/admin/stats/rentals", async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT DATE(start_time) as date, COUNT(*) as count, SUM(total_price) as revenue
+             FROM rental
+             WHERE start_time >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+             GROUP BY DATE(start_time)
+             ORDER BY date ASC`
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error("ADMIN_RENTAL_STATS_ERROR:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+apiRouter.get("/admin/stats/rental-status", async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT status, COUNT(*) as count FROM rental GROUP BY status`
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error("ADMIN_RENTAL_STATUS_ERROR:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+apiRouter.get("/admin/stats/users", async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT DATE(created_at) as date, COUNT(*) as count
+             FROM users
+             WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+             GROUP BY DATE(created_at)
+             ORDER BY date ASC`
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error("ADMIN_USERS_STATS_ERROR:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
 apiRouter.get("/admin/users", async (req, res) => {
     try {
         const [rows] = await db.query("SELECT id, phone, name, cccd, address, gender, birthday, created_at FROM users ORDER BY id DESC");
         res.json(rows);
     } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+apiRouter.get("/admin/users/:id/rentals", async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const [rows] = await db.query(
+            `SELECT r.id, r.vehicle_id, v.plate AS vehicle_plate, v.type AS vehicle_type,
+                    r.start_time, r.end_time, r.total_distance, r.total_price, r.status, r.payment_status
+             FROM rental r
+             JOIN vehicle v ON r.vehicle_id = v.id
+             WHERE r.user_id = ?
+             ORDER BY r.start_time DESC`,
+            [userId]
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error("ADMIN_USER_RENTAL_HISTORY_ERROR:", err);
         res.status(500).json({ message: err.message });
     }
 });
@@ -1660,6 +1862,81 @@ apiRouter.delete("/admin/voucher-actions/:id", async (req, res) => {
     }
 });
 
+// ================= ADMIN: VEHICLES, STATIONS, PRICING =================
+apiRouter.get("/admin/rentals/active", async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT r.id, r.user_id, u.name AS user_name, u.phone AS user_phone,
+                    r.vehicle_id, v.plate AS vehicle_plate, v.type AS vehicle_type, v.current_status AS vehicle_status,
+                    r.start_time, r.total_distance, r.total_price, r.payment_status
+             FROM rental r
+             JOIN users u ON r.user_id = u.id
+             JOIN vehicle v ON r.vehicle_id = v.id
+             WHERE r.status = 'renting'
+             ORDER BY r.start_time DESC`
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error("ADMIN_ACTIVE_RENTALS_ERROR:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+apiRouter.get("/admin/vehicles", async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT v.id, v.plate, v.pin, v.type, v.current_status,
+                    v.station_id, s.name AS station_name, s.address AS station_address
+             FROM vehicle v
+             LEFT JOIN stations s ON v.station_id = s.id
+             ORDER BY v.id DESC`
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error("ADMIN_VEHICLES_ERROR:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+apiRouter.get("/admin/stations", async (req, res) => {
+    try {
+        const [rows] = await db.query("SELECT * FROM stations ORDER BY id DESC");
+        res.json(rows);
+    } catch (err) {
+        console.error("ADMIN_STATIONS_ERROR:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+apiRouter.post("/admin/pricing", async (req, res) => {
+    const { unlock_fee, price_per_minute, price_per_km, min_wallet_to_rent, low_balance_warning } = req.body;
+    try {
+        await db.query(
+            `INSERT INTO pricing (unlock_fee, price_per_minute, price_per_km, min_wallet_to_rent, low_balance_warning, created_at)
+             VALUES (?, ?, ?, ?, ?, NOW())`,
+            [unlock_fee || 0, price_per_minute || 0, price_per_km || 0, min_wallet_to_rent || 0, low_balance_warning || 0]
+        );
+        res.json({ message: "SUCCESS" });
+    } catch (err) {
+        console.error("ADMIN_PRICING_ERROR:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+apiRouter.get("/admin/pricing", async (req, res) => {
+    try {
+        const [rows] = await db.query("SELECT * FROM pricing ORDER BY id DESC LIMIT 1");
+        if (rows.length === 0) return res.json({});
+        res.json(rows[0]);
+    } catch (err) {
+        console.error("ADMIN_PRICING_GET_ERROR:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
+
+
 
 // Danh gia chuyen di REVIEW
 // apiRouter.post("/reviews", authMiddleware, async (req, res) => {
@@ -1765,7 +2042,7 @@ apiRouter.post("/reviews", authMiddleware, async (req, res) => {
         if (Number(rating) === 5) {
             const autoTitle = "Đã hoàn thành một chuyến đi tuyệt vời!";
             const autoContent = comment ? `"${comment}"` : "Đã đánh giá 5 sao cho chuyến xe này trên QRIDE! 🌟";
-            
+
             await db.query(
                 `INSERT INTO trip_posts (user_id, rental_id, title, content, location) VALUES (?, ?, ?, ?, ?)`,
                 [userId, rental_id, autoTitle, autoContent, "Chuyến đi QRIDE"]
@@ -1783,7 +2060,7 @@ apiRouter.post("/reviews", authMiddleware, async (req, res) => {
     }
 });
 
-// API lay danh gia cua chuyen di 
+// API lay danh gia cua chuyen di
 apiRouter.get("/reviews/:rentalId", authMiddleware, async (req, res) => {
     const rentalId = req.params.rentalId;
     const [rows] = await db.query(
@@ -1805,7 +2082,7 @@ apiRouter.post("/community/posts", authMiddleware, upload.single("image"), async
         // 1. Nếu client up file qua định dạng form-data
         if (req.file) {
             imageUrl = "/uploads/" + req.file.filename;
-        } 
+        }
         // 2. Nếu client gửi chuỗi Base64 (Cả loại có header lẫn loại thô)
         else if (image_url && (image_url.startsWith("data:image") || image_url.length > 500)) {
             try {
@@ -1825,14 +2102,14 @@ apiRouter.post("/community/posts", authMiddleware, upload.single("image"), async
                 const buffer = Buffer.from(base64Data, 'base64');
                 const filename = `${Date.now()}-base64.${ext}`;
                 const uploadPath = path.join(__dirname, "public/uploads", filename);
-                
+
                 fs.writeFileSync(uploadPath, buffer);
                 imageUrl = "/uploads/" + filename;
             } catch (base64Err) {
                 console.error("Lỗi chuyển đổi Base64:", base64Err);
                 imageUrl = image_url; // Nếu lỗi nặng quá thì giữ lại chuỗi gốc
             }
-        } 
+        }
         // 3. Trường hợp là một đường link URL thông thường (ngắn)
         else if (image_url) {
             imageUrl = image_url;
@@ -1840,7 +2117,7 @@ apiRouter.post("/community/posts", authMiddleware, upload.single("image"), async
 
         // Thực hiện ghi vào database
         const [result] = await db.query(
-            `INSERT INTO trip_posts(user_id, rental_id, title, content, location, image_url) 
+            `INSERT INTO trip_posts(user_id, rental_id, title, content, location, image_url)
              VALUES (?, ?, ?, ?, ?, ?)`,
             [userId, rental_id || null, title, content, location, imageUrl]
         );

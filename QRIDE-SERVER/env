@@ -1,0 +1,11 @@
+SECRET=Nguyet21@
+DB_USER=sa
+DB_PASSWORD=???
+DB_SERVER=???
+DB_NAME=qride
+
+MOMO_ACCESS_KEY=F8BBA842ECF85
+MOMO_SECRET_KEY=K951B6PE1waDMi640xX08PD3vg6EkVlz
+MOMO_PARTNER_CODE=MOMO
+MOMO_REDIRECT_URL=qride://payment-result
+MOMO_IPN_URL=https://piercing-tonia-untwitched.ngrok-free.dev/api/momo/ipn

@@ -58,60 +58,57 @@ public class ProfileFragment extends Fragment {
             });
         }
 
-        setupMenuItem(view, R.id.menuInfo, getString(R.string.menu_info), v -> {
-            Intent intent = new Intent(requireActivity(), UserInfoActivity.class);
-            startActivity(intent);
+        // Nhóm 1: Dùng Lambda (viết ngắn gọn)
+        setupMenuItem(view, R.id.menuInfo, getString(R.string.menu_info), R.drawable.ic_user, v -> {
+            startActivity(new Intent(requireActivity(), UserInfoActivity.class));
         });
 
-        setupMenuItem(view, R.id.menuSecurity, getString(R.string.menu_security), v -> {
-            Intent intent = new Intent(requireActivity(), SecurityActivity.class);
-            startActivity(intent);
+        setupMenuItem(view, R.id.menuSecurity, getString(R.string.menu_security), R.drawable.ic_security, v -> {
+            startActivity(new Intent(requireActivity(), SecurityActivity.class));
         });
 
-        setupMenuItem(view, R.id.menuHistory, getString(R.string.menu_history), v -> {
-            Intent intent = new Intent(requireActivity(), com.example.qride.profile.RideHistoryActivity.class);
-            startActivity(intent);
+        setupMenuItem(view, R.id.menuHistory, getString(R.string.menu_history), R.drawable.ic_history, v -> {
+            startActivity(new Intent(requireActivity(), com.example.qride.profile.RideHistoryActivity.class));
         });
 
-        setupMenuItem(view, R.id.menuLanguage, getString(R.string.menu_language), v -> {
-            Intent intent = new Intent(requireActivity(), ChangeLanguageActivity.class);
-            startActivity(intent);
+        setupMenuItem(view, R.id.menuLanguage, getString(R.string.menu_language), R.drawable.ic_language, v -> {
+            startActivity(new Intent(requireActivity(), ChangeLanguageActivity.class));
         });
 
-        setupMenuItem(view, R.id.menuDarkMode, getString(R.string.menu_dark_mode), v -> {
-            Intent intent = new Intent(requireActivity(), com.example.qride.profile.DarkModeActivity.class);
-            startActivity(intent);
+        setupMenuItem(view, R.id.menuDarkMode, getString(R.string.menu_dark_mode), R.drawable.ic_night_mode, v -> {
+            startActivity(new Intent(requireActivity(), com.example.qride.profile.DarkModeActivity.class));
         });
-        setupMenuItem(view, R.id.menuNotify, getString(R.string.menu_notify), v -> {
-            Intent intent = new Intent(requireActivity(), com.example.qride.profile.NotificationSettingsActivity.class);
-            startActivity(intent);
+
+        setupMenuItem(view, R.id.menuNotify, getString(R.string.menu_notify), R.drawable.ic_bellll, v -> {
+            startActivity(new Intent(requireActivity(), com.example.qride.profile.NotificationSettingsActivity.class));
         });
-        setupMenuItem(view, R.id.menuInvite, getString(R.string.menu_invite), new View.OnClickListener() {
+
+// Nhóm 2: Dùng Anonymous Class (Cần sửa lại thứ tự tham số cho khớp)
+        setupMenuItem(view, R.id.menuInvite, getString(R.string.menu_invite), R.drawable.ic_add_friend, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(requireActivity(), com.example.qride.profile.InviteFriendsActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(requireActivity(), com.example.qride.profile.InviteFriendsActivity.class));
             }
         });
-        setupMenuItem(view, R.id.menuSupport, getString(R.string.menu_support), new View.OnClickListener() {
+
+        setupMenuItem(view, R.id.menuSupport, getString(R.string.menu_support), R.drawable.ic_costumer_service, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(requireActivity(), com.example.qride.profile.SupportCenterActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(requireActivity(), com.example.qride.profile.SupportCenterActivity.class));
             }
         });
-        setupMenuItem(view, R.id.menuAbout, getString(R.string.menu_about), new View.OnClickListener() {
+
+        setupMenuItem(view, R.id.menuAbout, getString(R.string.menu_about), R.drawable.ic_about, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(requireActivity(), com.example.qride.profile.AboutQRideActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(requireActivity(), com.example.qride.profile.AboutQRideActivity.class));
             }
         });
-        setupMenuItem(view, R.id.menuTerms, getString(R.string.menu_terms), new View.OnClickListener() {
+
+        setupMenuItem(view, R.id.menuTerms, getString(R.string.menu_terms), R.drawable.ic_term, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(requireActivity(), com.example.qride.profile.TermsActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(requireActivity(), com.example.qride.profile.TermsActivity.class));
             }
         });
 
@@ -260,19 +257,25 @@ public class ProfileFragment extends Fragment {
         queue.add(request);
     }
 
-    private void setupMenuItem(View parentView, int viewId, String title, View.OnClickListener listener) {
+    // Thêm tham số int iconResId vào cuối
+    private void setupMenuItem(View parentView, int viewId, String title, int iconResId, View.OnClickListener listener) {
         View includedView = parentView.findViewById(viewId);
         if (includedView != null) {
+            // Gán chữ
             TextView tvTitle = includedView.findViewById(R.id.tvMenuTitle);
             if (tvTitle != null) {
                 tvTitle.setText(title);
             }
+
+            // Gán Icon
+            ImageView imgIcon = includedView.findViewById(R.id.imgMenuIcon);
+            if (imgIcon != null) {
+                imgIcon.setImageResource(iconResId);
+            }
+
+            // Gán sự kiện click
             if (listener != null) {
                 includedView.setOnClickListener(listener);
-            } else {
-                includedView.setOnClickListener(v ->
-                        Toast.makeText(requireContext(), getString(R.string.msg_developing) + ": " + title, Toast.LENGTH_SHORT).show()
-                );
             }
         }
     }

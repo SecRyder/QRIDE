@@ -240,6 +240,22 @@
     <string name="voucher_status_used">Đã dùng</string>
     <string name="voucher_status_expired">Hết hạn</string>
 
+    <!-- Voucher UI - Empty state & Loading -->
+    <string name="voucher_loading">Đang tải ưu đãi…</string>
+    <string name="voucher_empty_tich_qua">Chưa có ưu đãi nào.\nHãy hoàn thành nhiệm vụ để nhận quà!</string>
+    <string name="voucher_empty_membership">Chưa có gói hội viên.\nNâng cấp ngay để nhận ưu đãi độc quyền!</string>
+    <string name="voucher_retry">Thử lại</string>
+    <string name="voucher_error_load">Không thể tải ưu đãi. Vui lòng thử lại.</string>
+    <!-- VIP Checkout -->
+    <string name="vip_checkout_title">Thanh toán gói VIP</string>
+    <string name="vip_checkout_price_label">Giá gói:</string>
+    <string name="vip_checkout_benefit_label">Quyền lợi:</string>
+    <string name="vip_checkout_confirm">Xác nhận thanh toán MoMo</string>
+    <string name="vip_checkout_note">Thanh toán an toàn qua ví MoMo</string>
+    <string name="vip_connecting_momo">Đang kết nối MoMo…</string>
+    <string name="vip_error_no_link">Không lấy được link thanh toán. Vui lòng thử lại.</string>
+    <string name="vip_error_connect">Lỗi kết nối. Vui lòng thử lại!</string>
+
     <!-- QR & Payment -->
     <string name="qr_instruction">Quét mã QR trên xe để bắt đầu</string>
     <string name="qr_btn_open">Mở Camera</string>
