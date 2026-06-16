@@ -74,12 +74,15 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VH> {
         h.tvTitle.setText(VoucherLocalizationHelper.getTitle(context, item));
 
         // Hiển thị giá: nếu có price (VIP) thì format tiền, ngược lại dùng discount text
+        // Hiển thị giá: nếu có price (VIP) thì format tiền, ngược lại dùng discount text
         if (item.getPrice() > 0) {
             NumberFormat nf = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
             h.tvDiscount.setText(nf.format(item.getPrice()) + "đ");
         } else {
-            h.tvDiscount.setText(VoucherLocalizationHelper.getDiscount(context, item));
+            h.tvDiscount.setText(VoucherLocalizationHelper.getDiscount(context, item) + "");
         }
+
+
         h.tvExpiry.setText(item.getExpiry());
 
         // 3. Render Button (Dùng ButtonResolver)

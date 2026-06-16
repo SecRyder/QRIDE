@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="#F5F5F5"
+    android:orientation="vertical">
 
     <!-- Header -->
     <LinearLayout
@@ -14,13 +13,14 @@
         android:background="@drawable/bg_gradient_nhapmaqr"
         android:gravity="center"
         android:paddingTop="20dp">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/nav_uu_dai"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Tab Bar: Tích quà / Gói hội viên -->
@@ -28,23 +28,23 @@
         android:layout_width="match_parent"
         android:layout_height="52dp"
         android:background="@drawable/bg_gradient_nhapmaqr"
+        android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="10dp"
-        android:orientation="horizontal">
+        android:paddingBottom="10dp">
 
         <TextView
             android:id="@+id/tabTichQua"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:background="@drawable/bg_tab_active"
             android:gravity="center"
             android:text="@string/tab_tich_qua"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_marginEnd="8dp"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tabGoiHoiVien"
@@ -55,20 +55,20 @@
             android:gravity="center"
             android:text="@string/tab_membership"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"/>
+            android:textSize="14sp" />
     </LinearLayout>
 
     <!-- Loading Indicator (ẩn khi không load) -->
     <ProgressBar
         android:id="@+id/progressLoading"
+        style="@style/Widget.AppCompat.ProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="24dp"
         android:layout_marginBottom="8dp"
-        android:visibility="gone"
         android:indeterminateTint="@color/xanhNgoc"
-        style="@style/Widget.AppCompat.ProgressBar"/>
+        android:visibility="gone" />
 
     <!-- SwipeRefreshLayout bọc phần nội dung -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -87,41 +87,41 @@
                 android:id="@+id/listVouchers"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingTop="12dp"
+                android:clipToPadding="false"
                 android:paddingStart="12dp"
+                android:paddingTop="12dp"
                 android:paddingEnd="12dp"
                 android:paddingBottom="16dp"
-                android:clipToPadding="false"
-                android:visibility="visible"/>
+                android:visibility="visible" />
 
             <!-- Empty State (hiển thị khi danh sách trống) -->
             <LinearLayout
                 android:id="@+id/layoutEmptyState"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:gravity="center"
+                android:orientation="vertical"
                 android:padding="32dp"
                 android:visibility="gone">
 
                 <ImageView
                     android:layout_width="96dp"
                     android:layout_height="96dp"
-                    android:src="@drawable/ic_gift"
-                    android:alpha="0.35"
                     android:layout_marginBottom="16dp"
-                    app:tint="#AAAAAA"
-                    android:contentDescription="@null"/>
+                    android:alpha="0.35"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_gift"
+                    app:tint="#AAAAAA" />
 
                 <TextView
                     android:id="@+id/tvEmptyMessage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:lineSpacingMultiplier="1.4"
                     android:text="@string/voucher_empty_tich_qua"
                     android:textColor="#888888"
-                    android:textSize="15sp"
-                    android:gravity="center"
-                    android:lineSpacingMultiplier="1.4"/>
+                    android:textSize="15sp" />
 
                 <TextView
                     android:id="@+id/btnRetry"
@@ -129,13 +129,13 @@
                     android:layout_height="44dp"
                     android:layout_marginTop="20dp"
                     android:background="@drawable/bg_btn_green"
+                    android:gravity="center"
                     android:paddingStart="28dp"
                     android:paddingEnd="28dp"
-                    android:gravity="center"
                     android:text="@string/voucher_retry"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
             </LinearLayout>
 
         </FrameLayout>
