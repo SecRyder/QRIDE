@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Edit3, BookOpen } from 'lucide-react';
 
 interface User {
   id: number;
@@ -16,9 +16,11 @@ interface User {
 interface UserListProps {
   users: User[];
   onDelete?: (id: number) => void;
+  onEdit?: (user: User) => void;
+  onHistory?: (user: User) => void;
 }
 
-const UserList: React.FC<UserListProps> = ({ users, onDelete }) => {
+const UserList: React.FC<UserListProps> = ({ users, onDelete, onEdit, onHistory }) => {
   return (
     <motion.div 
       initial={{ opacity: 0, x: 20 }}
@@ -53,13 +55,31 @@ const UserList: React.FC<UserListProps> = ({ users, onDelete }) => {
               <td><div className="text-truncate" style={{ maxWidth: '150px' }}>{u.address || '-'}</div></td>
               <td>{new Date(u.created_at).toLocaleDateString()}</td>
               <td>
-                <button 
-                  className="btn-icon btn-delete" 
-                  onClick={() => onDelete && onDelete(u.id)}
-                  title="Xóa người dùng"
-                >
-                  <Trash2 size={18} />
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    className="btn btn-edit"
+                    style={{ padding: '8px', background: 'rgba(255,255,255,0.05)' }}
+                    onClick={() => onEdit && onEdit(u)}
+                    title="Sửa người dùng"
+                  >
+                    <Edit3 size={16} color="var(--primary)" />
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    style={{ padding: '8px', background: 'rgba(20, 110, 255, 0.12)' }}
+                    onClick={() => onHistory && onHistory(u)}
+                    title="Xem lịch sử thuê"
+                  >
+                    <BookOpen size={16} />
+                  </button>
+                  <button 
+                    className="btn btn-delete" 
+                    onClick={() => onDelete && onDelete(u.id)}
+                    title="Xóa người dùng"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}

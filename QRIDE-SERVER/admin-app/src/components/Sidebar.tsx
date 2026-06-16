@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, Ticket, Zap, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Ticket, Settings, Truck, DollarSign } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -31,6 +31,24 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           onClick={() => setActiveTab('vouchers')}
         >
           <Ticket size={20} /> Ưu đãi
+        </button>
+        <button
+          className={`nav-link ${activeTab === 'vehicles' ? 'active' : ''}`}
+          onClick={() => setActiveTab('vehicles')}
+        >
+          <Truck size={20} /> Xe
+        </button>
+        <button
+          className={`nav-link ${activeTab === 'rentals' ? 'active' : ''}`}
+          onClick={() => setActiveTab('rentals')}
+        >
+          <Truck size={20} /> Thuê xe đang chạy
+        </button>
+        <button
+          className={`nav-link ${activeTab === 'pricing' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pricing')}
+        >
+          <DollarSign size={20} /> Giá thuê
         </button>
         <button 
           className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
