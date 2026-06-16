@@ -71,12 +71,40 @@ public class VoucherLocalizationHelper {
     /**
      * Lấy nội dung giảm giá (Ưu tiên Key để đa ngôn ngữ).
      */
+    /**
+     * Lấy nội dung giảm giá (Ưu tiên Key để đa ngôn ngữ, nếu là số thì hiển thị dạng tiền tệ/phần trăm).
+     */
     public static String getDiscount(Context context, VoucherModel item) {
         if (item == null || context == null) return "";
         String key = item.getDiscountText();
         if (key == null || key.isEmpty()) return "";
-        
-        int resId = context.getResources().getIdentifier(key, "string", context.getPackageName());
-        return resId != 0 ? context.getString(resId) : key;
+
+        // 1. Kiểm tra xem 'key' có phải là một chuỗi số thuần túy hay không (Ví dụ: "100", "50000")
+        if (key.matches("\\d+")) {
+            // Nếu là số, trả về dạng chuỗi kèm chữ "đ" hoặc xử lý định dạng trực tiếp để tránh Android nhận nhầm thành ID
+            try {
+                long value = Long.parseLong(key);
+                if (value <= 100) {
+                    return value + "%"; // Nếu nhỏ hơn hoặc bằng 100 thì có thể là % giảm giá
+                } else {
+                    return String.format("%,dđ", value); // Định dạng hiển thị tiền tệ đẹp mắt: 50,000đ, 100,000đ
+                }
+            } catch (NumberFormatException e) {
+                return key + ""; // Biện pháp an toàn: luôn cộng chuỗi rỗng để chắc chắn nó là String văn bản
+            }
+        }
+
+        // 2. Nếu không phải là số (là chữ thực sự như "voucher_free_ship"), tiến hành tìm trong strings.xml
+        try {
+            int resId = context.getResources().getIdentifier(key, "string", context.getPackageName());
+            if (resId != 0) {
+                return context.getString(resId);
+            }
+        } catch (Exception e) {
+            // Tránh mọi trường hợp crash liên quan đến Resource
+        }
+
+        // 3. Cuối cùng, nếu không tìm thấy ID trong strings.xml, trả về chính chuỗi đó một cách an toàn
+        return key + "";
     }
 }

@@ -17,7 +17,7 @@ public class VoucherButtonResolver {
         public boolean isEnabled;
         public float alpha;
 
-        public ButtonState(String text, int backHOIgroundRes, boolean isEnabled, float alpha) {
+        public ButtonState(String text, int backgroundRes, boolean isEnabled, float alpha) {
             this.text = text;
             this.backgroundRes = backgroundRes;
             this.isEnabled = isEnabled;
