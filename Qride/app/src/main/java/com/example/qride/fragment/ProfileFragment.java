@@ -123,10 +123,6 @@ public class ProfileFragment extends Fragment {
                 SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("login_check", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
 
-                // CHỖ NÀY QUAN TRỌNG:
-                // Để tránh lỗi "cài lại app có luôn tài khoản", bạn nên xóa sạch Token.
-                // Chỉ giữ lại Phone/Pass nếu người dùng tích "Ghi nhớ" để họ đỡ phải gõ lại thôi.
-
                 boolean isRemembered = sharedPreferences.getBoolean("remember", false);
                 String savedPhone = sharedPreferences.getString("phone", "");
                 String savedPass = sharedPreferences.getString("password", "");
