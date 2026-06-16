@@ -73,6 +73,9 @@ const db = {
 const momoRoute = require("./routes/momo.route");
 apiRouter.use("/momo", momoRoute(db));
 
+const mapRouter = require("./routes/map");
+apiRouter.use("/", mapRouter);
+
 // ================= HELPER =================
 function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371000;

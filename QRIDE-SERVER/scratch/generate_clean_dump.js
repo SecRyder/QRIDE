@@ -114,6 +114,14 @@ async function generateCleanDump() {
     const qrideEncoding = detectEncoding(qridePath);
     let qrideContent = fs.readFileSync(qridePath, qrideEncoding);
     
+    // Strip UTF-8 BOM if present
+    if (qrideContent.startsWith('\ufeff')) {
+        qrideContent = qrideContent.slice(1);
+    }
+    
+    // Inject the missing avatar column into users table schema
+    qrideContent = qrideContent.replace('[referral_code] [nvarchar](20) NULL,', '[referral_code] [nvarchar](20) NULL,\n\t[avatar] [nvarchar](max) NULL,');
+    
     // Strip all lines that start with INSERT [dbo].[tableName]
     // And also SET IDENTITY_INSERT ... ON / OFF
     const lines = qrideContent.split(/\r?\n/);
@@ -128,15 +136,39 @@ async function generateCleanDump() {
     cleanLines.push(`    DROP DATABASE [QRIDE];`);
     cleanLines.push('END');
     cleanLines.push('GO');
+    cleanLines.push(`IF EXISTS (SELECT name FROM sys.databases WHERE name = N'QRIDE_01')`);
+    cleanLines.push('BEGIN');
+    cleanLines.push(`    ALTER DATABASE [QRIDE_01] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;`);
+    cleanLines.push(`    DROP DATABASE [QRIDE_01];`);
+    cleanLines.push('END');
+    cleanLines.push('GO');
     
+    let inCreateDb = false;
     for (let line of lines) {
-        if (line.trim().startsWith('INSERT [dbo].')) continue;
-        if (line.trim().startsWith('SET IDENTITY_INSERT')) continue;
+        const trimmed = line.trim();
+        if (trimmed.startsWith('INSERT [dbo].')) continue;
+        if (trimmed.startsWith('SET IDENTITY_INSERT')) continue;
+        
+        if (trimmed.startsWith('CREATE DATABASE [QRIDE]')) {
+            inCreateDb = true;
+            continue;
+        }
+        if (inCreateDb) {
+            if (trimmed === 'GO') {
+                cleanLines.push('CREATE DATABASE [QRIDE]');
+                cleanLines.push('GO');
+                inCreateDb = false;
+            }
+            continue;
+        }
         cleanLines.push(line);
     }
     
     // Construct MSSQL INSERTS
     let newInserts = '\n\n-- DATA SYNCHRONIZED FROM MYSQL DUMP --\n';
+    newInserts += 'USE [QRIDE];\nGO\n';
+    newInserts += '\n-- Tat FK constraints de tranh loi khi INSERT\n';
+    newInserts += "EXEC sp_msforeachtable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL';\nGO\n";
     
     for (let tableName in mysqlData) {
         const rows = mysqlData[tableName];
@@ -149,7 +181,10 @@ async function generateCleanDump() {
             cols = cols.filter(c => c !== 'type'); // omit 'type'
         }
         
-        newInserts += `\nSET IDENTITY_INSERT [dbo].[${tableName}] ON;\nGO\n`;
+        const hasIdentity = tableName !== 'system_config';
+        if (hasIdentity) {
+            newInserts += `\nSET IDENTITY_INSERT [dbo].[${tableName}] ON;\nGO\n`;
+        }
         
         for (let row of rows) {
             let rowVals = [...row];
@@ -173,8 +208,13 @@ async function generateCleanDump() {
             const insertStmt = `INSERT [dbo].[${tableName}] (${colsStr}) VALUES (${msVals.join(', ')});`;
             newInserts += insertStmt + '\n';
         }
-        newInserts += `SET IDENTITY_INSERT [dbo].[${tableName}] OFF;\nGO\n`;
+        if (hasIdentity) {
+            newInserts += `SET IDENTITY_INSERT [dbo].[${tableName}] OFF;\nGO\n`;
+        }
     }
+    
+    newInserts += '\n-- Bat lai FK constraints sau khi INSERT xong\n';
+    newInserts += "EXEC sp_msforeachtable 'ALTER TABLE ? CHECK CONSTRAINT ALL';\nGO\n";
     
     // Write new content to qride_utf8.sql
     console.log('Writing qride_utf8.sql...');

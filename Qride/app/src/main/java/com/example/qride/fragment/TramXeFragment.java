@@ -341,62 +341,73 @@ public class TramXeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void drawRealRoute(LatLng origin, LatLng dest) {
-        String apiKey = "AIzaSyBunRhsOKbeZTag58NYpFK_UNF3l1mI6m8";
-        String url = "https://maps.googleapis.com/maps/api/directions/json?" +
-                "origin=" + origin.latitude + "," + origin.longitude +
-                "&destination=" + dest.latitude + "," + dest.longitude +
-                "&mode=driving" +
-                "&key=" + apiKey;
+        // Gọi backend của bạn, KHÔNG gọi Google trực tiếp
+        String url = APIHelper.BASE_URL + "directions" +
+                "?originLat=" + origin.latitude +
+                "&originLng=" + origin.longitude +
+                "&destLat=" + dest.latitude +
+                "&destLng=" + dest.longitude;
 
-        android.util.Log.d("DIRECTIONS_API", "Đang gửi yêu cầu tới URL: " + url);
-
-        com.android.volley.toolbox.JsonObjectRequest request = new com.android.volley.toolbox.JsonObjectRequest(
+        com.android.volley.toolbox.JsonObjectRequest request =
+            new com.android.volley.toolbox.JsonObjectRequest(
                 com.android.volley.Request.Method.GET, url, null,
                 response -> {
-                    android.util.Log.d("DIRECTIONS_API", "Đã nhận được phản hồi từ Google!");
                     try {
                         String status = response.getString("status");
-                        android.util.Log.d("DIRECTIONS_API", "Trạng thái: " + status);
 
-                        if (status.equals("OK")) {
-                            org.json.JSONArray routes = response.getJSONArray("routes");
-                            String encodedPoints = routes.getJSONObject(0)
-                                    .getJSONObject("overview_polyline")
-                                    .getString("points");
+                        if ("OK".equals(status)) {
+                            String encodedPoints = response.getString("encodedPolyline");
+                            String distance = response.optString("distance", "");
+                            String duration = response.optString("duration", "");
 
-                            java.util.List<LatLng> decodedPath = com.google.maps.android.PolyUtil.decode(encodedPoints);
+                            java.util.List<LatLng> decodedPath =
+                                com.google.maps.android.PolyUtil.decode(encodedPoints);
 
-                            requireActivity().runOnUiThread(() -> {
-                                if (currentRoute != null) currentRoute.remove();
-                                currentRoute = mMap.addPolyline(new com.google.android.gms.maps.model.PolylineOptions()
-                                        .addAll(decodedPath)
-                                        .width(15f)
-                                        .color(android.graphics.Color.parseColor("#00B087"))
-                                        .startCap(new com.google.android.gms.maps.model.RoundCap())
-                                        .endCap(new com.google.android.gms.maps.model.RoundCap()));
+                            if (currentRoute != null) currentRoute.remove();
 
-                                com.google.android.gms.maps.model.LatLngBounds.Builder builder = new com.google.android.gms.maps.model.LatLngBounds.Builder();
-                                for (LatLng point : decodedPath) builder.include(point);
-                                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 200));
-                            });
+                            currentRoute = mMap.addPolyline(
+                                new com.google.android.gms.maps.model.PolylineOptions()
+                                    .addAll(decodedPath)
+                                    .width(15f)
+                                    .color(android.graphics.Color.parseColor("#00B087"))
+                                    .startCap(new com.google.android.gms.maps.model.RoundCap())
+                                    .endCap(new com.google.android.gms.maps.model.RoundCap())
+                            );
+
+                            com.google.android.gms.maps.model.LatLngBounds.Builder builder =
+                                new com.google.android.gms.maps.model.LatLngBounds.Builder();
+                            for (LatLng point : decodedPath) builder.include(point);
+                            mMap.animateCamera(
+                                CameraUpdateFactory.newLatLngBounds(builder.build(), 200));
+
+                            // Hiện thông tin khoảng cách & thời gian
+                            if (!distance.isEmpty() && !duration.isEmpty()) {
+                                Toast.makeText(requireContext(),
+                                    "Khoảng cách: " + distance + " • " + duration,
+                                    Toast.LENGTH_LONG).show();
+                            }
+
                         } else {
-                            String errorMsg = response.optString("error_message", "No message");
-                            android.util.Log.e("DIRECTIONS_API", "Google từ chối: " + status + " - " + errorMsg);
-                            Toast.makeText(requireContext(), "Lỗi tìm đường: " + status, Toast.LENGTH_LONG).show();
+                            Toast.makeText(requireContext(),
+                                "Không tìm được đường đi", Toast.LENGTH_SHORT).show();
                         }
                     } catch (Exception e) {
-                        android.util.Log.e("DIRECTIONS_API", "Lỗi xử lý dữ liệu: " + e.getMessage());
-                        Toast.makeText(requireContext(), "Lỗi xử lý đường đi", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(),
+                            "Lỗi xử lý dữ liệu đường đi", Toast.LENGTH_SHORT).show();
                     }
                 },
                 error -> {
-                    android.util.Log.e("DIRECTIONS_API", "Lỗi Volley: " + error.toString());
-                    Toast.makeText(requireContext(), "Lỗi kết nối API Google", Toast.LENGTH_SHORT).show();
+                    String msg = "Lỗi kết nối server";
+                    if (error.networkResponse != null) {
+                        msg += " (HTTP " + error.networkResponse.statusCode + ")";
+                    }
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
                 }
         );
 
         request.setShouldCache(false);
-        com.android.volley.toolbox.Volley.newRequestQueue(requireContext()).add(request);
+        com.android.volley.toolbox.Volley.newRequestQueue(
+            requireContext().getApplicationContext()).add(request);
     }
 
     private void showConfirmDialog(JSONObject xe,String stationName) {
