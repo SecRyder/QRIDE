@@ -298,7 +298,7 @@ public class TramXeFragment extends Fragment implements OnMapReadyCallback {
                         VehicleAdapter bikeAdapter = new VehicleAdapter(bikes);
                         bikeAdapter.setOnItemClickListener(xe -> {
                             // GỌI HÀM HIỆN DIALOG Ở ĐÂY
-                            showConfirmDialog(xe,station.name);
+                            showConfirmDialog(xe, station);
                         });
                         rvBikes.setAdapter(bikeAdapter);
 
@@ -306,7 +306,7 @@ public class TramXeFragment extends Fragment implements OnMapReadyCallback {
                         VehicleAdapter motorAdapter = new VehicleAdapter(motors);
                         motorAdapter.setOnItemClickListener(xe -> {
                             // GỌI HÀM HIỆN DIALOG Ở ĐÂY
-                            showConfirmDialog(xe,station.name);
+                            showConfirmDialog(xe, station);
                         });
                         rvMotors.setAdapter(motorAdapter);
                     } catch (Exception e) { e.printStackTrace(); }
@@ -410,7 +410,7 @@ public class TramXeFragment extends Fragment implements OnMapReadyCallback {
                 requireContext().getApplicationContext()).add(request);
     }
 
-    private void showConfirmDialog(JSONObject xe,String stationName) {
+    private void showConfirmDialog(JSONObject xe, MainActivity.BikeStation station) {
         // 1. Tạo Builder để build giao diện cho Dialog
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
         // 2. Nạp (Inflate) file XML giao diện bạn đã tạo (dialog_confirm_booking)
@@ -450,7 +450,7 @@ public class TramXeFragment extends Fragment implements OnMapReadyCallback {
             try {
                 String plate = xe.getString("plate");
                 dialog.dismiss(); // Đóng cái xác nhận
-                showSuccessDialog(stationName, plate);
+                showSuccessDialog(station, plate);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -460,7 +460,7 @@ public class TramXeFragment extends Fragment implements OnMapReadyCallback {
         dialog.show();
     }
 
-    private void showSuccessDialog(String stationName, String plate) {
+    private void showSuccessDialog(MainActivity.BikeStation station, String plate) {
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
         View view = getLayoutInflater().inflate(R.layout.dialog_booking_success, null);
         builder.setView(view);
@@ -474,7 +474,7 @@ public class TramXeFragment extends Fragment implements OnMapReadyCallback {
         TextView tvMessage = view.findViewById(R.id.tvSuccessMessage);
 
         // Tạo chuỗi thông báo có định dạng (Bold tên trạm và biển số)
-        String message = "Yêu cầu đặt giữ xe của bạn đã được xác nhận. Vui lòng di chuyển đến trạm " + stationName +
+        String message = "Yêu cầu đặt giữ xe của bạn đã được xác nhận. Vui lòng di chuyển đến trạm " + station.name +
                 ", biển số xe " + plate + " để nhận xe nhé!";
         tvMessage.setText(message);
 
@@ -487,6 +487,23 @@ public class TramXeFragment extends Fragment implements OnMapReadyCallback {
         view.findViewById(R.id.btnGoToPickUp).setOnClickListener(v -> {
             // Logic khi người dùng nhấn đến nhận xe (ví dụ: mở chỉ đường)
             dialog.dismiss();
+
+            // Lấy vị trí hiện tại và vẽ đường đi trực tiếp trên bản đồ của app
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                    if (location != null) {
+                        LatLng origin = new LatLng(location.getLatitude(), location.getLongitude());
+                        LatLng dest = station.location;
+
+                        // Gọi hàm vẽ đường đi uốn lượn (sử dụng Directions API / OSRM fallback)
+                        drawRealRoute(origin, dest);
+                    } else {
+                        Toast.makeText(requireContext(), "Không thể lấy vị trí hiện tại (Hãy chắc chắn GPS đang bật hoặc set vị trí giả trên máy ảo).", Toast.LENGTH_LONG).show();
+                    }
+                });
+            } else {
+                Toast.makeText(requireContext(), "Bạn cần cấp quyền vị trí để xem đường đi.", Toast.LENGTH_SHORT).show();
+            }
         });
 
         dialog.show();

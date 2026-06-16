@@ -1,6 +1,5 @@
-require('dotenv').config();
+require("dotenv").config();
 const sql = require("mssql");
-
 const dbConfig = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -9,31 +8,17 @@ const dbConfig = {
     options: { encrypt: false, trustServerCertificate: true }
 };
 
-async function alterDb() {
-    try {
-        await sql.connect(dbConfig);
-        console.log("Connected");
-        
-        // Add payment_type
-        try {
-            await sql.query(`ALTER TABLE payments ADD payment_type VARCHAR(50) DEFAULT 'topup'`);
-            console.log("Added payment_type");
-        } catch (e) {
-            console.log("payment_type might exist: " + e.message);
-        }
+sql.connect(dbConfig).then(async pool => {
+    console.log("Updating all vehicle types to bike first...");
+    await pool.request().query("UPDATE [dbo].[vehicle] SET [type] = 'bike'");
 
-        // Add target_id
-        try {
-            await sql.query(`ALTER TABLE payments ADD target_id INT NULL`);
-            console.log("Added target_id");
-        } catch (e) {
-            console.log("target_id might exist: " + e.message);
-        }
-        
-        process.exit(0);
-    } catch (err) {
-        console.error(err);
-        process.exit(1);
-    }
-}
-alterDb();
+    console.log("Updating motor vehicle types...");
+    const motorIds = [15, 18, 19, 22, 26, 27, 28, 32, 33, 36, 37, 38];
+    await pool.request().query(`UPDATE [dbo].[vehicle] SET [type] = 'motor' WHERE [id] IN (${motorIds.join(',')})`);
+    console.log("Updated all vehicle types successfully.");
+
+    process.exit(0);
+}).catch(err => {
+    console.error("Error updating database:", err);
+    process.exit(1);
+});
