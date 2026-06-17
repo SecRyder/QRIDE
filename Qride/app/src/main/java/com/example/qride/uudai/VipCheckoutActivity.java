@@ -1,7 +1,6 @@
 package com.example.qride.uudai;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,8 +13,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.qride.MainActivity;
 import com.example.qride.R;
 import com.example.qride.helper.APIHelper;
+import com.example.qride.sqlite.NotificationDAO;
+import com.example.qride.sqlite.UserDAO;
 
 import org.json.JSONObject;
 
@@ -25,8 +27,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Màn hình thanh toán gói VIP/Hội viên qua MoMo.
- * Hiển thị thông tin gói và giá tiền rõ ràng trước khi thanh toán.
+ * Màn hình thanh toán gói VIP/Hội viên.
+ * Sau khi thanh toán thành công, hệ thống lưu thông báo và cập nhật trạng thái người dùng.
  */
 public class VipCheckoutActivity extends AppCompatActivity {
 
@@ -36,11 +38,16 @@ public class VipCheckoutActivity extends AppCompatActivity {
     private int voucherPrice;
 
     private Button btnConfirmPayment;
+    private NotificationDAO notificationDAO;
+    private UserDAO userDAO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vip_checkout);
+
+        notificationDAO = new NotificationDAO(this);
+        userDAO = new UserDAO(this);
 
         // Lấy dữ liệu từ Intent
         voucherId       = getIntent().getIntExtra("VOUCHER_ID", -1);
@@ -54,82 +61,54 @@ public class VipCheckoutActivity extends AppCompatActivity {
         TextView tvVoucherPrice   = findViewById(R.id.tvVoucherPrice);
         btnConfirmPayment         = findViewById(R.id.btnConfirmPayment);
 
-        // Hiển thị tên gói
         if (voucherTitle != null) tvVoucherName.setText(voucherTitle);
+        if (voucherDiscount != null) tvVoucherBenefit.setText(voucherDiscount);
 
-        // Hiển thị quyền lợi (discount text)
-        if (voucherDiscount != null && !voucherDiscount.isEmpty()) {
-            tvVoucherBenefit.setText(voucherDiscount);
-            tvVoucherBenefit.setVisibility(View.VISIBLE);
-        } else {
-            tvVoucherBenefit.setVisibility(View.GONE);
-        }
-
-        // Hiển thị giá tiền (format VND)
         if (voucherPrice > 0) {
             NumberFormat nf = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
             tvVoucherPrice.setText(nf.format(voucherPrice) + "đ");
         } else {
-            tvVoucherPrice.setText("Liên hệ");
+            tvVoucherPrice.setText("0đ");
         }
 
-        // Nút thanh toán
         btnConfirmPayment.setOnClickListener(v -> {
             v.setEnabled(false);
-            payWithMoMo();
+            buyVipPackage();
         });
 
-        // Nút back
         ImageView btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
     }
 
-    private void payWithMoMo() {
-        // Tính giá thanh toán thực tế
-        int amount;
-        if (voucherPrice > 0) {
-            amount = voucherPrice;
-        } else {
-            // Fallback: thử parse từ discount text nếu price = 0
-            try {
-                String clean = voucherDiscount != null
-                        ? voucherDiscount.replaceAll("[^0-9]", "") : "";
-                amount = clean.isEmpty() ? 50000 : Math.max(1000, Integer.parseInt(clean));
-            } catch (Exception e) {
-                amount = 50000;
-            }
-        }
-
-        Toast.makeText(this, getString(R.string.vip_connecting_momo), Toast.LENGTH_SHORT).show();
-
+    private void buyVipPackage() {
         JSONObject body = new JSONObject();
         try {
             body.put("voucherId", voucherId);
-            body.put("amount", amount);
         } catch (Exception ignored) {}
 
-        String url = APIHelper.PAYMENT_VIP_MOMO;
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, body,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, APIHelper.BUY_VOUCHER, body,
                 response -> {
-                    String payUrl = response.optString("payUrl", "");
-                    if (!payUrl.isEmpty()) {
-                        // Mở MoMo app hoặc trình duyệt
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(payUrl));
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        btnConfirmPayment.setEnabled(true);
-                        Toast.makeText(this,
-                                getString(R.string.vip_error_no_link),
-                                Toast.LENGTH_LONG).show();
-                    }
+                    // 1. Lưu thông báo vào SQLite
+                    int userId = userDAO.getUserId();
+                    String msg = "Chúc mừng! Bạn đã đăng ký thành công " + voucherTitle + ". Tận hưởng ưu đãi ngay!";
+                    notificationDAO.addNotification(userId, "Gói Hội Viên", msg, "MEMBERSHIP");
+
+                    // 2. Thông báo cho người dùng
+                    Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_LONG).show();
+
+                    // 3. Quay lại và cập nhật UI
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    finish();
                 },
                 error -> {
                     btnConfirmPayment.setEnabled(true);
-                    Toast.makeText(this,
-                            getString(R.string.vip_error_connect),
-                            Toast.LENGTH_SHORT).show();
+                    String errorMsg = "Lỗi thanh toán, vui lòng thử lại";
+                    if (error.networkResponse != null && error.networkResponse.statusCode == 400) {
+                        errorMsg = "Số dư ví không đủ để đăng ký gói này.";
+                    }
+                    Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
                 }
         ) {
             @Override

@@ -27,6 +27,9 @@ public class VoucherModel implements Serializable {
     private boolean hasProgress = false;
     private int progressCurrent = 0;
     private int progressMax = 0;
+    private int discountValue = 0;
+    private String discountType = "PERCENT";
+    private String expiryDate = "";
 
     public VoucherModel() {}
 
@@ -50,6 +53,10 @@ public class VoucherModel implements Serializable {
             m.price = obj.optInt("price", 0);
             m.expiry = obj.optString("expiry", "");
             
+            m.discountValue = obj.optInt("discount_value", 0);
+            m.discountType = obj.optString("discount_type", "PERCENT");
+            m.expiryDate = obj.optString("expiry_date", "");
+
             String btnTypeStr = obj.optString("btn_type", "GREEN");
             m.buttonType = "ORANGE".equalsIgnoreCase(btnTypeStr) ? ButtonType.ORANGE : ButtonType.GREEN;
 
@@ -113,6 +120,15 @@ public class VoucherModel implements Serializable {
     public boolean isHasProgress() { return hasProgress; }
     public int getProgressCurrent() { return progressCurrent; }
     public int getProgressMax() { return progressMax; }
+
+    public int getDiscountValue() { return discountValue; }
+    public void setDiscountValue(int discountValue) { this.discountValue = discountValue; }
+
+    public String getDiscountType() { return discountType; }
+    public void setDiscountType(String discountType) { this.discountType = discountType; }
+
+    public String getExpiryDate() { return expiryDate; }
+    public void setExpiryDate(String expiryDate) { this.expiryDate = expiryDate; }
 
     public void setId(int id) { this.id = id; }
     public void setType(VoucherType type) { this.type = type; }

@@ -28,6 +28,8 @@ import com.example.qride.adapter.VoucherAdapter;
 import com.example.qride.helper.APIHelper;
 import com.example.qride.helper.VoucherActionHandler;
 import com.example.qride.model.VoucherModel;
+import com.example.qride.sqlite.NotificationDAO;
+import com.example.qride.sqlite.UserDAO;
 import com.example.qride.sqlite.VoucherDAO;
 
 import org.json.JSONObject;
@@ -59,8 +61,9 @@ public class UuDaiFragment extends Fragment implements VoucherActionHandler.OnVo
     private List<VoucherModel> goiHoiVienList = new ArrayList<>();
     private boolean isCurrentTichQua = true;
     private VoucherDAO voucherDAO;
+    private NotificationDAO notificationDAO;
+    private UserDAO userDAO;
 
-    // Đếm số lượng request đang chạy để biết khi nào xong
     private final AtomicInteger pendingRequests = new AtomicInteger(0);
 
     @Nullable
@@ -74,6 +77,8 @@ public class UuDaiFragment extends Fragment implements VoucherActionHandler.OnVo
         super.onViewCreated(view, savedInstanceState);
 
         voucherDAO = new VoucherDAO(requireContext());
+        notificationDAO = new NotificationDAO(requireContext());
+        userDAO = new UserDAO(requireContext());
 
         // Ánh xạ Views
         tabTichQua       = view.findViewById(R.id.tabTichQua);
@@ -92,37 +97,26 @@ public class UuDaiFragment extends Fragment implements VoucherActionHandler.OnVo
         });
         recyclerView.setAdapter(adapter);
 
-        // Load dữ liệu cache trước (hiện ngay)
+        // Load cache
         tichQuaList    = voucherDAO.getVouchersByType("TICH_QUA");
         goiHoiVienList = voucherDAO.getVouchersByType("GOI_HOI_VIEN");
         showTab(true);
 
-        // Tab click listeners
         tabTichQua.setOnClickListener(v    -> showTab(true));
         tabGoiHoiVien.setOnClickListener(v -> showTab(false));
-
-        // SwipeRefresh
-        swipeRefresh.setColorSchemeResources(R.color.xanhNgoc);
         swipeRefresh.setOnRefreshListener(this::syncAllVouchers);
-
-        // Retry button
         btnRetry.setOnClickListener(v -> {
             showLoading(true);
             syncAllVouchers();
         });
 
-        // Lần đầu: show loading bar, sync từ server
         showLoading(true);
         syncAllVouchers();
     }
 
-    // ============================================================
-    // Sync từ server
-    // ============================================================
-
     private void syncAllVouchers() {
         if (!isAdded()) return;
-        pendingRequests.set(2); // 2 requests: TICH_QUA + GOI_HOI_VIEN
+        pendingRequests.set(2);
         fetchVouchersFromServer("TICH_QUA");
         fetchVouchersFromServer("GOI_HOI_VIEN");
     }
@@ -148,28 +142,21 @@ public class UuDaiFragment extends Fragment implements VoucherActionHandler.OnVo
                             if (m != null) serverList.add(m);
                         }
 
-                        // Lưu cache
                         voucherDAO.saveVouchers(serverList, type);
-
                         if (type.equals("TICH_QUA")) tichQuaList = serverList;
                         else goiHoiVienList = serverList;
 
-                        // Cập nhật UI nếu đang xem tab này
                         if (isCurrentTichQua == type.equals("TICH_QUA")) {
                             adapter.updateList(serverList);
                             updateEmptyState(serverList);
                         }
-
                     } catch (Exception e) {
-                        Log.e(TAG, "Error parsing vouchers: " + e.getMessage());
+                        Log.e(TAG, "Error: " + e.getMessage());
                     } finally {
                         onRequestFinished();
                     }
                 },
-                error -> {
-                    Log.e(TAG, "Fetch failed (" + type + "): " + error.getMessage());
-                    onRequestFinished();
-                }
+                error -> onRequestFinished()
         ) {
             @Override
             public Map<String, String> getHeaders() {
@@ -178,45 +165,24 @@ public class UuDaiFragment extends Fragment implements VoucherActionHandler.OnVo
                 return params;
             }
         };
-
         Volley.newRequestQueue(context).add(request);
     }
 
-    /** Gọi khi mỗi request kết thúc (thành công hay lỗi), tắt indicators khi cả 2 xong */
     private void onRequestFinished() {
-        if (pendingRequests.decrementAndGet() <= 0) {
-            if (isAdded()) {
-                showLoading(false);
-                swipeRefresh.setRefreshing(false);
-                // Cập nhật empty state theo tab hiện tại
-                List<VoucherModel> current = isCurrentTichQua ? tichQuaList : goiHoiVienList;
-                updateEmptyState(current);
-            }
+        if (pendingRequests.decrementAndGet() <= 0 && isAdded()) {
+            showLoading(false);
+            swipeRefresh.setRefreshing(false);
+            updateEmptyState(isCurrentTichQua ? tichQuaList : goiHoiVienList);
         }
     }
-
-    // ============================================================
-    // Server Actions (callback từ VoucherActionHandler)
-    // ============================================================
 
     @Override
     public void onServerActionRequired(VoucherModel voucher, String title) {
-        switch (voucher.getAction()) {
-            case CLAIM:
-                activateVoucherOnServer(voucher.getId(), title);
-                break;
-            case PERFORM:
-            case CHECKIN:
-            case IN_PROGRESS:
-                updateVoucherProgressOnServer(voucher.getId(), title);
-                break;
-            default:
-                break;
+        if (voucher.getAction() == com.example.qride.model.VoucherAction.CLAIM) {
+            activateVoucherOnServer(voucher.getId(), title);
+        } else {
+            sendVoucherRequest(APIHelper.UPDATE_VOUCHER_PROGRESS, voucher.getId(), title, R.string.msg_progress_updated);
         }
-    }
-
-    private void updateVoucherProgressOnServer(int voucherId, String title) {
-        sendVoucherRequest(APIHelper.UPDATE_VOUCHER_PROGRESS, voucherId, title, R.string.msg_progress_updated);
     }
 
     private void activateVoucherOnServer(int voucherId, String title) {
@@ -233,18 +199,33 @@ public class UuDaiFragment extends Fragment implements VoucherActionHandler.OnVo
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, body,
                 response -> {
                     if (!isAdded()) return;
-                    showToast(getString(successResId, title));
-                    // Refresh danh sách sau action thành công
-                    syncAllVouchers();
-                    // Cập nhật notification badge nếu cần
+                    
+                    // 1. Thêm thông báo vào SQLite
+                    int userId = userDAO.getUserId();
+                    String msg = getString(successResId, title);
+                    notificationDAO.addNotification(userId, "Ưu đãi", msg, "PROMOTION");
+
+                    // 2. Cập nhật UI Badge (nếu MainActivity có method này)
                     if (getActivity() instanceof MainActivity) {
                         ((MainActivity) getActivity()).updateNotifBadge();
                     }
+
+                    // 3. Hiển thị thông báo thành công cho người dùng
+                    if (APIHelper.ACTIVATE_VOUCHER.equals(url)) {
+                        new androidx.appcompat.app.AlertDialog.Builder(context)
+                                .setTitle("Kích hoạt thành công")
+                                .setMessage("Ưu đãi \"" + title + "\" đã sẵn sàng! Hệ thống sẽ tự động áp dụng giảm giá cho chuyến đi tiếp theo của bạn.")
+                                .setPositiveButton("Tuyệt vời", null)
+                                .show();
+                    } else {
+                        showToast(msg);
+                    }
+
+                    // 4. Refresh để nút đổi sang "Đang dùng" (Server sẽ trả về status/action mới)
+                    syncAllVouchers();
                 },
                 error -> {
-                    if (!isAdded()) return;
-                    showToast(getString(R.string.error_server));
-                    Log.e(TAG, "Voucher action failed: " + error.getMessage());
+                    if (isAdded()) showToast(getString(R.string.error_server));
                 }
         ) {
             @Override
@@ -254,46 +235,31 @@ public class UuDaiFragment extends Fragment implements VoucherActionHandler.OnVo
                 return params;
             }
         };
-
         Volley.newRequestQueue(context).add(request);
     }
-
-    // ============================================================
-    // UI Helpers
-    // ============================================================
 
     private void showTab(boolean isTichQua) {
         isCurrentTichQua = isTichQua;
         tabTichQua.setBackgroundResource(isTichQua ? R.drawable.bg_tab_active : R.drawable.bg_tab_inactive);
         tabGoiHoiVien.setBackgroundResource(isTichQua ? R.drawable.bg_tab_inactive : R.drawable.bg_tab_active);
-
         List<VoucherModel> list = isTichQua ? tichQuaList : goiHoiVienList;
         adapter.updateList(list);
         updateEmptyState(list);
     }
 
-    /** Hiển thị / ẩn loading bar đầu trang (không phải swipe refresh) */
     private void showLoading(boolean show) {
         if (!isAdded()) return;
         progressLoading.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (show) {
-            recyclerView.setVisibility(View.GONE);
-            layoutEmptyState.setVisibility(View.GONE);
-        }
+        if (show) { recyclerView.setVisibility(View.GONE); layoutEmptyState.setVisibility(View.GONE); }
     }
 
-    /** Cập nhật empty state dựa trên danh sách hiện tại */
     private void updateEmptyState(List<VoucherModel> list) {
         if (!isAdded()) return;
         boolean empty = (list == null || list.isEmpty());
-
         recyclerView.setVisibility(empty ? View.GONE : View.VISIBLE);
         layoutEmptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
-
         if (empty && tvEmptyMessage != null) {
-            tvEmptyMessage.setText(isCurrentTichQua
-                    ? R.string.voucher_empty_tich_qua
-                    : R.string.voucher_empty_membership);
+            tvEmptyMessage.setText(isCurrentTichQua ? R.string.voucher_empty_tich_qua : R.string.voucher_empty_membership);
         }
     }
 

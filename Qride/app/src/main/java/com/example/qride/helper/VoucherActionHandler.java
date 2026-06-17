@@ -9,20 +9,14 @@ import com.example.qride.uudai.VipCheckoutActivity;
 
 /**
  * Lớp xử lý tập trung tất cả các hành động của Voucher.
- * Điều phối giữa UI (Toast, Share) và Logic nghiệp vụ (Callback).
+ * Điều phối giữa UI và Logic nghiệp vụ thông qua Callback.
  */
 public class VoucherActionHandler {
 
-    /**
-     * Interface để Fragment/Activity xử lý logic nghiệp vụ phức tạp hoặc gọi API.
-     */
     public interface OnVoucherActionListener {
         void onServerActionRequired(VoucherModel voucher, String title);
     }
 
-    /**
-     * Thực thi hành động của Voucher.
-     */
     public static void handle(Context context, VoucherModel voucher, OnVoucherActionListener listener) {
         if (voucher == null || context == null) return;
 
@@ -30,13 +24,19 @@ public class VoucherActionHandler {
 
         switch (voucher.getAction()) {
             case CLAIM:
-            case CHECKIN:
-            case PERFORM:
-            case IN_PROGRESS:
-                // Các hành động này cần tương tác với Server -> Callback cho Fragment
+                // Kích hoạt Voucher -> Gửi yêu cầu về Fragment để gọi API activate
                 if (listener != null) {
                     listener.onServerActionRequired(voucher, title);
                 }
+                break;
+
+            case USING:
+                // Nếu đã đang dùng, hiển thị thông báo thay vì kích hoạt lại
+                new androidx.appcompat.app.AlertDialog.Builder(context)
+                        .setTitle(title)
+                        .setMessage("Ưu đãi này đã được kích hoạt thành công và sẽ được hệ thống tự động áp dụng giảm giá cho chuyến đi tiếp theo của bạn!")
+                        .setPositiveButton("Đã hiểu", null)
+                        .show();
                 break;
 
             case REGISTER_VIP:
@@ -46,24 +46,26 @@ public class VoucherActionHandler {
                 break;
 
             case INVITE:
-                // Mở màn hình Mời bạn bè chuyên nghiệp
                 Intent inviteIntent = new Intent(context, com.example.qride.profile.InviteFriendsActivity.class);
                 context.startActivity(inviteIntent);
                 break;
 
             case TOPUP:
-                showToast(context, context.getString(R.string.msg_opening_topup));
                 Intent topupIntent = new Intent(context, com.example.qride.thanhtoan.NapTienActivity.class);
                 context.startActivity(topupIntent);
                 break;
 
-            case USING:
-                showToast(context, context.getString(R.string.msg_voucher_in_use));
+            case CHECKIN:
+            case PERFORM:
+            case IN_PROGRESS:
+                if (listener != null) {
+                    listener.onServerActionRequired(voucher, title);
+                }
                 break;
 
             case UNKNOWN:
             default:
-                showToast(context, context.getString(R.string.msg_developing) + ": " + title);
+                showToast(context, context.getString(R.string.msg_developing));
                 break;
         }
     }
@@ -76,7 +78,6 @@ public class VoucherActionHandler {
         intent.putExtra("VOUCHER_PRICE", voucher.getPrice());
         context.startActivity(intent);
     }
-
 
     private static void showToast(Context context, String message) {
         if (context != null && message != null) {

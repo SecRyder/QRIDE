@@ -1,0 +1,21 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Dark Background Circle -->
+    <path
+        android:pathData="M60,60m-60,0a60,60 0,1 1,120 0a60,60 0,1 1,-120 0"
+        android:fillColor="#121212"/>
+
+    <!-- User Head Silhouette -->
+    <path
+        android:pathData="M60,48m-16,0a16,16 0,1 1,32 0a16,16 0,1 1,-32 0"
+        android:fillColor="#6B7280"/>
+
+    <!-- User Shoulders Silhouette -->
+    <path
+        android:pathData="M60,70c-18,0 -34,10 -34,22v4c0,2.2 1.8,4 4,4h60c2.2,0 4,-1.8 4,-4v-4c0,-12 -16,-22 -34,-22z"
+        android:fillColor="#6B7280"/>
+</vector>

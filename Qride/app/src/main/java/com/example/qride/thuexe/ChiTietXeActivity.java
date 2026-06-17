@@ -136,9 +136,42 @@ public class ChiTietXeActivity extends AppCompatActivity {
                 btnThueXe.setEnabled(true);
                 btnThueXe.setText("Thuê xe");
             }
+            checkActiveVoucher();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void checkActiveVoucher() {
+        String url = APIHelper.ACTIVE_VOUCHER;
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    if (response != null && !response.isNull("discount_text")) {
+                        String title = response.optString("title_display", "Ưu đãi");
+                        String discountText = response.optString("discount_text", "");
+                        Toast.makeText(ChiTietXeActivity.this,
+                                "🎁 Ưu đãi \"" + title + " (" + discountText + ")\" sẽ tự động áp dụng khi kết thúc chuyến đi!",
+                                Toast.LENGTH_LONG).show();
+                    }
+                },
+                error -> android.util.Log.e("VOUCHER", "Error checking active voucher", error)
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                SharedPreferences pref = getSharedPreferences("login_check", MODE_PRIVATE);
+                String token = pref.getString("token", null);
+                Map<String, String> headers = new HashMap<>();
+                if (token != null) {
+                    headers.put("Authorization", "Bearer " + token);
+                }
+                return headers;
+            }
+        };
+        queue.add(request);
     }
 
     // ================= RENT =================

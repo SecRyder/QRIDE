@@ -119,6 +119,8 @@ public class EndRideActivity extends AppCompatActivity {
 
                 tvTotal.setText(total + "đ");
 
+                checkActiveVoucherAndCalculate(total);
+
             } catch (Exception e) {
                 tvTotal.setText(price);
             }
@@ -148,6 +150,47 @@ public class EndRideActivity extends AppCompatActivity {
                 }
         );
 
+        queue.add(request);
+    }
+
+    private void checkActiveVoucherAndCalculate(int total) {
+        String url = APIHelper.ACTIVE_VOUCHER;
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    if (response != null && !response.isNull("discount_text")) {
+                        int discountValue = response.optInt("discount_value", 0);
+                        String discountType = response.optString("discount_type", "PERCENT");
+                        String title = response.optString("title_display", "Ưu đãi");
+
+                        int calculatedDiscount = 0;
+                        if ("PERCENT".equals(discountType)) {
+                            calculatedDiscount = (total * discountValue) / 100;
+                        } else if ("CASH".equals(discountType)) {
+                            calculatedDiscount = discountValue;
+                        }
+                        calculatedDiscount = Math.min(calculatedDiscount, total);
+
+                        TextView tvDiscount = findViewById(R.id.tvDiscount);
+                        if (tvDiscount != null) {
+                            tvDiscount.setText("-" + calculatedDiscount + "đ (" + title + ")");
+                        }
+
+                        int finalTotal = Math.max(total - calculatedDiscount, 0);
+                        tvTotal.setText(finalTotal + "đ");
+                    }
+                },
+                error -> Log.e("VOUCHER", "Error loading active voucher", error)
+        ) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + APIHelper.getToken(EndRideActivity.this));
+                return headers;
+            }
+        };
         queue.add(request);
     }
 
@@ -241,11 +284,16 @@ public class EndRideActivity extends AppCompatActivity {
                                 break;
 
                             case "SUCCESS":
-                                int price = response.optInt("total_price", 0);
+                                int finalPrice = response.optInt("total_price", 0);
+                                int discount = response.optInt("discount_applied", 0);
                                 int minutes = response.optInt("minutes", 0);
                                 int rentalId = response.optInt("rental_id", -1);
 
-                                tvTotal.setText(price + "đ");
+                                tvTotal.setText(finalPrice + "đ");
+                                TextView tvDiscount = findViewById(R.id.tvDiscount);
+                                if (tvDiscount != null && discount > 0) {
+                                    tvDiscount.setText("-" + discount + "đ");
+                                }
 
                                 Toast.makeText(this,
                                         "Trả xe thành công (" + minutes + " phút)",

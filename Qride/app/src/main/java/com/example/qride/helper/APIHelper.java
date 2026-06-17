@@ -6,12 +6,12 @@ import android.content.SharedPreferences;
 import com.example.qride.sqlite.UserDAO;
 
 public class APIHelper {
-    public static final String BASE_URL = "http://192.168.100.13:3000/api/";
+//    public static final String BASE_URL = "http://192.168.100.13:3000/api/";
     //public static final String BASE_URL = "http://192.168.100.13:3000/api/";
     //public static final String BASE_URL = "http://10.242.93.214:3000/api/";
     // public static final String BASE_URL = "http://192.168.1.9:3000/api/"; // IP tu GitHub
     //public static final String BASE_URL = "http://10.30.10.247:3000/api/";
-    //public static final String BASE_URL = "http://192.168.1.195:3000/api/"; // IP tu GitHub
+    public static final String BASE_URL = "http://192.168.1.194:3000/api/"; // IP tu GitHub
     //public static final String BASE_URL = "http://10.30.10.247:3000/api/";
     public static final String LOGIN = BASE_URL + "login";
     public static final String USER = BASE_URL + "user";
@@ -35,6 +35,7 @@ public class APIHelper {
     public static final String UPDATE_VOUCHER_PROGRESS = BASE_URL + "vouchers/update-progress";
     public static final String ACTIVATE_VOUCHER = BASE_URL + "vouchers/activate";
     public static final String BUY_VOUCHER = BASE_URL + "vouchers/buy";
+    public static final String ACTIVE_VOUCHER = BASE_URL + "user/active-voucher";
     public static final String PAYMENT_VIP_MOMO = BASE_URL + "payment/vip/momo";
     public static final String NOTIFICATIONS_LIST = BASE_URL + "notifications";
     public static final String CLIENT_LOG = BASE_URL + "client-log";
