@@ -320,12 +320,12 @@ apiRouter.post("/reset-password", async (req, res) => {
 
     const hash = await bcrypt.hash(newPassword, 10);
 
-    const [result, raw] = await db.query(
+    const [result] = await db.query(
         "UPDATE users SET password_hash=? WHERE phone=?",
         [hash, phone]
     );
 
-    if (raw.rowsAffected[0] === 0)
+    if (result.affectedRows === 0)
         return res.status(404).json({ message: "USER_NOT_FOUND" });
 
     res.json({ message: "SUCCESS" });
@@ -448,14 +448,21 @@ apiRouter.post("/momo/ipn", async (req, res) => {
             if (orderId.startsWith("VIP_")) {
                 // VIP purchase - update user_vouchers
                 if (payment.target_id) {
-                    await conn.query(`
-                        IF EXISTS (SELECT 1 FROM user_vouchers WHERE user_id=? AND voucher_id=?)
-                            UPDATE user_vouchers SET status='ACTIVE', action_key='USING', btn_type='ORANGE', updated_at=GETDATE()
-                            WHERE user_id=? AND voucher_id=?
-                        ELSE
-                            INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, btn_type, updated_at)
-                            VALUES (?, ?, 'ACTIVE', 'USING', 'ORANGE', GETDATE())
-                    `, [payment.user_id, payment.target_id, payment.user_id, payment.target_id, payment.user_id, payment.target_id]);
+                    const [uvRows] = await conn.query(
+                        "SELECT * FROM user_vouchers WHERE user_id=? AND voucher_id=?",
+                        [payment.user_id, payment.target_id]
+                    );
+                    if (uvRows.length > 0) {
+                        await conn.query(
+                            "UPDATE user_vouchers SET status='ACTIVE', action_key='USING', btn_type='ORANGE', updated_at=NOW() WHERE user_id=? AND voucher_id=?",
+                            [payment.user_id, payment.target_id]
+                        );
+                    } else {
+                        await conn.query(
+                            "INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, btn_type, updated_at) VALUES (?, ?, 'ACTIVE', 'USING', 'ORANGE', NOW())",
+                            [payment.user_id, payment.target_id]
+                        );
+                    }
                 }
             } else {
                 // Wallet topup
