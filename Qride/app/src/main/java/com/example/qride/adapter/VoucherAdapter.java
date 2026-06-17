@@ -75,10 +75,12 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VH> {
 
         // Hiển thị giá: nếu có price (VIP) thì format tiền, ngược lại dùng discount text
         // Hiển thị giá: nếu có price (VIP) thì format tiền, ngược lại dùng discount text
+        // Hiển thị giá: nếu có price (VIP) thì format tiền, ngược lại dùng discount text
         if (item.getPrice() > 0) {
             NumberFormat nf = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
             h.tvDiscount.setText(nf.format(item.getPrice()) + "đ");
         } else {
+            // THÊM CỘNG CHUỖI RỖNG (+ "") Ở ĐÂY ĐỂ PHÒNG THỦ TUYỆT ĐỐI
             h.tvDiscount.setText(VoucherLocalizationHelper.getDiscount(context, item) + "");
         }
 
