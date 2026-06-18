@@ -149,7 +149,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
             case "topup":
                 tvTitle.setText("Nạp tiền");
                 imgType.setImageResource(R.drawable.naptien);
-                tvAmount.setText("+ " + formatMoney(amount));
+                tvAmount.setText("+ " + formatMoney(Math.abs(amount)));
                 btnAction.setText("Nạp thêm");
                 btnAction.setOnClickListener(v -> {
                     Intent intent = new Intent(this, NapTienActivity.class);
@@ -160,7 +160,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
             case "withdraw":
                 tvTitle.setText("Rút tiền");
                 imgType.setImageResource(R.drawable.rutien);
-                tvAmount.setText("- " + formatMoney(amount));
+                tvAmount.setText("- " + formatMoney(Math.abs(amount)));
                 btnAction.setText("Rút tiếp");
                 btnAction.setOnClickListener(v -> {
                     Intent intent = new Intent(this, RutTienActivity.class);
@@ -171,7 +171,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
             case "payment":
                 tvTitle.setText("Thuê xe");
                 imgType.setImageResource(R.drawable.ic_bike_small);
-                tvAmount.setText("- " + formatMoney(amount));
+                tvAmount.setText("- " + formatMoney(Math.abs(amount)));
                 btnAction.setText("Thuê xe mới");
                 tvRental.setVisibility(View.VISIBLE);
                 tvRental.setText("Mã chuyến: #" + rentalId);
@@ -181,12 +181,12 @@ public class TransactionDetailActivity extends AppCompatActivity {
                 });
                 
                 // Hiển thị giá gốc và discount nếu có
-                if (originalAmount > 0) {
+                if (Math.abs(originalAmount) > 0) {
                     layoutPrice.setVisibility(View.VISIBLE);
-                    tvOriginalPrice.setText("Giá gốc: " + formatMoney(originalAmount));
+                    tvOriginalPrice.setText("Giá gốc: " + formatMoney(Math.abs(originalAmount)));
                     
-                    if (discountAmount > 0) {
-                        String discountText = "Giảm giá: -" + formatMoney(discountAmount);
+                    if (Math.abs(discountAmount) > 0) {
+                        String discountText = "Giảm giá: -" + formatMoney(Math.abs(discountAmount));
                         if (!discountTitle.isEmpty()) {
                             discountText += " (" + discountTitle + ")";
                         }
