@@ -116,5 +116,7 @@
         <activity android:name=".community.CreatePostActivity" android:exported="false"/>
 
         <activity android:name=".community.CommentActivity" android:exported="false"/>
+
+
     </application>
 </manifest>

@@ -16,6 +16,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.qride.MainActivity;
 import com.example.qride.R;
 import com.example.qride.helper.APIHelper;
+import com.example.qride.profile.SupportCenterActivity;
 import com.example.qride.sqlite.UserDAO;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -29,6 +30,8 @@ public class ChiTietXeActivity extends AppCompatActivity {
     private Button btnThueXe;
     private ImageView btnBack;
     private TextView tvPlate, tvPin, tvLocation, tvStatus;
+
+    private FrameLayout btnSupport; // robot
 
     private int vehicleId = -1;
     private boolean isLoading = false;
@@ -54,6 +57,7 @@ public class ChiTietXeActivity extends AppCompatActivity {
         btnThueXe = findViewById(R.id.btnThueXe);
         btnBack = findViewById(R.id.btnBack);
         tvPlate = findViewById(R.id.tvPlate);
+        btnSupport = findViewById(R.id.btnSupport);
         tvPin = findViewById(R.id.tvPin);
         tvLocation = findViewById(R.id.tvLocation);
         tvStatus = findViewById(R.id.tvStatus);
@@ -75,6 +79,11 @@ public class ChiTietXeActivity extends AppCompatActivity {
 
     private void setupEvents() {
         btnBack.setOnClickListener(v -> finish());
+        btnSupport.setOnClickListener(v -> {
+            Intent intent = new Intent(ChiTietXeActivity.this, SupportCenterActivity.class);
+            startActivity(intent);
+        });
+
         btnThueXe.setOnClickListener(v -> {
             if (vehicleId == -1) {
                 Toast.makeText(this, "Không xác định được xe", Toast.LENGTH_SHORT).show();
