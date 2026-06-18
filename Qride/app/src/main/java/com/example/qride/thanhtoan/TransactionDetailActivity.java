@@ -98,8 +98,17 @@ public class TransactionDetailActivity extends AppCompatActivity {
                         if (code.isEmpty() || code.equals("null")) {
                             code = "#" + response.optString("id", "-");
                         }
-                        String time = response.getString("created_at");
+                        // Thử nhiều field có thể cho thời gian
+                        String time = response.optString("created_at", "");
+                        if (time.isEmpty()) {
+                            time = response.optString("transaction_date", "");
+                        }
+                        if (time.isEmpty()) {
+                            time = response.optString("date", "");
+                        }
                         String rentalId = response.optString("rental_id", "");
+                        
+                        Log.d(TAG, "API Response time field: " + time);
                         
                         // Lấy thêm discount info (nếu có)
                         long originalAmount = response.optLong("original_amount", amount);
@@ -206,7 +215,8 @@ public class TransactionDetailActivity extends AppCompatActivity {
 
         tvDesc.setText(desc);
         tvCode.setText("Mã giao dịch: " + code);
-        tvTime.setText("Thời gian: " + formatDate(time));
+        String formattedTime = (time != null && !time.isEmpty()) ? formatDate(time) : "Không xác định";
+        tvTime.setText("Thời gian: " + formattedTime);
         tvFee.setText("Phí dịch vụ: 0đ");
     }
 
@@ -215,13 +225,42 @@ public class TransactionDetailActivity extends AppCompatActivity {
     }
 
     private String formatDate(String iso) {
+        if (iso == null || iso.isEmpty() || iso.equals("null")) {
+            Log.w(TAG, "Date is null or empty");
+            return "Không xác định";
+        }
+        
         try {
-            SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            // Thử nhiều format khác nhau
+            SimpleDateFormat[] formats = {
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"),
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"),
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"),
+                new SimpleDateFormat("yyyy-MM-dd")
+            };
+            
             SimpleDateFormat output = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
-            Date date = input.parse(iso);
-            return output.format(date);
+            Date date = null;
+            
+            for (SimpleDateFormat format : formats) {
+                try {
+                    date = format.parse(iso);
+                    Log.d(TAG, "Successfully parsed date with format: " + format.toPattern());
+                    break;
+                } catch (Exception e) {
+                    // Thử format tiếp theo
+                }
+            }
+            
+            if (date != null) {
+                return output.format(date);
+            } else {
+                Log.e(TAG, "Could not parse date with any format: " + iso);
+                return iso;
+            }
         } catch (Exception e) {
-            Log.e(TAG, "Error parsing date: " + iso, e);
+            Log.e(TAG, "Error formatting date: " + iso, e);
             return iso;
         }
     }
