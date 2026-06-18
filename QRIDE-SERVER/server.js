@@ -1526,15 +1526,151 @@ apiRouter.post("/vouchers/activate", authMiddleware, async (req, res) => {
     const userId = req.user.userId;
     const { voucherId } = req.body;
 
+    if (!voucherId) {
+        return res.status(400).json({ message: "MISSING_VOUCHER_ID" });
+    }
+
     try {
-        await db.query(
-            "UPDATE user_vouchers SET status = 'ACTIVE', action_key = 'USING', btn_type = 'ORANGE' WHERE user_id = ? AND voucher_id = ?",
+        // Kiểm tra voucher có tồn tại không
+        const [vRows] = await db.query("SELECT id FROM vouchers WHERE id = ?", [voucherId]);
+        if (vRows.length === 0) {
+            return res.status(404).json({ message: "VOUCHER_NOT_FOUND" });
+        }
+
+        // Kiểm tra bản ghi user_vouchers đã tồn tại chưa
+        const [uvRows] = await db.query(
+            "SELECT id FROM user_vouchers WHERE user_id = ? AND voucher_id = ?",
             [userId, voucherId]
         );
+
+        if (uvRows.length > 0) {
+            // Đã có bản ghi -> UPDATE
+            await db.query(
+                "UPDATE user_vouchers SET status = 'ACTIVE', action_key = 'USING', btn_type = 'ORANGE', updated_at = NOW() WHERE user_id = ? AND voucher_id = ?",
+                [userId, voucherId]
+            );
+        } else {
+            // Chưa có bản ghi -> INSERT mới (trường hợp voucher CLAIM không có user_vouchers trước)
+            await db.query(
+                "INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, btn_type, current_progress, updated_at) VALUES (?, ?, 'ACTIVE', 'USING', 'ORANGE', 0, NOW())",
+                [userId, voucherId]
+            );
+        }
+
+        console.log(`[ACTIVATE_VOUCHER] User ${userId} activated voucher ${voucherId}`);
         res.json({ message: "SUCCESS" });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "SERVER_ERROR" });
+        console.error("ACTIVATE_VOUCHER_ERROR:", err);
+        res.status(500).json({ message: "SERVER_ERROR", detail: err.message });
+    }
+});
+
+apiRouter.post("/vouchers/buy-with-wallet", authMiddleware, async (req, res) => {
+    const userId = req.user.userId;
+    const { voucherId } = req.body;
+
+    if (!voucherId) {
+        return res.status(400).json({ message: "MISSING_VOUCHER_ID" });
+    }
+
+    const conn = await db.getConnection();
+    try {
+        await conn.beginTransaction();
+
+        const [vouchers] = await conn.query(
+            "SELECT * FROM vouchers WHERE id = ? FOR UPDATE",
+            [voucherId]
+        );
+        if (vouchers.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({ message: "VOUCHER_NOT_FOUND" });
+        }
+
+        const voucher = vouchers[0];
+        const price = Number(voucher.price || 0);
+        if (!Number.isFinite(price) || price < 0) {
+            await conn.rollback();
+            return res.status(400).json({ message: "INVALID_PRICE" });
+        }
+
+        const [wallets] = await conn.query(
+            "SELECT * FROM wallet WHERE user_id = ? FOR UPDATE",
+            [userId]
+        );
+        if (wallets.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({ message: "NO_WALLET" });
+        }
+
+        const wallet = wallets[0];
+        if (wallet.status && wallet.status !== "active") {
+            await conn.rollback();
+            return res.status(403).json({ message: "WALLET_LOCKED" });
+        }
+
+        if (wallet.balance < price) {
+            await conn.rollback();
+            return res.status(402).json({
+                message: "INSUFFICIENT_BALANCE",
+                balance: wallet.balance,
+                need: price
+            });
+        }
+
+        const [activeRows] = await conn.query(
+            "SELECT id FROM user_vouchers WHERE user_id = ? AND voucher_id = ? AND status = 'ACTIVE' AND action_key = 'USING'",
+            [userId, voucherId]
+        );
+        if (activeRows.length > 0) {
+            await conn.rollback();
+            return res.status(409).json({ message: "VOUCHER_ALREADY_ACTIVE" });
+        }
+
+        const newBalance = wallet.balance - price;
+        const [paymentResult] = await conn.query(
+            `INSERT INTO payments(user_id, amount, method, status, payment_type, target_id)
+             VALUES (?, ?, 'wallet', 'success', 'buy_vip', ?)`,
+            [userId, price, voucherId]
+        );
+
+        await conn.query(
+            "UPDATE wallet SET balance = ? WHERE id = ?",
+            [newBalance, wallet.id]
+        );
+
+        await conn.query(
+            `INSERT INTO wallet_transactions
+             (wallet_id, payment_id, amount, type, balance_before, balance_after, description)
+             VALUES (?, ?, ?, 'payment', ?, ?, ?)`,
+            [
+                wallet.id,
+                paymentResult.insertId,
+                -price,
+                wallet.balance,
+                newBalance,
+                `Mua gói VIP: ${voucher.title_display || voucher.title_key || voucher.title || voucherId}`
+            ]
+        );
+
+        await conn.query(
+            `INSERT INTO user_vouchers (user_id, voucher_id, status, action_key, current_progress, btn_type, updated_at)
+             VALUES (?, ?, 'ACTIVE', 'USING', 0, 'ORANGE', NOW())
+             ON DUPLICATE KEY UPDATE status='ACTIVE', action_key='USING', btn_type='ORANGE', updated_at=NOW()`,
+            [userId, voucherId]
+        );
+
+        await conn.commit();
+        res.json({
+            message: "SUCCESS",
+            newBalance,
+            paymentId: paymentResult.insertId
+        });
+    } catch (err) {
+        if (conn) await conn.rollback();
+        console.error("BUY_VOUCHER_WITH_WALLET_ERROR:", err);
+        res.status(500).json({ message: "SERVER_ERROR", detail: err.message });
+    } finally {
+        if (conn) conn.release();
     }
 });
 

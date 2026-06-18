@@ -333,35 +333,106 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_bottom_sheet"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
+
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="15dp"
+                android:background="#DDDDDD" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toStartOf="@+id/btnDirection"
+                    android:layout_alignParentStart="true"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvStationName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/station_name_placeholder"
+                        android:textColor="#333333"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvStationAddress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/station_address_placeholder"
+                        android:textColor="#888888" />
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnDirection"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:stateListAnimator="@null"
+                    android:background="@drawable/bg_circle_white"
+                    android:src="@drawable/ic_arrow_up_right"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:elevation="0dp" />
+            </RelativeLayout>
 
             <TextView
-                android:id="@+id/tvStationName"
-                android:layout_width="match_parent"
+                android:id="@+id/TvParkingSlots"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tên trạm xe"
-                android:textColor="#333333"
-                android:textSize="16sp"
+                android:layout_marginTop="10dp"
+                android:text="@string/parking_slots_placeholder"
+                android:textColor="#00B087"
                 android:textStyle="bold" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="15dp"
+                android:background="#EEEEEE" />
+
             <TextView
-                android:id="@+id/tvStationAddress"
+                android:id="@+id/BikeCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bike_count_placeholder"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/RvBikes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Địa chỉ trạm"
-                android:textColor="#888888"
-                android:textSize="13sp" />
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnRentBike"
+            <TextView
+                android:id="@+id/MotorCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/emotor_count_placeholder"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/RvEMotors"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="12dp"
-                android:background="@color/xanhNgoc"
-                android:text="@string/btn_rent_bike"
-                android:textColor="#FFFFFF" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -579,9 +650,12 @@
 
                 <!-- Support -->
                 <LinearLayout
+                    android:id="@+id/btnSupportRiding"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical">
 

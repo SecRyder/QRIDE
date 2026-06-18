@@ -75,4 +75,7 @@ dependencies {
     // CardView (dùng trong item_voucher và VIP checkout)
     implementation("androidx.cardview:cardview:1.0.0")
 
+    // ZXing - tạo QR code bitmap từ chuỗi MoMo qrCodeUrl
+    implementation("com.google.zxing:core:3.5.3")
+
 }

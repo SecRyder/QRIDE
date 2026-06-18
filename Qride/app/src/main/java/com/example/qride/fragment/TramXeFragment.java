@@ -205,9 +205,8 @@ public class TramXeFragment extends Fragment implements OnMapReadyCallback {
         for (MainActivity.BikeStation s : stationList) { // Thêm lại logic search
             if (s.name.toLowerCase().contains(query.toLowerCase())) {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(s.location, 17f));
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).showStationCard(s.name, s.address, s.id);
-                }
+                // Hiển thị dialog danh sách xe thay vì CardView
+                showStationDetailDialog(s);
                 break;
             }
         }

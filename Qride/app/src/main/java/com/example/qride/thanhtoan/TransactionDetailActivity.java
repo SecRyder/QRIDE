@@ -21,6 +21,8 @@ import com.android.volley.toolbox.Volley;
 import com.example.qride.R;
 import com.example.qride.thuexe.QRScanActivity;
 
+import android.util.Log;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,7 +32,10 @@ public class TransactionDetailActivity extends AppCompatActivity {
 
     ImageView btnBack, imgType;
     TextView tvTitle, tvAmount, tvDesc, tvStatus, tvCode, tvRental, tvTime, tvFee;
+    TextView tvOriginalPrice, tvDiscount;
+    android.widget.LinearLayout layoutPrice;
     Button btnAction;
+    private static final String TAG = "TRANSACTION_DETAIL";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +66,11 @@ public class TransactionDetailActivity extends AppCompatActivity {
         tvRental = findViewById(R.id.tvRental);
         tvTime = findViewById(R.id.tvTime);
         tvFee = findViewById(R.id.tvFee);
-
-        btnAction = findViewById(R.id.btnAction);
+        
+        // Price detail
+        layoutPrice = findViewById(R.id.layoutPrice);
+        tvOriginalPrice = findViewById(R.id.tvOriginalPrice);
+        tvDiscount = findViewById(R.id.tvDiscount);
     }
 
     private void loadTransaction(int id) {
@@ -83,14 +91,24 @@ public class TransactionDetailActivity extends AppCompatActivity {
                         String code = response.optString("external_ref", "-");
                         String time = response.getString("created_at");
                         String rentalId = response.optString("rental_id", "");
+                        
+                        // Lấy thêm discount info (nếu có)
+                        long originalAmount = response.optLong("original_amount", amount);
+                        long discountAmount = response.optLong("discount_amount", 0);
+                        String discountTitle = response.optString("discount_title", "");
 
-                        bindData(type, amount, desc, status, code, time, rentalId);
+                        bindData(type, amount, desc, status, code, time, rentalId, 
+                                 originalAmount, discountAmount, discountTitle);
 
                     } catch (Exception e) {
+                        Log.e(TAG, "Parse error", e);
                         e.printStackTrace();
                     }
                 },
-                error -> Toast.makeText(this, "Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show()
+                error -> {
+                    Log.e(TAG, "API error", error);
+                    Toast.makeText(this, "Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show();
+                }
         ) {
             @Override
             public Map<String, String> getHeaders() {
@@ -105,7 +123,8 @@ public class TransactionDetailActivity extends AppCompatActivity {
 
     private void bindData(String type, long amount, String desc,
                           String status, String code,
-                          String time, String rentalId) {
+                          String time, String rentalId,
+                          long originalAmount, long discountAmount, String discountTitle) {
 
         // ===== TITLE + ICON =====
         switch (type) {
@@ -114,8 +133,8 @@ public class TransactionDetailActivity extends AppCompatActivity {
                 imgType.setImageResource(R.drawable.naptien);
                 tvAmount.setText("+ " + formatMoney(amount));
                 btnAction.setText("Nạp thêm");
-                btnAction.setOnClickListener(v->{
-                    Intent intent = new Intent(this,NapTienActivity.class);
+                btnAction.setOnClickListener(v -> {
+                    Intent intent = new Intent(this, NapTienActivity.class);
                     startActivity(intent);
                 });
                 break;
@@ -125,8 +144,8 @@ public class TransactionDetailActivity extends AppCompatActivity {
                 imgType.setImageResource(R.drawable.rutien);
                 tvAmount.setText("- " + formatMoney(amount));
                 btnAction.setText("Rút tiếp");
-                btnAction.setOnClickListener(v->{
-                    Intent intent = new Intent(this,RutTienActivity.class);
+                btnAction.setOnClickListener(v -> {
+                    Intent intent = new Intent(this, RutTienActivity.class);
                     startActivity(intent);
                 });
                 break;
@@ -138,17 +157,39 @@ public class TransactionDetailActivity extends AppCompatActivity {
                 btnAction.setText("Thuê xe mới");
                 tvRental.setVisibility(View.VISIBLE);
                 tvRental.setText("Mã chuyến: #" + rentalId);
-                btnAction.setOnClickListener(v->{
+                btnAction.setOnClickListener(v -> {
                     Intent intent = new Intent(this, QRScanActivity.class);
                     startActivity(intent);
                 });
+                
+                // Hiển thị giá gốc và discount nếu có
+                if (originalAmount > 0) {
+                    layoutPrice.setVisibility(View.VISIBLE);
+                    tvOriginalPrice.setText("Giá gốc: " + formatMoney(originalAmount));
+                    
+                    if (discountAmount > 0) {
+                        String discountText = "Giảm giá: -" + formatMoney(discountAmount);
+                        if (!discountTitle.isEmpty()) {
+                            discountText += " (" + discountTitle + ")";
+                        }
+                        tvDiscount.setText(discountText);
+                        tvDiscount.setVisibility(View.VISIBLE);
+                        
+                        Log.d(TAG, "Payment: Original=" + originalAmount + ", Discount=" + discountAmount + ", Final=" + amount);
+                    } else {
+                        tvDiscount.setVisibility(View.GONE);
+                    }
+                }
                 break;
         }
 
         // ===== STATUS =====
-        if (status.equals("success")) {
+        if ("success".equals(status)) {
             tvStatus.setText("Trạng thái: Thành công");
             tvStatus.setTextColor(Color.parseColor("#009688"));
+        } else if ("pending".equals(status)) {
+            tvStatus.setText("Trạng thái: Đang xử lý");
+            tvStatus.setTextColor(Color.parseColor("#FF9800"));
         } else {
             tvStatus.setText("Trạng thái: Thất bại");
             tvStatus.setTextColor(Color.RED);

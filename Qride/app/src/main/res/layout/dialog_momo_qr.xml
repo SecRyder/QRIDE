@@ -4,39 +4,109 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp"
-    android:gravity="center">
+    android:gravity="center"
+    android:background="@android:color/white">
 
+    <!-- Logo MoMo + tiêu đề -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="4dp">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/momo"
+            android:scaleType="centerInside"
+            android:contentDescription="MoMo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Thanh toán MoMo"
+            android:textColor="#A50064"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Số tiền -->
+    <TextView
+        android:id="@+id/tvQrAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="50.000đ"
+        android:textColor="#E53935"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Hướng dẫn -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Quét mã để thanh toán MoMo"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        android:text="Dùng app MoMo quét mã để thanh toán"
+        android:textColor="#666666"
+        android:textSize="13sp"
+        android:gravity="center"
         android:layout_marginBottom="16dp" />
 
-    <ImageView
-        android:id="@+id/ivMomoQr"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:scaleType="fitCenter"
-        android:background="#EEEEEE"
-        android:layout_marginBottom="24dp" />
+    <!-- Loading spinner (hiện khi đang tải QR) -->
+    <ProgressBar
+        android:id="@+id/pbQrLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp" />
 
+    <!-- Khung QR code với viền -->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#F5F5F5"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:id="@+id/ivMomoQr"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="QR Code MoMo" />
+    </FrameLayout>
+
+    <!-- Timer countdown -->
+    <TextView
+        android:id="@+id/tvQrExpiry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mã QR có hiệu lực trong 15:00"
+        android:textColor="#888888"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Nút mở app MoMo -->
     <Button
         android:id="@+id/btnOpenMomo"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:text="Mở ứng dụng MoMo"
         android:backgroundTint="#A50064"
-        android:textColor="@color/white" />
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:textSize="15sp" />
 
+    <!-- Nút đóng -->
     <Button
         android:id="@+id/btnCloseDialog"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Đóng"
+        android:layout_marginTop="6dp"
+        android:text="Huỷ"
+        android:textColor="#888888"
         style="@style/Widget.MaterialComponents.Button.TextButton" />
 
 </LinearLayout>

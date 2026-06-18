@@ -41,8 +41,10 @@ import com.example.qride.fragment.ThanhToanFragment;
 import com.example.qride.fragment.TramXeFragment;
 import com.example.qride.fragment.UuDaiFragment;
 import com.example.qride.helper.APIHelper;
+import com.example.qride.profile.SupportCenterActivity;
 import com.example.qride.sqlite.NotificationDAO;
 import com.example.qride.thanhtoan.TransactionDetailActivity;
+import com.example.qride.thuexe.ChiTietXeActivity;
 import com.example.qride.thuexe.EndRideActivity;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
     private NotificationDAO notifDAO;
 
     private CardView cardRiding;
+    private View btnSupportRiding;
     private TextView tvBikeCode, tvBikeStatus, tvBikePin;
 
     private TextView tvTime, tvDistance, tvPrice;
@@ -201,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
         btnCommunity = findViewById(R.id.btnCommunity);
 
         cardRiding = findViewById(R.id.cardRiding);
+        btnSupportRiding = findViewById(R.id.btnSupportRiding);
         tvBikeCode = findViewById(R.id.tvBikeCode);
         tvBikeStatus = findViewById(R.id.tvBikeStatus);
         tvBikePin = findViewById(R.id.tvBikePin);
@@ -219,19 +223,6 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
             showMapUI(false);
         });
 
-        findViewById(R.id.btnRentBike).setOnClickListener(v -> {
-            Object tag = v.getTag();
-            if (tag instanceof Integer) {
-                int stationId = (Integer) tag;
-                Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("TRAM_XE");
-                if (currentFragment instanceof TramXeFragment) {
-                    ((TramXeFragment) currentFragment).loadVehiclesByStation(stationId);
-                }
-            } else {
-                Toast.makeText(this, "Không tìm thấy trạm", Toast.LENGTH_SHORT).show();
-            }
-        });
-
         btnLocateMe.setOnClickListener(v -> {
             Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("TRAM_XE");
             if (currentFragment instanceof TramXeFragment) {
@@ -243,6 +234,10 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
             Intent intent = new Intent(MainActivity.this, CommunityActivity.class);
             startActivity(intent);
         });
+        if (btnSupportRiding != null) {
+            btnSupportRiding.setOnClickListener(v ->
+                    startActivity(new Intent(MainActivity.this, SupportCenterActivity.class)));
+        }
 
         findViewById(R.id.btnEndRide).setOnClickListener(v -> endRide());
 
@@ -346,7 +341,6 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
         tvStationName.setText(name);
         tvStationAddress.setText(address);
         cardStationInfo.setVisibility(View.VISIBLE);
-        findViewById(R.id.btnRentBike).setTag(stationId);
     }
 
     public void hideStationCard() {
@@ -747,16 +741,19 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
     @Override
     public void onVehiclesLoaded(JSONArray vehicles) {
         try {
-            String[] list = new String[vehicles.length()];
-            for (int i = 0; i < vehicles.length(); i++) {
-                JSONObject o = vehicles.getJSONObject(i);
-                list[i] = o.getString("plate") + " - "
-                        + o.getInt("pin") + "% - "
-                        + o.getString("current_status");
+            if (vehicles == null || vehicles.length() == 0) {
+                Toast.makeText(this, "Trạm hiện tại không có xe sẵn sàng.", Toast.LENGTH_SHORT).show();
+                return;
             }
-            showVehicleDialog(vehicles, list);
+
+            JSONObject firstVehicle = vehicles.getJSONObject(0);
+            int vehicleId = firstVehicle.getInt("id");
+            Intent intent = new Intent(this, ChiTietXeActivity.class);
+            intent.putExtra("vehicleId", vehicleId);
+            startActivity(intent);
         } catch (Exception e) {
             e.printStackTrace();
+            Toast.makeText(this, "Lỗi dữ liệu xe", Toast.LENGTH_SHORT).show();
         }
     }
 

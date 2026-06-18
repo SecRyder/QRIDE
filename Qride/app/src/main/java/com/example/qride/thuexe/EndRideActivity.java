@@ -25,6 +25,8 @@ import com.android.volley.toolbox.Volley;
 import com.example.qride.MainActivity;
 import com.example.qride.R;
 import com.example.qride.helper.APIHelper;
+import com.example.qride.sqlite.NotificationDAO;
+import com.example.qride.sqlite.UserDAO;
 import com.example.qride.thanhtoan.TransactionDetailActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -42,8 +44,10 @@ public class EndRideActivity extends AppCompatActivity {
 
     private int vehicleId;
     private double lat, lng;
+    private int discountApplied = 0;  // Lưu discount để sử dụng lúc return
 
     private RequestQueue queue;
+    private NotificationDAO notificationDAO;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,6 +60,7 @@ public class EndRideActivity extends AppCompatActivity {
                         View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         );
         queue = Volley.newRequestQueue(this);
+        notificationDAO = new NotificationDAO(this);
 
         initViews();
         getIntentData();
@@ -160,34 +165,60 @@ public class EndRideActivity extends AppCompatActivity {
                 url,
                 null,
                 response -> {
-                    if (response != null && !response.isNull("discount_text")) {
-                        int discountValue = response.optInt("discount_value", 0);
-                        String discountType = response.optString("discount_type", "PERCENT");
-                        String title = response.optString("title_display", "Ưu đãi");
+                    try {
+                        if (response != null && response.length() > 0 && !response.isNull("discount_text")) {
+                            int discountValue = response.optInt("discount_value", 0);
+                            String discountType = response.optString("discount_type", "PERCENT");
+                            String title = response.optString("title_display", "Ưu đãi");
 
-                        int calculatedDiscount = 0;
-                        if ("PERCENT".equals(discountType)) {
-                            calculatedDiscount = (total * discountValue) / 100;
-                        } else if ("CASH".equals(discountType)) {
-                            calculatedDiscount = discountValue;
+                            int calculatedDiscount = 0;
+                            if ("PERCENT".equals(discountType)) {
+                                calculatedDiscount = (total * discountValue) / 100;
+                            } else if ("CASH".equals(discountType)) {
+                                calculatedDiscount = discountValue;
+                            }
+                            // Không được vượt quá tổng tiền
+                            calculatedDiscount = Math.min(calculatedDiscount, total);
+                            discountApplied = calculatedDiscount;  // Lưu để sử dụng lúc return
+
+                            TextView tvDiscount = findViewById(R.id.tvDiscount);
+                            if (tvDiscount != null) {
+                                tvDiscount.setText("-" + calculatedDiscount + "đ (" + title + ")");
+                            }
+
+                            int finalTotal = Math.max(total - calculatedDiscount, 0);
+                            tvTotal.setText(finalTotal + "đ");
+                            
+                            Log.d("VOUCHER", "Applied: " + calculatedDiscount + "đ (" + discountType + ": " + discountValue + ")");
+                        } else {
+                            // Không có ưu đãi
+                            TextView tvDiscount = findViewById(R.id.tvDiscount);
+                            if (tvDiscount != null) {
+                                tvDiscount.setText("0đ");
+                            }
+                            discountApplied = 0;
                         }
-                        calculatedDiscount = Math.min(calculatedDiscount, total);
-
-                        TextView tvDiscount = findViewById(R.id.tvDiscount);
-                        if (tvDiscount != null) {
-                            tvDiscount.setText("-" + calculatedDiscount + "đ (" + title + ")");
-                        }
-
-                        int finalTotal = Math.max(total - calculatedDiscount, 0);
-                        tvTotal.setText(finalTotal + "đ");
+                    } catch (Exception e) {
+                        Log.e("VOUCHER", "Parse error: " + e.getMessage(), e);
                     }
                 },
-                error -> Log.e("VOUCHER", "Error loading active voucher", error)
+                error -> {
+                    Log.e("VOUCHER", "Error loading active voucher", error);
+                    // Nếu lỗi, vẫn hiển thị không có discount
+                    TextView tvDiscount = findViewById(R.id.tvDiscount);
+                    if (tvDiscount != null) {
+                        tvDiscount.setText("0đ");
+                    }
+                    discountApplied = 0;
+                }
         ) {
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("Authorization", "Bearer " + APIHelper.getToken(EndRideActivity.this));
+                String token = APIHelper.getToken(EndRideActivity.this);
+                if (token != null) {
+                    headers.put("Authorization", "Bearer " + token);
+                }
                 return headers;
             }
         };
@@ -236,10 +267,10 @@ public class EndRideActivity extends AppCompatActivity {
             JSONObject json = new JSONObject();
             try {
                 json.put("vehicleId", vehicleId);
-
-                //dùng GPS realtime
                 json.put("lat", location.getLatitude());
                 json.put("lng", location.getLongitude());
+                // Gửi discount được áp dụng để server verify
+                json.put("discount_preview", discountApplied);
 
             } catch (Exception e) {
                 Log.e("RETURN", "JSON error", e);
@@ -288,12 +319,36 @@ public class EndRideActivity extends AppCompatActivity {
                                 int discount = response.optInt("discount_applied", 0);
                                 int minutes = response.optInt("minutes", 0);
                                 int rentalId = response.optInt("rental_id", -1);
+                                String discountTitle = response.optString("discount_title", "");
+
+                                int userId = new UserDAO(this).getUserId();
+                                if (userId > 0) {
+                                    String msg = "Chuyến đi đã hoàn tất. ";
+                                    if (discount > 0) {
+                                        msg += "Ưu đãi: -" + discount + "đ. ";
+                                    }
+                                    msg += "Chi phí: " + finalPrice + "đ.";
+                                    notificationDAO.addNotification(
+                                            userId,
+                                            "Trả xe thành công",
+                                            msg,
+                                            "RIDE"
+                                    );
+                                }
 
                                 tvTotal.setText(finalPrice + "đ");
                                 TextView tvDiscount = findViewById(R.id.tvDiscount);
                                 if (tvDiscount != null && discount > 0) {
-                                    tvDiscount.setText("-" + discount + "đ");
+                                    String discountDisplay = "-" + discount + "đ";
+                                    if (!discountTitle.isEmpty()) {
+                                        discountDisplay += " (" + discountTitle + ")";
+                                    }
+                                    tvDiscount.setText(discountDisplay);
+                                } else if (tvDiscount != null) {
+                                    tvDiscount.setText("0đ");
                                 }
+                                
+                                Log.d("END_RIDE", "Success: Price=" + finalPrice + "đ, Discount=" + discount + "đ, Time=" + minutes + "m");
 
                                 Toast.makeText(this,
                                         "Trả xe thành công (" + minutes + " phút)",
