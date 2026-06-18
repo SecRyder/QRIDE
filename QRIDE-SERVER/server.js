@@ -1334,7 +1334,7 @@ apiRouter.get("/transaction/:id", authMiddleware, async (req, res) => {
 
     try {
         const [rows] = await db.query(
-            `SELECT wt.*, p.external_ref, p.method, p.status as payment_status
+            `SELECT wt.*, p.external_ref, p.method, COALESCE(p.status, 'success') as payment_status
              FROM wallet_transactions wt
              LEFT JOIN payments p ON wt.payment_id = p.id
              WHERE wt.id=? 

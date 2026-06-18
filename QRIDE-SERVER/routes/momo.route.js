@@ -112,9 +112,9 @@ module.exports = (db) => {
                 );
 
                 await conn.query(
-                    `INSERT INTO wallet_transactions(wallet_id, amount, type, balance_before, balance_after, description, created_at)
-                     VALUES (?, ?, 'topup', ?, ?, ?, NOW())`,
-                    [wallet.id, payment.amount, wallet.balance, newBalance, "Nạp tiền qua MoMo"]
+                    `INSERT INTO wallet_transactions(wallet_id, payment_id, amount, type, balance_before, balance_after, description, created_at)
+                     VALUES (?, ?, ?, 'topup', ?, ?, ?, NOW())`,
+                    [wallet.id, payment.id, payment.amount, wallet.balance, newBalance, "Nạp tiền qua MoMo"]
                 );
 
                 console.log(`[MOMO_IPN] Wallet topup success for user=${payment.user_id}, +${payment.amount}`);

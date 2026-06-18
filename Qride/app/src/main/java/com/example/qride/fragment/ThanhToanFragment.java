@@ -70,7 +70,7 @@ public class ThanhToanFragment extends Fragment {
                 tvBalance.setText("••••••");
                 btnToggleBalance.setImageResource(R.drawable.hide);
             } else {
-                tvBalance.setText(currentBalance + " VND");
+                tvBalance.setText(formatBalance(currentBalance));
                 btnToggleBalance.setImageResource(R.drawable.show);
             }
         });
@@ -107,7 +107,7 @@ public class ThanhToanFragment extends Fragment {
                     if ("SUCCESS".equals(response.optString("message"))) {
                         int balance = response.optInt("balance");
                         showSafeToast("Nạp +" + amount + " VND");
-                        tvBalance.setText(balance + " VND");
+                        tvBalance.setText(formatBalance(balance));
                         loadWallet();
                     } else {
                         showSafeToast(response.optString("message"));
@@ -161,7 +161,7 @@ public class ThanhToanFragment extends Fragment {
                     if (isHidden) {
                         tvBalance.setText("******");
                     } else {
-                        tvBalance.setText(balance + " VND");
+                        tvBalance.setText(formatBalance(balance));
                     }
                 },
                 error -> {
@@ -185,6 +185,11 @@ public class ThanhToanFragment extends Fragment {
             }
         };
         queue.add(request);
+    }
+
+    private String formatBalance(long balance) {
+        java.text.NumberFormat formatter = java.text.NumberFormat.getNumberInstance(new java.util.Locale("vi", "VN"));
+        return formatter.format(balance) + " VND";
     }
 
     @Override
