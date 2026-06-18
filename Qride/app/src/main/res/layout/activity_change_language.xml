@@ -10,7 +10,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="80dp"
 
         android:background="#00B087"
         android:gravity="center_vertical"
@@ -61,6 +61,7 @@
                 android:paddingHorizontal="20dp"
                 android:text="Tiếng Việt"
                 android:textSize="18sp"
+                app:buttonTint="#00B087"
                  />
 
             <RadioButton
@@ -74,6 +75,7 @@
                 android:paddingHorizontal="20dp"
                 android:text="English"
                 android:textSize="18sp"
+                app:buttonTint="#00B087"
                  />
 
         </RadioGroup>
