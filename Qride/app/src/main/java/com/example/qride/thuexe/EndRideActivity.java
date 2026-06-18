@@ -166,30 +166,47 @@ public class EndRideActivity extends AppCompatActivity {
                 null,
                 response -> {
                     try {
-                        if (response != null && response.length() > 0 && !response.isNull("discount_text")) {
-                            int discountValue = response.optInt("discount_value", 0);
-                            String discountType = response.optString("discount_type", "PERCENT");
-                            String title = response.optString("title_display", "Ưu đãi");
+                        Log.d("VOUCHER_API", "Full Response: " + response.toString());
+                        
+                        // Kiểm tra xem có voucher hay không
+                        boolean hasVoucher = false;
+                        int discountValue = 0;
+                        String discountType = "PERCENT";
+                        String title = "Ưu đãi";
+                        
+                        // Kiểm tra nhiều field có thể
+                        if (!response.isNull("discount_value")) {
+                            discountValue = response.optInt("discount_value", 0);
+                            hasVoucher = true;
+                        }
+                        
+                        if (hasVoucher && discountValue > 0) {
+                            discountType = response.optString("discount_type", "PERCENT");
+                            title = response.optString("title_display", response.optString("title", "Ưu đãi"));
 
                             int calculatedDiscount = 0;
                             if ("PERCENT".equals(discountType)) {
                                 calculatedDiscount = (total * discountValue) / 100;
+                                Log.d("VOUCHER", "PERCENT: " + total + " × " + discountValue + "% = " + calculatedDiscount + "đ");
                             } else if ("CASH".equals(discountType)) {
                                 calculatedDiscount = discountValue;
+                                Log.d("VOUCHER", "CASH: -" + discountValue + "đ");
                             }
+                            
                             // Không được vượt quá tổng tiền
                             calculatedDiscount = Math.min(calculatedDiscount, total);
-                            discountApplied = calculatedDiscount;  // Lưu để sử dụng lúc return
+                            discountApplied = calculatedDiscount;
 
                             TextView tvDiscount = findViewById(R.id.tvDiscount);
                             if (tvDiscount != null) {
                                 tvDiscount.setText("-" + calculatedDiscount + "đ (" + title + ")");
+                                Log.d("VOUCHER", "Updated UI: -" + calculatedDiscount + "đ (" + title + ")");
                             }
 
                             int finalTotal = Math.max(total - calculatedDiscount, 0);
                             tvTotal.setText(finalTotal + "đ");
                             
-                            Log.d("VOUCHER", "Applied: " + calculatedDiscount + "đ (" + discountType + ": " + discountValue + ")");
+                            Log.d("VOUCHER", "✓ Applied: " + calculatedDiscount + "đ, Final Total: " + finalTotal + "đ");
                         } else {
                             // Không có ưu đãi
                             TextView tvDiscount = findViewById(R.id.tvDiscount);
@@ -197,13 +214,23 @@ public class EndRideActivity extends AppCompatActivity {
                                 tvDiscount.setText("0đ");
                             }
                             discountApplied = 0;
+                            Log.d("VOUCHER", "✗ No voucher found");
                         }
                     } catch (Exception e) {
                         Log.e("VOUCHER", "Parse error: " + e.getMessage(), e);
+                        TextView tvDiscount = findViewById(R.id.tvDiscount);
+                        if (tvDiscount != null) {
+                            tvDiscount.setText("0đ");
+                        }
+                        discountApplied = 0;
                     }
                 },
                 error -> {
-                    Log.e("VOUCHER", "Error loading active voucher", error);
+                    Log.e("VOUCHER", "Error loading active voucher: " + error.getMessage(), error);
+                    if (error.networkResponse != null) {
+                        String body = new String(error.networkResponse.data);
+                        Log.e("VOUCHER_ERR_BODY", body);
+                    }
                     // Nếu lỗi, vẫn hiển thị không có discount
                     TextView tvDiscount = findViewById(R.id.tvDiscount);
                     if (tvDiscount != null) {
@@ -219,6 +246,7 @@ public class EndRideActivity extends AppCompatActivity {
                 if (token != null) {
                     headers.put("Authorization", "Bearer " + token);
                 }
+                Log.d("VOUCHER_REQ", "Request URL: " + APIHelper.ACTIVE_VOUCHER);
                 return headers;
             }
         };
