@@ -71,6 +71,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
         tvRental = findViewById(R.id.tvRental);
         tvTime = findViewById(R.id.tvTime);
         tvFee = findViewById(R.id.tvFee);
+        btnAction = findViewById(R.id.btnAction);
         
         // Price detail
         layoutPrice = findViewById(R.id.layoutPrice);
@@ -214,11 +215,14 @@ public class TransactionDetailActivity extends AppCompatActivity {
     }
 
     private String formatDate(String iso) {
-        SimpleDateFormat output = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
-
-
-        Date currentTime = new Date();
-
-        return output.format(currentTime);
+        try {
+            SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            SimpleDateFormat output = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
+            Date date = input.parse(iso);
+            return output.format(date);
+        } catch (Exception e) {
+            Log.e(TAG, "Error parsing date: " + iso, e);
+            return iso;
+        }
     }
 }
