@@ -90,6 +90,11 @@ public class TransactionDetailActivity extends AppCompatActivity {
                 null,
                 response -> {
                     try {
+                        // LOG FULL RESPONSE
+                        Log.d(TAG, "========== FULL API RESPONSE ==========");
+                        Log.d(TAG, response.toString());
+                        Log.d(TAG, "======================================");
+                        
                         String type = response.getString("type");
                         long amount = response.getLong("amount");
                         String desc = response.optString("description", "");
@@ -98,22 +103,34 @@ public class TransactionDetailActivity extends AppCompatActivity {
                         if (code.isEmpty() || code.equals("null")) {
                             code = "#" + response.optString("id", "-");
                         }
+                        
                         // Thử nhiều field có thể cho thời gian
                         String time = response.optString("created_at", "");
+                        Log.d(TAG, "1. created_at = '" + time + "'");
+                        
                         if (time.isEmpty()) {
                             time = response.optString("transaction_date", "");
+                            Log.d(TAG, "2. transaction_date = '" + time + "'");
                         }
                         if (time.isEmpty()) {
                             time = response.optString("date", "");
+                            Log.d(TAG, "3. date = '" + time + "'");
                         }
-                        String rentalId = response.optString("rental_id", "");
+                        if (time.isEmpty()) {
+                            time = response.optString("created_at_str", "");
+                            Log.d(TAG, "4. created_at_str = '" + time + "'");
+                        }
                         
-                        Log.d(TAG, "API Response time field: " + time);
+                        Log.d(TAG, "Final time value = '" + time + "'");
+                        
+                        String rentalId = response.optString("rental_id", "");
                         
                         // Lấy thêm discount info (nếu có)
                         long originalAmount = response.optLong("original_amount", amount);
                         long discountAmount = response.optLong("discount_amount", 0);
                         String discountTitle = response.optString("discount_title", "");
+                        
+                        Log.d(TAG, "Amount: " + amount + ", Original: " + originalAmount + ", Discount: " + discountAmount);
 
                         bindData(type, amount, desc, status, code, time, rentalId, 
                                  originalAmount, discountAmount, discountTitle);
@@ -125,6 +142,10 @@ public class TransactionDetailActivity extends AppCompatActivity {
                 },
                 error -> {
                     Log.e(TAG, "API error", error);
+                    if (error.networkResponse != null) {
+                        String body = new String(error.networkResponse.data);
+                        Log.e(TAG, "Error body: " + body);
+                    }
                     Toast.makeText(this, "Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show();
                 }
         ) {
@@ -144,12 +165,17 @@ public class TransactionDetailActivity extends AppCompatActivity {
                           String time, String rentalId,
                           long originalAmount, long discountAmount, String discountTitle) {
 
+        Log.d(TAG, "===== BIND DATA START =====");
+        Log.d(TAG, "Type=" + type + ", Amount=" + amount + ", Original=" + originalAmount + ", Discount=" + discountAmount);
+        
         // ===== TITLE + ICON =====
         switch (type) {
             case "topup":
                 tvTitle.setText("Nạp tiền");
                 imgType.setImageResource(R.drawable.naptien);
-                tvAmount.setText("+ " + formatMoney(Math.abs(amount)));
+                String topupAmount = "+ " + formatMoney(Math.abs(amount));
+                tvAmount.setText(topupAmount);
+                Log.d(TAG, "Display: " + topupAmount);
                 btnAction.setText("Nạp thêm");
                 btnAction.setOnClickListener(v -> {
                     Intent intent = new Intent(this, NapTienActivity.class);
@@ -160,7 +186,9 @@ public class TransactionDetailActivity extends AppCompatActivity {
             case "withdraw":
                 tvTitle.setText("Rút tiền");
                 imgType.setImageResource(R.drawable.rutien);
-                tvAmount.setText("- " + formatMoney(Math.abs(amount)));
+                String withdrawAmount = "- " + formatMoney(Math.abs(amount));
+                tvAmount.setText(withdrawAmount);
+                Log.d(TAG, "Display: " + withdrawAmount);
                 btnAction.setText("Rút tiếp");
                 btnAction.setOnClickListener(v -> {
                     Intent intent = new Intent(this, RutTienActivity.class);
@@ -171,7 +199,9 @@ public class TransactionDetailActivity extends AppCompatActivity {
             case "payment":
                 tvTitle.setText("Thuê xe");
                 imgType.setImageResource(R.drawable.ic_bike_small);
-                tvAmount.setText("- " + formatMoney(Math.abs(amount)));
+                String paymentAmount = "- " + formatMoney(Math.abs(amount));
+                tvAmount.setText(paymentAmount);
+                Log.d(TAG, "Display: " + paymentAmount);
                 btnAction.setText("Thuê xe mới");
                 tvRental.setVisibility(View.VISIBLE);
                 tvRental.setText("Mã chuyến: #" + rentalId);
@@ -183,7 +213,9 @@ public class TransactionDetailActivity extends AppCompatActivity {
                 // Hiển thị giá gốc và discount nếu có
                 if (Math.abs(originalAmount) > 0) {
                     layoutPrice.setVisibility(View.VISIBLE);
-                    tvOriginalPrice.setText("Giá gốc: " + formatMoney(Math.abs(originalAmount)));
+                    String origDisplay = "Giá gốc: " + formatMoney(Math.abs(originalAmount));
+                    tvOriginalPrice.setText(origDisplay);
+                    Log.d(TAG, "Original Price: " + origDisplay);
                     
                     if (Math.abs(discountAmount) > 0) {
                         String discountText = "Giảm giá: -" + formatMoney(Math.abs(discountAmount));
@@ -192,11 +224,14 @@ public class TransactionDetailActivity extends AppCompatActivity {
                         }
                         tvDiscount.setText(discountText);
                         tvDiscount.setVisibility(View.VISIBLE);
-                        
-                        Log.d(TAG, "Payment: Original=" + originalAmount + ", Discount=" + discountAmount + ", Final=" + amount);
+                        Log.d(TAG, "Discount: " + discountText);
                     } else {
                         tvDiscount.setVisibility(View.GONE);
+                        Log.d(TAG, "No discount");
                     }
+                } else {
+                    layoutPrice.setVisibility(View.GONE);
+                    Log.d(TAG, "Original amount <= 0, hiding layout");
                 }
                 break;
         }
@@ -217,7 +252,9 @@ public class TransactionDetailActivity extends AppCompatActivity {
         tvCode.setText("Mã giao dịch: " + code);
         String formattedTime = (time != null && !time.isEmpty()) ? formatDate(time) : "Không xác định";
         tvTime.setText("Thời gian: " + formattedTime);
+        Log.d(TAG, "Time display: " + formattedTime);
         tvFee.setText("Phí dịch vụ: 0đ");
+        Log.d(TAG, "===== BIND DATA END =====");
     }
 
     private String formatMoney(long money) {
