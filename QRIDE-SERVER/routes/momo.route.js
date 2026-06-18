@@ -112,8 +112,8 @@ module.exports = (db) => {
                 );
 
                 await conn.query(
-                    `INSERT INTO wallet_transactions(wallet_id, amount, type, balance_before, balance_after, description)
-                     VALUES (?, ?, 'topup', ?, ?, ?)`,
+                    `INSERT INTO wallet_transactions(wallet_id, amount, type, balance_before, balance_after, description, created_at)
+                     VALUES (?, ?, 'topup', ?, ?, ?, NOW())`,
                     [wallet.id, payment.amount, wallet.balance, newBalance, "Nạp tiền qua MoMo"]
                 );
 

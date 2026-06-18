@@ -53,7 +53,9 @@ const pool = mysql.createPool({
     port: process.env.DB_PORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    timezone: '+07:00',
+    dateStrings: true
 });
 
 // Kiểm tra kết nối khi khởi động
@@ -472,8 +474,8 @@ apiRouter.post("/momo/ipn", async (req, res) => {
                     const newBalance = wallet.balance + payment.amount;
                     await conn.query("UPDATE wallet SET balance=? WHERE id=?", [newBalance, wallet.id]);
                     await conn.query(
-                        `INSERT INTO wallet_transactions (wallet_id, payment_id, amount, type, balance_before, balance_after, description)
-                         VALUES (?, ?, ?, 'topup', ?, ?, ?)`,
+                        `INSERT INTO wallet_transactions (wallet_id, payment_id, amount, type, balance_before, balance_after, description, created_at)
+                         VALUES (?, ?, ?, 'topup', ?, ?, ?, NOW())`,
                         [wallet.id, payment.id, payment.amount, wallet.balance, newBalance, 'Nạp tiền qua MoMo']
                     );
                 }
@@ -914,8 +916,8 @@ apiRouter.post("/return", authMiddleware, async (req, res) => {
         // ===== WALLET TRANSACTION =====
         const [txResult] = await conn.query(
             `INSERT INTO wallet_transactions
-            (wallet_id, payment_id, rental_id, amount, type, balance_before, balance_after, description)
-            VALUES (?, ?, ?, ?, 'payment', ?, ?, ?)`,
+            (wallet_id, payment_id, rental_id, amount, type, balance_before, balance_after, description, created_at)
+            VALUES (?, ?, ?, ?, 'payment', ?, ?, ?, NOW())`,
             [
                 wallet.id,
                 paymentId,
@@ -1224,8 +1226,8 @@ apiRouter.post("/wallet/withdraw", authMiddleware, async (req, res) => {
         // ===== LOG TRANSACTION =====
         await conn.query(
             `INSERT INTO wallet_transactions
-            (wallet_id, amount, type, balance_before, balance_after, description)
-            VALUES (?, ?, 'withdraw', ?, ?, ?)`,
+            (wallet_id, amount, type, balance_before, balance_after, description, created_at)
+            VALUES (?, ?, 'withdraw', ?, ?, ?, NOW())`,
             [
                 wallet.id,
                 amount,
@@ -1640,8 +1642,8 @@ apiRouter.post("/vouchers/buy-with-wallet", authMiddleware, async (req, res) => 
 
         await conn.query(
             `INSERT INTO wallet_transactions
-             (wallet_id, payment_id, amount, type, balance_before, balance_after, description)
-             VALUES (?, ?, ?, 'payment', ?, ?, ?)`,
+             (wallet_id, payment_id, amount, type, balance_before, balance_after, description, created_at)
+             VALUES (?, ?, ?, 'payment', ?, ?, ?, NOW())`,
             [
                 wallet.id,
                 paymentResult.insertId,
