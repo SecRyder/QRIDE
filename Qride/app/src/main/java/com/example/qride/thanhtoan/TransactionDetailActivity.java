@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +32,7 @@ import java.util.Map;
 public class TransactionDetailActivity extends AppCompatActivity {
 
     ImageView btnBack, imgType;
+     FrameLayout btnSupport;
     TextView tvTitle, tvAmount, tvDesc, tvStatus, tvCode, tvRental, tvTime, tvFee;
     TextView tvOriginalPrice, tvDiscount;
     android.widget.LinearLayout layoutPrice;
@@ -50,14 +52,17 @@ public class TransactionDetailActivity extends AppCompatActivity {
         initView();
         int id = getIntent().getIntExtra("transaction_id", -1);
         loadTransaction(id);
-
+        btnSupport.setOnClickListener(v -> {
+            Intent intent = new Intent(TransactionDetailActivity.this, com.example.qride.profile.SupportCenterActivity.class);
+            startActivity(intent);
+        });
         btnBack.setOnClickListener(v -> finish());
     }
 
     private void initView() {
         btnBack = findViewById(R.id.btnBack);
         imgType = findViewById(R.id.imgType);
-
+        btnSupport = findViewById(R.id.btnSupport);
         tvTitle = findViewById(R.id.tvTitle);
         tvAmount = findViewById(R.id.tvAmount);
         tvDesc = findViewById(R.id.tvDesc);
@@ -89,6 +94,9 @@ public class TransactionDetailActivity extends AppCompatActivity {
                         String desc = response.optString("description", "");
                         String status = response.optString("payment_status", "success");
                         String code = response.optString("external_ref", "-");
+                        if (code.isEmpty() || code.equals("null")) {
+                            code = "#" + response.optString("id", "-");
+                        }
                         String time = response.getString("created_at");
                         String rentalId = response.optString("rental_id", "");
                         
@@ -206,13 +214,11 @@ public class TransactionDetailActivity extends AppCompatActivity {
     }
 
     private String formatDate(String iso) {
-        try {
-            SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-            SimpleDateFormat output = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
-            Date date = input.parse(iso);
-            return output.format(date);
-        } catch (Exception e) {
-            return iso;
-        }
+        SimpleDateFormat output = new SimpleDateFormat("HH:mm - dd/MM/yyyy");
+
+
+        Date currentTime = new Date();
+
+        return output.format(currentTime);
     }
 }

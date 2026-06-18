@@ -2,6 +2,7 @@ package com.example.qride.profile;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.RadioGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,7 +17,12 @@ public class DarkModeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dark_mode);
-
+// Fullscreen
+        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
         rgDarkMode = findViewById(R.id.rgDarkMode);
         SharedPreferences pref = getSharedPreferences("Settings", MODE_PRIVATE);
 

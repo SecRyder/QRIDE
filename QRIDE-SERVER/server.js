@@ -1780,8 +1780,75 @@ apiRouter.post("/notifications/add", authMiddleware, async (req, res) => {
     }
 });
 
+// ================= ADMIN AUTH =================
+apiRouter.post("/admin/login", async (req, res) => {
+    try {
+        const { phone, password } = req.body;
+
+        if (!phone || !password)
+            return res.status(400).json({ message: "Thiếu dữ liệu" });
+
+        const [rows] = await db.query(
+            "SELECT * FROM users WHERE phone=?",
+            [phone]
+        );
+
+        if (rows.length === 0)
+            return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
+
+        const user = rows[0];
+
+        // Kiểm tra role admin
+        if (user.role !== "admin")
+            return res.status(403).json({ message: "Bạn không có quyền truy cập" });
+
+        const isMatch = await bcrypt.compare(password, user.password_hash);
+        if (!isMatch)
+            return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
+
+        const token = jwt.sign(
+            { userId: user.id, phone: user.phone, role: "admin" },
+            SECRET_KEY,
+            { expiresIn: "1d" }
+        );
+
+        res.json({
+            message: "Login success",
+            token: token,
+            user: { id: user.id, phone: user.phone, name: user.name }
+        });
+
+    } catch (err) {
+        console.error("ADMIN_LOGIN_ERROR:", err);
+        res.status(500).json({ message: "SERVER_ERROR" });
+    }
+});
+
+function adminAuthMiddleware(req, res, next) {
+    const authHeader = req.headers["authorization"];
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "UNAUTHORIZED" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+
+        if (decoded.role !== "admin") {
+            return res.status(403).json({ message: "FORBIDDEN" });
+        }
+
+        req.user = decoded;
+        next();
+    } catch (err) {
+        return res.status(401).json({ message: "INVALID_TOKEN" });
+    }
+}
+
 // ================= ADMIN API =================
-apiRouter.get("/admin/stats/rentals", async (req, res) => {
+apiRouter.get("/admin/stats/rentals", adminAuthMiddleware, async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT DATE(start_time) as date, COUNT(*) as count, SUM(total_price) as revenue
@@ -1797,7 +1864,7 @@ apiRouter.get("/admin/stats/rentals", async (req, res) => {
     }
 });
 
-apiRouter.get("/admin/stats/rental-status", async (req, res) => {
+apiRouter.get("/admin/stats/rental-status", adminAuthMiddleware, async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT status, COUNT(*) as count FROM rental GROUP BY status`
@@ -1809,7 +1876,7 @@ apiRouter.get("/admin/stats/rental-status", async (req, res) => {
     }
 });
 
-apiRouter.get("/admin/stats/users", async (req, res) => {
+apiRouter.get("/admin/stats/users", adminAuthMiddleware, async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT DATE(created_at) as date, COUNT(*) as count
@@ -1825,7 +1892,7 @@ apiRouter.get("/admin/stats/users", async (req, res) => {
     }
 });
 
-apiRouter.get("/admin/users", async (req, res) => {
+apiRouter.get("/admin/users", adminAuthMiddleware, async (req, res) => {
     try {
         const [rows] = await db.query("SELECT id, phone, name, cccd, address, gender, birthday, created_at FROM users ORDER BY id DESC");
         res.json(rows);
@@ -1834,7 +1901,7 @@ apiRouter.get("/admin/users", async (req, res) => {
     }
 });
 
-apiRouter.get("/admin/users/:id/rentals", async (req, res) => {
+apiRouter.get("/admin/users/:id/rentals", adminAuthMiddleware, async (req, res) => {
     const userId = req.params.id;
     try {
         const [rows] = await db.query(
@@ -1853,7 +1920,7 @@ apiRouter.get("/admin/users/:id/rentals", async (req, res) => {
     }
 });
 
-apiRouter.delete("/admin/users/:id", async (req, res) => {
+apiRouter.delete("/admin/users/:id", adminAuthMiddleware, async (req, res) => {
     const userId = req.params.id;
     const conn = await db.getConnection();
     try {
@@ -1883,7 +1950,115 @@ apiRouter.delete("/admin/users/:id", async (req, res) => {
     }
 });
 
-apiRouter.get("/admin/vouchers", async (req, res) => {
+// API Admin chỉnh sửa thông tin một User bất kỳ qua ID
+apiRouter.put("/admin/users/:id", async (req, res) => {
+    const userId = req.params.id;
+    const { name, phone, cccd, address, gender, birthday } = req.body;
+
+    try {
+        const [result] = await db.query(
+            `UPDATE users 
+             SET name=?, phone=?, cccd=?, address=?, gender=?, birthday=? 
+             WHERE id=?`,
+            [name, phone, cccd, address, gender, birthday, userId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Không tìm thấy người dùng" });
+        }
+
+        res.json({ message: "SUCCESS" });
+    } catch (err) {
+        console.error("ADMIN_UPDATE_USER_ERROR:", err);
+        res.status(500).json({ message: "SERVER_ERROR", detail: err.message });
+    }
+});
+
+// API Admin chỉnh sửa thông tin Xe qua ID
+// API Admin chỉnh sửa thông tin Xe qua ID
+apiRouter.put("/admin/vehicles/:id", async (req, res) => {
+    const vehicleId = req.params.id;
+    
+    const plate = req.body.plate || "";
+    const pin = req.body.pin !== undefined ? req.body.pin : 100;
+    
+    // Kiểm tra loại xe: Nếu Android gửi lên là "motor" thì lấy "motor", ngược lại tất cả đều là "bike"
+    const type = (req.body.type === "motor") ? "motor" : "bike";
+    
+    const current_status = req.body.current_status || "available";
+    
+    // Nếu station_id truyền lên bị thiếu hoặc trống, ép nó về giá trị JS null để MySQL hiểu là NULL
+    const station_id = (req.body.station_id === undefined || req.body.station_id === null || req.body.station_id === "") 
+        ? null 
+        : req.body.station_id;
+
+    try {
+        const [result] = await db.query(
+            `UPDATE vehicle 
+             SET plate=?, pin=?, type=?, current_status=?, station_id=? 
+             WHERE id=?`,
+            [plate, pin, type, current_status, station_id, vehicleId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Không tìm thấy xe" });
+        }
+
+        res.json({ message: "SUCCESS" });
+    } catch (err) {
+        console.error("ADMIN_UPDATE_VEHICLE_ERROR:", err);
+        res.status(500).json({ message: "SERVER_ERROR", detail: err.message });
+    }
+});
+
+// API Admin thêm xe mới
+apiRouter.post("/admin/vehicles", async (req, res) => {
+    const plate = req.body.plate || "";
+    const pin = req.body.pin !== undefined ? req.body.pin : 100;
+    
+    // Kiểm tra loại xe: Nếu Android gửi lên là "motor" thì lấy "motor", ngược lại tất cả đều là "bike"
+    const type = (req.body.type === "motor") ? "motor" : "bike";
+    
+    const current_status = req.body.current_status || "available";
+    const station_id = (req.body.station_id === undefined || req.body.station_id === null || req.body.station_id === "") 
+        ? null 
+        : req.body.station_id;
+
+    try {
+        const [result] = await db.query(
+            `INSERT INTO vehicle (plate, pin, type, current_status, station_id) VALUES (?, ?, ?, ?, ?)`,
+            [plate, pin, type, current_status, station_id]
+        );
+        res.json({ message: "SUCCESS", insertId: result.insertId });
+    } catch (err) {
+        console.error("ADMIN_ADD_VEHICLE_ERROR:", err);
+        res.status(500).json({ message: "SERVER_ERROR" });
+    }
+});
+
+// API Admin xóa xe (Sử dụng Xóa mềm để không bị lỗi khóa ngoại lịch sử thuê)
+apiRouter.delete("/admin/vehicles/:id", async (req, res) => {
+    const vehicleId = req.params.id;
+
+    try {
+        // Cập nhật trạng thái xe thành 'deleted' thay vì xóa hẳn dòng trong DB
+        const [result] = await db.query(
+            "UPDATE vehicle SET current_status = 'deleted' WHERE id = ?",
+            [vehicleId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Không tìm thấy xe cần xóa" });
+        }
+
+        res.json({ message: "SUCCESS" });
+    } catch (err) {
+        console.error("ADMIN_DELETE_VEHICLE_ERROR:", err);
+        res.status(500).json({ message: "SERVER_ERROR", detail: err.message });
+    }
+});
+
+apiRouter.get("/admin/vouchers", adminAuthMiddleware, async (req, res) => {
     try {
         const [rows] = await db.query(`
             SELECT id, type, status, icon_name AS icon, title_display AS title, title_key,
@@ -1900,7 +2075,7 @@ apiRouter.get("/admin/vouchers", async (req, res) => {
     }
 });
 
-apiRouter.post("/admin/vouchers", async (req, res) => {
+apiRouter.post("/admin/vouchers", adminAuthMiddleware, async (req, res) => {
     console.log("DEBUG_ADMIN_POST_VOUCHER_BODY:", req.body);
     const {
         type, icon,
@@ -1935,7 +2110,7 @@ apiRouter.post("/admin/vouchers", async (req, res) => {
     }
 });
 
-apiRouter.put("/admin/vouchers/:id", async (req, res) => {
+apiRouter.put("/admin/vouchers/:id", adminAuthMiddleware, async (req, res) => {
     const { id } = req.params;
     console.log("DEBUG_ADMIN_PUT_VOUCHER_BODY:", req.body);
     const {
@@ -1973,7 +2148,7 @@ apiRouter.put("/admin/vouchers/:id", async (req, res) => {
     }
 });
 
-apiRouter.delete("/admin/vouchers/:id", async (req, res) => {
+apiRouter.delete("/admin/vouchers/:id", adminAuthMiddleware, async (req, res) => {
     const { id } = req.params;
     try {
         // Thay vì xóa cứng, ta có thể ẩn hoặc xóa thật. Ở đây tôi xóa thật để demo
@@ -1984,7 +2159,7 @@ apiRouter.delete("/admin/vouchers/:id", async (req, res) => {
     }
 });
 
-apiRouter.get("/admin/voucher-actions", async (req, res) => {
+apiRouter.get("/admin/voucher-actions", adminAuthMiddleware, async (req, res) => {
     try {
         const [rows] = await db.query("SELECT * FROM voucher_actions ORDER BY id ASC");
         res.json(rows);
@@ -1993,7 +2168,7 @@ apiRouter.get("/admin/voucher-actions", async (req, res) => {
     }
 });
 
-apiRouter.post("/admin/voucher-actions", async (req, res) => {
+apiRouter.post("/admin/voucher-actions", adminAuthMiddleware, async (req, res) => {
     const { action_key, label } = req.body;
     try {
         await db.query(
@@ -2006,7 +2181,7 @@ apiRouter.post("/admin/voucher-actions", async (req, res) => {
     }
 });
 
-apiRouter.delete("/admin/voucher-actions/:id", async (req, res) => {
+apiRouter.delete("/admin/voucher-actions/:id", adminAuthMiddleware, async (req, res) => {
     try {
         await db.query("DELETE FROM voucher_actions WHERE id = ?", [req.params.id]);
         res.json({ message: "SUCCESS" });
@@ -2016,7 +2191,7 @@ apiRouter.delete("/admin/voucher-actions/:id", async (req, res) => {
 });
 
 // ================= ADMIN: VEHICLES, STATIONS, PRICING =================
-apiRouter.get("/admin/rentals/active", async (req, res) => {
+apiRouter.get("/admin/rentals/active", adminAuthMiddleware, async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT r.id, r.user_id, u.name AS user_name, u.phone AS user_phone,
@@ -2035,7 +2210,7 @@ apiRouter.get("/admin/rentals/active", async (req, res) => {
     }
 });
 
-apiRouter.get("/admin/vehicles", async (req, res) => {
+apiRouter.get("/admin/vehicles", adminAuthMiddleware, async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT v.id, v.plate, v.pin, v.type, v.current_status,
@@ -2051,7 +2226,7 @@ apiRouter.get("/admin/vehicles", async (req, res) => {
     }
 });
 
-apiRouter.get("/admin/stations", async (req, res) => {
+apiRouter.get("/admin/stations", adminAuthMiddleware, async (req, res) => {
     try {
         const [rows] = await db.query("SELECT * FROM stations ORDER BY id DESC");
         res.json(rows);
@@ -2061,7 +2236,7 @@ apiRouter.get("/admin/stations", async (req, res) => {
     }
 });
 
-apiRouter.post("/admin/pricing", async (req, res) => {
+apiRouter.post("/admin/pricing", adminAuthMiddleware, async (req, res) => {
     const { unlock_fee, price_per_minute, price_per_km, min_wallet_to_rent, low_balance_warning } = req.body;
     try {
         await db.query(
@@ -2076,7 +2251,7 @@ apiRouter.post("/admin/pricing", async (req, res) => {
     }
 });
 
-apiRouter.get("/admin/pricing", async (req, res) => {
+apiRouter.get("/admin/pricing", adminAuthMiddleware, async (req, res) => {
     try {
         const [rows] = await db.query("SELECT * FROM pricing ORDER BY id DESC LIMIT 1");
         if (rows.length === 0) return res.json({});

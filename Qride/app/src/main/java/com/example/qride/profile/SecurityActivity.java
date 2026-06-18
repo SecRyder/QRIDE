@@ -1,6 +1,7 @@
 package com.example.qride.profile;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,7 +18,12 @@ public class SecurityActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_security);
-
+// Fullscreen
+        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
         //  Xử lý nút Back trên Header
         ImageView btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> finish());
@@ -26,16 +32,34 @@ public class SecurityActivity extends AppCompatActivity {
         View menuChangePass = findViewById(R.id.menuChangePass);
         View menuChangePhone = findViewById(R.id.menuChangePhone);
 
-        //  Cấu hình cho mục Face ID
+        // ================= CẤU HÌNH FACE ID =================
         View menuFaceID = findViewById(R.id.menuFaceID);
         TextView tvFaceID = menuFaceID.findViewById(R.id.tvSwitchTitle);
         tvFaceID.setText("Bật xác thực khuôn mặt");
+
         androidx.appcompat.widget.SwitchCompat switchFaceID = menuFaceID.findViewById(R.id.switchWidget);
+
+        // Bước 1: Khởi tạo SharedPreferences để quản lý cài đặt bảo mật
+        SharedPreferences securityPref = getSharedPreferences("security_settings", MODE_PRIVATE);
+
+        // Bước 2: Đọc trạng thái đã lưu trước đó (mặc định là false nếu chưa từng bật)
+        boolean isFaceIDEnabled = securityPref.getBoolean("face_id_status", false);
+
+        // Bước 3: Đặt trạng thái ban đầu cho nút gạt dựa trên dữ liệu đã đọc
+        switchFaceID.setChecked(isFaceIDEnabled);
+
+        // Bước 4: Lắng nghe sự kiện người dùng gạt nút để lưu lại trạng thái mới
         switchFaceID.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SharedPreferences.Editor editor = securityPref.edit();
+            editor.putBoolean("face_id_status", isChecked);
+            editor.apply(); // Xác nhận lưu vào bộ nhớ máy
+
             if (isChecked) {
-                // Code khi bật
+                Toast.makeText(this, "Đã bật xác thực khuôn mặt", Toast.LENGTH_SHORT).show();
+                // Code xử lý thêm khi bật Face ID đặt ở đây
             } else {
-                // Code khi tắt
+                Toast.makeText(this, "Đã tắt xác thực khuôn mặt", Toast.LENGTH_SHORT).show();
+                // Code xử lý thêm khi tắt Face ID đặt ở đây
             }
         });
 

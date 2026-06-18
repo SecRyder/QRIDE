@@ -17,7 +17,6 @@ import com.example.qride.MainActivity;
 import com.example.qride.R;
 import com.example.qride.helper.APIHelper;
 import com.example.qride.profile.SupportCenterActivity;
-import com.example.qride.sqlite.NotificationDAO;
 import com.example.qride.sqlite.UserDAO;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -32,7 +31,6 @@ public class ChiTietXeActivity extends AppCompatActivity {
     private ImageView btnBack;
     private FrameLayout btnSupport;
     private TextView tvPlate, tvPin, tvLocation, tvStatus;
-    private NotificationDAO notificationDAO;
 
     private int vehicleId = -1;
     private boolean isLoading = false;
@@ -49,7 +47,6 @@ public class ChiTietXeActivity extends AppCompatActivity {
                         View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         );
 
-        notificationDAO = new NotificationDAO(this);
         initViews();
         loadData();
         setupEvents();
@@ -81,10 +78,10 @@ public class ChiTietXeActivity extends AppCompatActivity {
 
     private void setupEvents() {
         btnBack.setOnClickListener(v -> finish());
-        if (btnSupport != null) {
-            btnSupport.setOnClickListener(v ->
-                    startActivity(new Intent(this, SupportCenterActivity.class)));
-        }
+        btnSupport.setOnClickListener(v -> {
+            Intent intent = new Intent(ChiTietXeActivity.this, SupportCenterActivity.class);
+            startActivity(intent);
+        });
         btnThueXe.setOnClickListener(v -> {
             if (vehicleId == -1) {
                 Toast.makeText(this, "Không xác định được xe", Toast.LENGTH_SHORT).show();
@@ -217,16 +214,6 @@ public class ChiTietXeActivity extends AppCompatActivity {
                 response -> {
                     isLoading = false;
                     if ("SUCCESS".equals(response.optString("message"))) {
-                        int userId = new UserDAO(this).getUserId();
-                        if (userId > 0) {
-                            String plate = tvPlate.getText().toString();
-                            notificationDAO.addNotification(
-                                    userId,
-                                    "Thuê xe thành công",
-                                    "Bạn đã thuê xe " + plate + " thành công.",
-                                    "RIDE"
-                            );
-                        }
                         SharedPreferences pref = getSharedPreferences("ride_state", MODE_PRIVATE);
                         pref.edit()
                                 .putBoolean("isRiding", true)

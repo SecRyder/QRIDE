@@ -29,7 +29,8 @@
             android:id="@+id/switchWidget"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:thumbTint="#FFFFFF"
-            app:trackTint="#00B087" />
+
+            app:thumbTint="@color/switch_thumb_selectxt"
+            app:trackTint="@color/switch_track_selectxt" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

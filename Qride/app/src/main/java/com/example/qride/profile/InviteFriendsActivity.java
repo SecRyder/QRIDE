@@ -46,7 +46,12 @@ public class InviteFriendsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_invite_friends);
-
+// Fullscreen
+        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
         // Ánh xạ View
         tvInviteCode   = findViewById(R.id.tvInviteCode);
         tvCodeLabel    = findViewById(R.id.tvCodeLabel);

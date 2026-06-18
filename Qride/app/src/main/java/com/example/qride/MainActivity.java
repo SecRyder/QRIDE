@@ -448,10 +448,14 @@ public class MainActivity extends AppCompatActivity implements TramXeFragment.On
     private void clearRideState() {
         getSharedPreferences("ride_state", MODE_PRIVATE).edit().clear().apply();
         stopTimer();
+
+
         cardRiding.setVisibility(View.GONE);
         totalDistance = 0;
         lastLocation = null;
     }
+
+
 
     // ============================ TIMER =========================
     private void startTimer() {
